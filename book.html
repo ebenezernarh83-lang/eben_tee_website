@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Book Eben Tee for drone visuals, construction updates, and project walkthroughs.">
-    <title>Book | Eben Tee</title>
+    <meta name="description" content="Buy the Eben Tee ebook for practical building project and construction site guidance.">
+    <title>Ebook | Eben Tee</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="styles.css?v=book-1">
+    <link rel="stylesheet" href="styles.css?v=ebook-1">
   </head>
-  <body data-page="public" data-view="book">
-    <a class="skip-link" href="#bookMain">Skip to booking form</a>
+  <body data-page="public" data-view="ebook">
+    <a class="skip-link" href="#bookMain">Skip to ebook details</a>
 
     <header class="site-header">
       <nav class="nav-shell" aria-label="Main navigation">
@@ -30,103 +30,73 @@
           <a href="index.html#projects">Projects</a>
           <a href="index.html#videos">Videos</a>
           <a href="index.html#contact">Contact</a>
-          <a class="button small nav-cta" href="book.html" aria-current="page">Book Shoot</a>
+          <a class="button small nav-cta" href="book.html" aria-current="page">Ebook</a>
           <a class="admin-link" href="admin.html">Admin</a>
         </div>
       </nav>
     </header>
 
-    <main id="bookMain" class="booking-page">
-      <section class="booking-hero" aria-labelledby="bookingHeading">
-        <div class="booking-copy">
-          <p class="hero-badge"><span></span> Booking request</p>
-          <h1 id="bookingHeading">Book drone visuals, site coverage, or a project walkthrough.</h1>
-          <p class="lead">Share the project location, preferred date, and what you want captured. Eben Tee will receive a clear request with all the details.</p>
-          <div class="hero-proof" aria-label="Booking options">
-            <span>Drone visuals</span>
-            <span>Site progress</span>
-            <span>Project stories</span>
+    <main id="bookMain" class="ebook-page">
+      <section class="ebook-hero" aria-labelledby="ebookHeading">
+        <div class="ebook-copy">
+          <p class="hero-badge"><span></span> Ebook for sale</p>
+          <h1 id="ebookHeading" data-ebook="title">Building Project Field Guide</h1>
+          <p class="lead" data-ebook="subtitle">A practical digital guide for project owners, clients, and builders who want clearer site planning, progress checks, and construction decisions.</p>
+          <div class="hero-proof" aria-label="Ebook highlights">
+            <span data-ebook="format">PDF Ebook</span>
+            <span data-ebook="pages">45+ pages</span>
+            <span>Digital guide</span>
+          </div>
+          <div class="ebook-actions">
+            <button class="button" type="button" id="buyBookButton">Buy the ebook</button>
+            <a class="button secondary" href="#preview">Read preview</a>
           </div>
         </div>
 
-        <form class="booking-form" id="bookingForm">
-          <div class="form-title-row">
-            <div>
-              <p class="eyebrow">Book now</p>
-              <h2>Project details</h2>
-            </div>
+        <aside class="ebook-showcase" aria-label="Ebook summary">
+          <div class="ebook-cover">
+            <span class="ebook-cover-label">Eben Tee</span>
+            <strong data-ebook="title">Building Project Field Guide</strong>
+            <small data-ebook="author">By Eben Tee</small>
           </div>
-
-          <div class="form-grid">
-            <label>
-              Name
-              <input name="name" type="text" autocomplete="name" required>
-            </label>
-            <label>
-              Phone or email
-              <input name="contact" type="text" autocomplete="email" required>
-            </label>
+          <div class="ebook-price-card">
+            <span>Price</span>
+            <strong data-ebook="price">Contact to buy</strong>
+            <small data-ebook="delivery">Delivered as a PDF after purchase</small>
           </div>
-
-          <div class="form-grid">
-            <label>
-              Service
-              <select name="service" required>
-                <option value="">Select a service</option>
-                <option>Drone visuals</option>
-                <option>Construction site progress video</option>
-                <option>Building project walkthrough</option>
-                <option>Real estate video</option>
-                <option>Project consultation</option>
-                <option>Other service</option>
-              </select>
-            </label>
-            <label>
-              Preferred date
-              <input name="date" type="date">
-            </label>
-          </div>
-
-          <div class="form-grid">
-            <label>
-              Project location
-              <input name="location" type="text" placeholder="Town, site, or area" required>
-            </label>
-            <label>
-              Budget range
-              <input name="budget" type="text" placeholder="Optional">
-            </label>
-          </div>
-
-          <label>
-            What should be captured?
-            <textarea name="message" rows="5" required></textarea>
-          </label>
-
-          <div class="booking-actions">
-            <button class="button" type="submit">Send booking request</button>
-            <a class="button secondary" data-setting-href="youtube" href="#" target="_blank" rel="noreferrer">View YouTube</a>
-          </div>
-          <p class="form-note" id="bookingMessage" aria-live="polite"></p>
-        </form>
+        </aside>
       </section>
 
-      <section class="booking-band" aria-labelledby="bookingServicesHeading">
+      <section class="ebook-band" aria-labelledby="insideHeading">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Available work</p>
-            <h2 id="bookingServicesHeading">Services you can request</h2>
+            <p class="eyebrow">Inside the ebook</p>
+            <h2 id="insideHeading">What buyers will learn</h2>
           </div>
         </div>
-        <div class="booking-service-grid" id="bookingServices"></div>
+        <div class="ebook-feature-grid" id="ebookFeatures"></div>
       </section>
 
-      <section class="booking-contact" aria-labelledby="bookingContactHeading">
+      <section class="ebook-preview" id="preview" aria-labelledby="previewHeading">
         <div>
-          <p class="eyebrow">Direct contact</p>
-          <h2 id="bookingContactHeading">Talk before booking</h2>
+          <p class="eyebrow">Preview</p>
+          <h2 id="previewHeading">A quick look before buying</h2>
+          <p data-ebook="preview">This guide explains how to think through each building stage before money is wasted: planning, foundation checks, blockwork quality, roofing progress, finishing decisions, and simple ways to communicate clearly with workers on site.</p>
         </div>
-        <div class="contact-cards" id="bookingContactCards"></div>
+        <div class="ebook-checkout-box">
+          <span>How to buy</span>
+          <strong>Tap “Buy the ebook” and send your order request.</strong>
+          <p>If you already have a payment link, it can be connected here so buyers pay and receive the PDF automatically.</p>
+          <button class="button" type="button" id="buyBookButtonSecondary">Buy the ebook</button>
+        </div>
+      </section>
+
+      <section class="ebook-contact" aria-labelledby="ebookContactHeading">
+        <div>
+          <p class="eyebrow">Need help?</p>
+          <h2 id="ebookContactHeading">Ask before you buy</h2>
+        </div>
+        <div class="contact-cards" id="ebookContactCards"></div>
       </section>
     </main>
 
@@ -138,7 +108,7 @@
       <div class="social-links" id="socialLinks" aria-label="Social links"></div>
     </footer>
 
-    <script src="data.js"></script>
-    <script src="book.js"></script>
+    <script src="data.js?v=ebook-1"></script>
+    <script src="book.js?v=ebook-1"></script>
   </body>
 </html>

@@ -2,6 +2,28 @@
   "use strict";
 
   const store = window.BuildHubData;
+  const EBOOK_SETTINGS = {
+    title: "Building Project Field Guide",
+    subtitle:
+      "A practical digital guide for project owners, clients, and builders who want clearer site planning, progress checks, and construction decisions.",
+    author: "By Eben Tee",
+    price: "Contact to buy",
+    pages: "45+ pages",
+    format: "PDF Ebook",
+    delivery: "Delivered as a PDF after purchase",
+    paymentLink: "",
+    sampleLink: "",
+    preview:
+      "This guide explains how to think through each building stage before money is wasted: planning, foundation checks, blockwork quality, roofing progress, finishing decisions, and simple ways to communicate clearly with workers on site.",
+    features: [
+      "Building stage checklist from foundation to finishing",
+      "Simple site inspection points for project owners",
+      "Common construction mistakes and how to avoid them",
+      "Budget and material planning notes",
+      "Questions to ask workers before each stage"
+    ]
+  };
+
   let settings = {};
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
@@ -12,8 +34,9 @@
     settings = content.settings;
 
     bindNavigation();
-    bindBookingForm();
+    bindBuyButtons();
     renderSettings();
+    renderEbook();
   });
 
   function bindNavigation() {
@@ -36,83 +59,49 @@
     });
   }
 
-  function bindBookingForm() {
-    const form = $("#bookingForm");
-    const messageNode = $("#bookingMessage");
-    if (!form) return;
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const formData = new FormData(form);
-      const name = clean(formData.get("name"));
-      const contact = clean(formData.get("contact"));
-      const service = clean(formData.get("service"));
-      const date = clean(formData.get("date")) || "Flexible";
-      const location = clean(formData.get("location"));
-      const budget = clean(formData.get("budget")) || "Not stated";
-      const details = clean(formData.get("message"));
-      const text = [
-        `Hello ${settings.ownerName || "Eben Tee"}, my name is ${name}.`,
-        `I want to book: ${service}.`,
-        `Project location: ${location}.`,
-        `Preferred date: ${date}.`,
-        `Budget range: ${budget}.`,
-        `My contact: ${contact}.`,
-        `Details: ${details}`
-      ].join("\n");
-      const whatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
-
-      if (whatsapp) {
-        if (messageNode) messageNode.textContent = "Opening WhatsApp...";
-        window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
-        form.reset();
-        return;
-      }
-
-      if (settings.email) {
-        if (messageNode) messageNode.textContent = "Opening email...";
-        window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Booking request")}&body=${encodeURIComponent(text)}`;
-        form.reset();
-        return;
-      }
-
-      if (messageNode) messageNode.textContent = "Add WhatsApp or email in admin settings to receive bookings.";
+  function bindBuyButtons() {
+    $$("#buyBookButton, #buyBookButtonSecondary").forEach((button) => {
+      button.addEventListener("click", orderEbook);
     });
   }
 
+  function orderEbook() {
+    if (EBOOK_SETTINGS.paymentLink) {
+      window.open(EBOOK_SETTINGS.paymentLink, "_blank", "noopener");
+      return;
+    }
+
+    const text = [
+      `Hello ${settings.ownerName || "Eben Tee"},`,
+      `I want to buy your ebook: ${EBOOK_SETTINGS.title}.`,
+      `Price shown: ${EBOOK_SETTINGS.price}.`,
+      "Please send me the payment details and delivery process."
+    ].join("\n");
+    const whatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
+
+    if (whatsapp) {
+      window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+      return;
+    }
+
+    if (settings.email) {
+      window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Ebook order")}&body=${encodeURIComponent(text)}`;
+    }
+  }
+
   function renderSettings() {
-    document.title = `Book | ${settings.brandName || "Eben Tee"}`;
+    document.title = `${EBOOK_SETTINGS.title} | ${settings.brandName || "Eben Tee"}`;
 
     $$("[data-setting]").forEach((node) => {
       const key = node.dataset.setting;
       node.textContent = settings[key] || "";
     });
 
-    $$("[data-setting-href]").forEach((node) => {
-      const key = node.dataset.settingHref;
-      node.href = settings[key] || "#";
-      node.classList.toggle("is-disabled", !settings[key]);
-    });
-
     $$("[data-brand-initials]").forEach((node) => {
       node.textContent = getInitials(settings.brandName);
     });
 
-    const services = $("#bookingServices");
-    if (services) {
-      services.innerHTML = (settings.services || [])
-        .map(
-          (service, index) => `
-            <article class="booking-service">
-              <span>${String(index + 1).padStart(2, "0")}</span>
-              <strong>${store.escapeHtml(service)}</strong>
-            </article>
-          `
-        )
-        .join("");
-    }
-
-    const contactCards = $("#bookingContactCards");
+    const contactCards = $("#ebookContactCards");
     if (contactCards) {
       contactCards.innerHTML = [
         { label: "Phone", value: settings.phone, href: `tel:${settings.phone}` },
@@ -149,8 +138,25 @@
     }
   }
 
-  function clean(value) {
-    return String(value || "").trim();
+  function renderEbook() {
+    $$("[data-ebook]").forEach((node) => {
+      const key = node.dataset.ebook;
+      node.textContent = EBOOK_SETTINGS[key] || "";
+    });
+
+    const features = $("#ebookFeatures");
+    if (features) {
+      features.innerHTML = EBOOK_SETTINGS.features
+        .map(
+          (feature, index) => `
+            <article class="ebook-feature">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <strong>${store.escapeHtml(feature)}</strong>
+            </article>
+          `
+        )
+        .join("");
+    }
   }
 
   function getInitials(value) {

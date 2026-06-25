@@ -5,11 +5,11 @@ A ready-to-use website for posting YouTube videos, construction news, building p
 ## Files
 
 - `index.html` is the public website.
-- `book.html` is the separate booking page.
+- `book.html` is the separate ebook sales page.
 - `admin.html` is the admin page for creating and managing posts.
 - `data.js` stores posts and settings in the browser.
 - `app.js` renders the public site.
-- `book.js` powers the booking form.
+- `book.js` powers the ebook sales page buttons and editable ebook details.
 - `admin.js` powers the admin tools.
 - `styles.css` controls the design.
 - `functions/api/[[path]].js` is the Cloudflare Pages API for login, posts, settings, and sessions.

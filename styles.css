@@ -3713,108 +3713,172 @@ select {
   }
 }
 
-/* Separate booking page */
-body[data-view="book"] .booking-page {
+/* Separate ebook sales page */
+body[data-view="ebook"] .ebook-page {
   min-height: calc(100vh - 88px);
   overflow: hidden;
 }
 
-body[data-view="book"] .booking-hero,
-body[data-view="book"] .booking-band,
-body[data-view="book"] .booking-contact {
+body[data-view="ebook"] .ebook-hero,
+body[data-view="ebook"] .ebook-band,
+body[data-view="ebook"] .ebook-preview,
+body[data-view="ebook"] .ebook-contact {
   width: min(var(--page-max), calc(100% - 4rem));
   margin: 0 auto;
 }
 
-body[data-view="book"] .booking-hero {
+body[data-view="ebook"] .ebook-hero {
   min-height: calc(100vh - 88px);
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(420px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 0.72fr);
   align-items: center;
   gap: clamp(2rem, 5vw, 5.5rem);
   padding-block: clamp(3rem, 6vw, 6rem);
 }
 
-body[data-view="book"] .booking-copy h1 {
-  max-width: 950px;
+body[data-view="ebook"] .ebook-copy h1 {
+  max-width: 980px;
   margin: 0;
   color: #fff;
-  font-size: clamp(3.6rem, 7.6vw, 8.7rem);
+  font-size: clamp(3.7rem, 8vw, 9rem);
   line-height: 0.98;
   text-wrap: balance;
 }
 
-body[data-view="book"] .booking-copy .lead {
-  max-width: 720px;
+body[data-view="ebook"] .ebook-copy .lead {
+  max-width: 760px;
   color: rgba(238, 245, 255, 0.74);
-  font-size: clamp(1.08rem, 1.25vw, 1.36rem);
+  font-size: clamp(1.08rem, 1.3vw, 1.42rem);
 }
 
-body[data-view="book"] .booking-form {
+body[data-view="ebook"] .ebook-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+}
+
+body[data-view="ebook"] .ebook-showcase {
+  position: relative;
   display: grid;
+  justify-items: center;
   gap: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  perspective: 1200px;
+}
+
+body[data-view="ebook"] .ebook-showcase::before {
+  content: "";
+  position: absolute;
+  inset: 8% -8% 0;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(25, 226, 192, 0.24), transparent 62%);
+  filter: blur(18px);
+}
+
+body[data-view="ebook"] .ebook-cover {
+  position: relative;
+  z-index: 1;
+  width: min(430px, 100%);
+  aspect-ratio: 0.68;
+  display: grid;
+  align-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 28px;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.045)),
-    rgba(15, 25, 38, 0.78);
-  padding: clamp(1rem, 2.5vw, 2rem);
-  box-shadow:
-    0 42px 110px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(18px);
-}
-
-body[data-view="book"] .booking-form h2 {
-  margin: 0;
+    linear-gradient(145deg, rgba(25, 226, 192, 0.28), transparent 34%),
+    linear-gradient(315deg, rgba(143, 69, 255, 0.28), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    #111827;
   color: #fff;
-  font-size: clamp(1.8rem, 2.6vw, 2.6rem);
-  line-height: 1.05;
+  padding: clamp(1.2rem, 3vw, 2.1rem);
+  box-shadow:
+    0 50px 120px rgba(0, 0, 0, 0.42),
+    inset -20px 0 34px rgba(0, 0, 0, 0.22),
+    inset 1px 0 0 rgba(255, 255, 255, 0.16);
+  transform: rotateX(5deg) rotateY(-13deg) rotateZ(1deg);
 }
 
-body[data-view="book"] .booking-form label {
-  display: grid;
-  gap: 0.45rem;
-  color: rgba(238, 245, 255, 0.76);
-  font-size: 0.88rem;
+body[data-view="ebook"] .ebook-cover::after {
+  content: "";
+  position: absolute;
+  inset: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+body[data-view="ebook"] .ebook-cover-label {
+  width: max-content;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--cyan);
+  padding: 0.35rem 0.78rem;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+body[data-view="ebook"] .ebook-cover strong {
+  max-width: 9ch;
+  color: #fff;
+  font-size: clamp(2.5rem, 6vw, 4.8rem);
+  line-height: 0.96;
+}
+
+body[data-view="ebook"] .ebook-cover small {
+  color: rgba(238, 245, 255, 0.68);
   font-weight: 800;
 }
 
-body[data-view="book"] .booking-form input,
-body[data-view="book"] .booking-form select,
-body[data-view="book"] .booking-form textarea {
-  min-width: 0;
-  border-color: rgba(255, 255, 255, 0.16);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.09);
+body[data-view="ebook"] .ebook-price-card,
+body[data-view="ebook"] .ebook-checkout-box {
+  position: relative;
+  z-index: 2;
+  width: min(430px, 100%);
+  display: grid;
+  gap: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  background: rgba(5, 8, 13, 0.76);
+  padding: 1.1rem;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px);
+}
+
+body[data-view="ebook"] .ebook-price-card span,
+body[data-view="ebook"] .ebook-checkout-box span {
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+body[data-view="ebook"] .ebook-price-card strong,
+body[data-view="ebook"] .ebook-checkout-box strong {
   color: #fff;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  line-height: 1.1;
 }
 
-body[data-view="book"] .booking-form option {
-  color: #111827;
+body[data-view="ebook"] .ebook-price-card small,
+body[data-view="ebook"] .ebook-checkout-box p {
+  margin: 0;
+  color: rgba(238, 245, 255, 0.68);
 }
 
-body[data-view="book"] .booking-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-body[data-view="book"] .booking-actions .button {
-  flex: 1 1 210px;
-}
-
-body[data-view="book"] .booking-band {
+body[data-view="ebook"] .ebook-band,
+body[data-view="ebook"] .ebook-preview,
+body[data-view="ebook"] .ebook-contact {
   padding-block: clamp(2rem, 5vw, 4rem);
 }
 
-body[data-view="book"] .booking-service-grid {
+body[data-view="ebook"] .ebook-feature-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
 }
 
-body[data-view="book"] .booking-service {
+body[data-view="ebook"] .ebook-feature {
   display: grid;
   align-content: space-between;
   min-height: 190px;
@@ -3827,82 +3891,80 @@ body[data-view="book"] .booking-service {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-body[data-view="book"] .booking-service span {
+body[data-view="ebook"] .ebook-feature span {
   color: var(--cyan);
   font-size: 0.86rem;
   font-weight: 900;
 }
 
-body[data-view="book"] .booking-service strong {
+body[data-view="ebook"] .ebook-feature strong {
   color: #fff;
-  font-size: clamp(1.05rem, 1.3vw, 1.35rem);
+  font-size: clamp(1.05rem, 1.25vw, 1.32rem);
   line-height: 1.15;
 }
 
-body[data-view="book"] .booking-contact {
+body[data-view="ebook"] .ebook-preview,
+body[data-view="ebook"] .ebook-contact {
   display: grid;
-  grid-template-columns: minmax(0, 0.75fr) minmax(360px, 1fr);
+  grid-template-columns: minmax(0, 0.85fr) minmax(360px, 0.7fr);
   gap: 1.5rem;
   align-items: start;
-  padding-block: clamp(2rem, 5vw, 4rem);
 }
 
-body[data-view="book"] .booking-contact h2 {
+body[data-view="ebook"] .ebook-preview h2,
+body[data-view="ebook"] .ebook-contact h2 {
   margin: 0;
   color: #fff;
   font-size: clamp(2rem, 3vw, 3.7rem);
   line-height: 1;
 }
 
-body[data-view="book"] .booking-contact .contact-cards {
+body[data-view="ebook"] .ebook-preview p {
+  color: rgba(238, 245, 255, 0.72);
+  font-size: 1.1rem;
+}
+
+body[data-view="ebook"] .ebook-contact .contact-cards {
   margin-top: 0;
 }
 
-body[data-view="book"] .form-note {
-  margin: 0;
-  color: rgba(238, 245, 255, 0.68);
-}
-
 @media (max-width: 1180px), (max-width: 1420px) and (max-aspect-ratio: 3 / 2) {
-  body[data-view="book"] .booking-hero,
-  body[data-view="book"] .booking-contact {
+  body[data-view="ebook"] .ebook-hero,
+  body[data-view="ebook"] .ebook-preview,
+  body[data-view="ebook"] .ebook-contact {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  body[data-view="book"] .booking-service-grid {
+  body[data-view="ebook"] .ebook-feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  body[data-view="book"] .booking-form .form-grid {
-    grid-template-columns: minmax(0, 1fr);
+  body[data-view="ebook"] .ebook-cover {
+    transform: none;
   }
 }
 
 @media (max-width: 700px) {
-  body[data-view="book"] .booking-hero,
-  body[data-view="book"] .booking-band,
-  body[data-view="book"] .booking-contact {
+  body[data-view="ebook"] .ebook-hero,
+  body[data-view="ebook"] .ebook-band,
+  body[data-view="ebook"] .ebook-preview,
+  body[data-view="ebook"] .ebook-contact {
     width: min(100% - 1.25rem, var(--page-max));
   }
 
-  body[data-view="book"] .booking-copy h1 {
+  body[data-view="ebook"] .ebook-copy h1 {
     font-size: clamp(2.45rem, 14vw, 4.2rem);
   }
 
-  body[data-view="book"] .booking-form {
-    border-radius: 22px;
+  body[data-view="ebook"] .ebook-actions {
+    display: grid;
   }
 
-  body[data-view="book"] .booking-service-grid,
-  body[data-view="book"] .booking-form .form-grid {
+  body[data-view="ebook"] .ebook-feature-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  body[data-view="book"] .booking-service {
+  body[data-view="ebook"] .ebook-feature {
     min-height: 132px;
-  }
-
-  body[data-view="book"] .booking-actions {
-    display: grid;
   }
 }
