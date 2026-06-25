@@ -14,7 +14,7 @@ const defaultSettings = {
   whatsapp: "233000000000",
   email: "hello@example.com",
   location: "Accra, Ghana",
-  youtube: "https://www.youtube.com/",
+  youtube: "https://www.youtube.com/@ebentee",
   facebook: "https://www.facebook.com/",
   instagram: "https://www.instagram.com/",
   tiktok: "https://www.tiktok.com/",
