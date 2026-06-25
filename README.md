@@ -5,9 +5,11 @@ A ready-to-use website for posting YouTube videos, construction news, building p
 ## Files
 
 - `index.html` is the public website.
+- `book.html` is the separate booking page.
 - `admin.html` is the admin page for creating and managing posts.
 - `data.js` stores posts and settings in the browser.
 - `app.js` renders the public site.
+- `book.js` powers the booking form.
 - `admin.js` powers the admin tools.
 - `styles.css` controls the design.
 - `functions/api/[[path]].js` is the Cloudflare Pages API for login, posts, settings, and sessions.
@@ -59,7 +61,7 @@ This project is deployed to Cloudflare Pages as `ebentee`.
 Build the clean public folder:
 
 ```bash
-rm -rf dist && mkdir -p dist && cp index.html admin.html styles.css data.js app.js admin.js dist/
+rm -rf dist && mkdir -p dist && cp index.html book.html admin.html styles.css data.js app.js book.js admin.js dist/
 ```
 
 Deploy:
