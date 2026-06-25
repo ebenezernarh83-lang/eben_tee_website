@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Videos, construction news, and building project updates.">
+    <title>Eben Tee | Videos, News, and Projects</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body data-page="public">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Main navigation">
+        <a class="brand" href="index.html" aria-label="Home">
+          <span class="brand-mark" data-brand-initials>ET</span>
+          <span class="brand-copy">
+            <strong data-setting="brandName">Eben Tee</strong>
+            <small data-setting="tagline">Videos, news, and building project updates</small>
+          </span>
+        </a>
+
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mainNav">
+          <span>Menu</span>
+        </button>
+
+        <div class="nav-links" id="mainNav">
+          <a href="#about">Services</a>
+          <a href="#projects">Projects</a>
+          <a href="#videos">Videos</a>
+          <a href="#contact">Contact</a>
+          <a class="button small nav-cta" href="#contact">Book Shoot</a>
+          <a class="admin-link" href="admin.html">Admin</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero-band">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <p class="hero-badge"><span></span> Ghana visual storytelling, elevated</p>
+            <h1>Cinematic drone visuals for real estate, construction, and Ghana stories.</h1>
+            <p class="lead">Drone visuals, construction stories, project walkthroughs, and updates presented with a modern Eben Tee look.</p>
+            <div class="hero-proof" aria-label="Content highlights">
+              <span>Drone visuals</span>
+              <span>3D project feel</span>
+              <span>Ghana stories</span>
+            </div>
+            <div class="hero-actions" aria-label="Primary actions">
+              <a class="button" href="#latest">Explore work</a>
+              <a class="button secondary" href="#contact">Book Shoot</a>
+            </div>
+            <ul class="quick-stats" aria-label="Site summary">
+              <li>
+                <strong id="statPosts">0</strong>
+                <span>Published</span>
+              </li>
+              <li>
+                <strong id="statProjects">0</strong>
+                <span>Projects</span>
+              </li>
+              <li>
+                <strong id="statVideos">0</strong>
+                <span>Videos</span>
+              </li>
+            </ul>
+          </div>
+
+          <article class="feature-panel" id="heroFeature" aria-live="polite"></article>
+        </div>
+      </section>
+
+      <section class="toolbar-band" id="latest" aria-labelledby="latestHeading">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">Browse updates</p>
+            <h2 id="latestHeading">Latest work</h2>
+          </div>
+          <div class="search-box">
+            <label for="siteSearch">Search posts</label>
+            <input id="siteSearch" type="search" placeholder="Search video, site, project...">
+          </div>
+        </div>
+
+        <div class="filter-row" role="group" aria-label="Filter posts">
+          <button class="filter-chip is-active" type="button" data-filter="all">All</button>
+          <button class="filter-chip" type="button" data-filter="video">Videos</button>
+          <button class="filter-chip" type="button" data-filter="construction-news">News</button>
+          <button class="filter-chip" type="button" data-filter="building-project">Projects</button>
+          <button class="filter-chip" type="button" data-filter="service-update">Services</button>
+        </div>
+      </section>
+
+      <section class="content-section" aria-label="All posts">
+        <div class="post-grid" id="postGrid"></div>
+        <p class="empty-state is-hidden" id="emptyState">No posts match this search yet.</p>
+      </section>
+
+      <section class="content-section split-section" id="videos" aria-labelledby="videosHeading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Watch</p>
+            <h2 id="videosHeading">YouTube videos and walkthroughs</h2>
+          </div>
+          <a class="text-link" data-setting-href="youtube" href="#" target="_blank" rel="noreferrer">YouTube channel</a>
+        </div>
+        <div class="post-row" id="videoGrid"></div>
+      </section>
+
+      <section class="content-section" id="projects" aria-labelledby="projectsHeading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Build log</p>
+            <h2 id="projectsHeading">Building project updates</h2>
+          </div>
+          <span class="section-note" id="projectCount">0 active updates</span>
+        </div>
+        <div class="project-grid" id="projectGrid"></div>
+      </section>
+
+      <section class="content-section split-section" id="news" aria-labelledby="newsHeading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Site desk</p>
+            <h2 id="newsHeading">Construction news</h2>
+          </div>
+        </div>
+        <div class="post-row" id="newsGrid"></div>
+      </section>
+
+      <section class="about-band" id="about" aria-labelledby="aboutHeading">
+        <div class="about-grid">
+          <div>
+            <p class="eyebrow">About</p>
+            <h2 id="aboutHeading" data-setting="ownerName">Eben Tee</h2>
+            <p data-setting="about">Share the work you do, the sites you visit, and the building knowledge you want people to trust.</p>
+          </div>
+          <div class="service-list" id="serviceList" aria-label="Services"></div>
+        </div>
+      </section>
+
+      <section class="contact-band" id="contact" aria-labelledby="contactHeading">
+        <div class="contact-grid">
+          <div>
+            <p class="eyebrow">Contact</p>
+            <h2 id="contactHeading">Talk about a project</h2>
+            <p class="lead small-lead">Send a project question, request a site visit, or ask about one of the updates posted here.</p>
+            <div class="contact-cards" id="contactCards"></div>
+          </div>
+
+          <form class="contact-form" id="contactForm">
+            <label>
+              Name
+              <input name="name" type="text" autocomplete="name" required>
+            </label>
+            <label>
+              Phone or email
+              <input name="contact" type="text" autocomplete="email" required>
+            </label>
+            <label>
+              Message
+              <textarea name="message" rows="5" required></textarea>
+            </label>
+            <button class="button" type="submit">Send message</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong data-setting="brandName">Eben Tee</strong>
+        <p data-setting="tagline">Videos, news, and building project updates.</p>
+      </div>
+      <div class="social-links" id="socialLinks" aria-label="Social links"></div>
+    </footer>
+
+    <dialog class="post-dialog" id="postDialog" aria-labelledby="dialogTitle">
+      <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close post">X</button>
+      <div id="dialogContent"></div>
+    </dialog>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

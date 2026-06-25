@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Admin page for Eben Tee posts and site settings.">
+    <title>Admin | Eben Tee</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body data-page="admin">
+    <a class="skip-link" href="#adminMain">Skip to admin</a>
+
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Admin navigation">
+        <a class="brand" href="index.html" aria-label="Public site">
+          <span class="brand-mark" data-brand-initials>ET</span>
+          <span class="brand-copy">
+            <strong data-setting="brandName">Eben Tee</strong>
+            <small>Admin studio</small>
+          </span>
+        </a>
+        <div class="nav-links always-open">
+          <a href="index.html">View site</a>
+          <button class="button small secondary" id="logoutButton" type="button">Lock</button>
+        </div>
+      </nav>
+    </header>
+
+    <main id="adminMain">
+      <section class="login-panel" id="loginPanel">
+        <div class="login-box">
+          <p class="eyebrow">Admin access</p>
+          <h1>Manage your posts</h1>
+          <p>Enter your private admin PIN to publish videos, news, and project updates.</p>
+          <form id="loginForm">
+            <label>
+              Admin PIN
+              <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" required>
+            </label>
+            <button class="button" type="submit">Unlock admin</button>
+            <p class="form-note" id="loginMessage" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="admin-shell is-hidden" id="adminApp" aria-label="Admin workspace">
+        <div class="admin-hero">
+          <div>
+            <p class="eyebrow">Admin studio</p>
+            <h1>Publish videos, site news, and building projects</h1>
+          </div>
+          <div class="admin-stats" aria-label="Admin statistics">
+            <span><strong id="adminPublishedCount">0</strong> published</span>
+            <span><strong id="adminDraftCount">0</strong> drafts</span>
+            <span><strong id="adminFeaturedCount">0</strong> featured</span>
+          </div>
+        </div>
+
+        <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+          <button class="tab-button is-active" type="button" data-admin-tab="posts">Posts</button>
+          <button class="tab-button" type="button" data-admin-tab="settings">Site settings</button>
+          <button class="tab-button" type="button" data-admin-tab="backup">Backup</button>
+        </div>
+
+        <section class="admin-panel" data-panel="posts">
+          <div class="admin-layout">
+            <form class="editor-panel" id="postForm">
+              <div class="form-title-row">
+                <div>
+                  <p class="eyebrow">Post editor</p>
+                  <h2 id="editorTitle">New post</h2>
+                </div>
+                <button class="button small secondary" type="button" id="newPostButton">New</button>
+              </div>
+
+              <input type="hidden" id="postId" name="id">
+
+              <label>
+                Title
+                <input id="postTitle" name="title" type="text" maxlength="90" required>
+              </label>
+
+              <div class="form-grid">
+                <label>
+                  Category
+                  <select id="postCategory" name="category" required>
+                    <option value="video">YouTube video</option>
+                    <option value="construction-news">Construction news</option>
+                    <option value="building-project">Building project</option>
+                    <option value="service-update">Service update</option>
+                    <option value="personal">Other update</option>
+                  </select>
+                </label>
+                <label>
+                  Status
+                  <select id="postStatus" name="status" required>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Publish date
+                  <input id="postDate" name="publishedAt" type="date" required>
+                </label>
+                <label>
+                  Location
+                  <input id="postLocation" name="location" type="text" maxlength="80">
+                </label>
+              </div>
+
+              <label>
+                Short summary
+                <textarea id="postSummary" name="summary" rows="3" maxlength="220" required></textarea>
+              </label>
+
+              <label>
+                Full story
+                <textarea id="postBody" name="body" rows="7" required></textarea>
+              </label>
+
+              <label>
+                YouTube link
+                <input id="postVideo" name="videoUrl" type="url" placeholder="https://www.youtube.com/watch?v=...">
+              </label>
+
+              <div class="form-grid">
+                <label>
+                  Project stage
+                  <input id="postStage" name="projectStage" type="text" placeholder="Foundation, roofing, finishing...">
+                </label>
+                <label>
+                  Progress percent
+                  <input id="postProgress" name="progress" type="number" min="0" max="100" step="1" value="0">
+                </label>
+              </div>
+
+              <label>
+                Tags
+                <input id="postTags" name="tags" type="text" placeholder="roofing, concrete, walkthrough">
+              </label>
+
+              <label class="file-field">
+                Cover image
+                <input id="coverInput" name="cover" type="file" accept="image/*">
+              </label>
+
+              <label class="check-row">
+                <input id="postFeatured" name="featured" type="checkbox">
+                Feature this on the homepage
+              </label>
+
+              <div class="preview-card" id="editorPreview" aria-live="polite"></div>
+
+              <div class="editor-actions">
+                <button class="button" type="submit">Save post</button>
+                <button class="button secondary" type="button" id="clearCoverButton">Generate cover</button>
+              </div>
+              <p class="form-note" id="postMessage" aria-live="polite"></p>
+            </form>
+
+            <div class="manager-panel">
+              <div class="manager-toolbar">
+                <label>
+                  Search
+                  <input id="adminSearch" type="search" placeholder="Find a post...">
+                </label>
+                <label>
+                  Filter
+                  <select id="adminStatusFilter">
+                    <option value="all">All posts</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </label>
+              </div>
+              <div class="post-manager-list" id="adminPostList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-panel is-hidden" data-panel="settings">
+          <form class="settings-form" id="settingsForm">
+            <div class="form-title-row">
+              <div>
+                <p class="eyebrow">Site identity</p>
+                <h2>Profile and contacts</h2>
+              </div>
+              <button class="button small" type="submit">Save settings</button>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                Site name
+                <input id="settingBrand" name="brandName" type="text" required>
+              </label>
+              <label>
+                Your name
+                <input id="settingOwner" name="ownerName" type="text" required>
+              </label>
+            </div>
+
+            <label>
+              Tagline
+              <input id="settingTagline" name="tagline" type="text" required>
+            </label>
+
+            <label>
+              About text
+              <textarea id="settingAbout" name="about" rows="5" required></textarea>
+            </label>
+
+            <div class="form-grid">
+              <label>
+                Phone
+                <input id="settingPhone" name="phone" type="tel">
+              </label>
+              <label>
+                WhatsApp number
+                <input id="settingWhatsapp" name="whatsapp" type="tel">
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                Email
+                <input id="settingEmail" name="email" type="email">
+              </label>
+              <label>
+                Location
+                <input id="settingLocation" name="location" type="text">
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                YouTube
+                <input id="settingYoutube" name="youtube" type="url">
+              </label>
+              <label>
+                Facebook
+                <input id="settingFacebook" name="facebook" type="url">
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                Instagram
+                <input id="settingInstagram" name="instagram" type="url">
+              </label>
+              <label>
+                TikTok
+                <input id="settingTiktok" name="tiktok" type="url">
+              </label>
+            </div>
+
+            <label>
+              Services, one per line
+              <textarea id="settingServices" name="services" rows="5"></textarea>
+            </label>
+
+            <div class="form-grid">
+              <label>
+                New admin PIN
+                <input id="settingPin" name="pin" type="password" inputmode="numeric" placeholder="Leave blank to keep current PIN">
+              </label>
+              <label>
+                Confirm new PIN
+                <input id="settingPinConfirm" name="pinConfirm" type="password" inputmode="numeric">
+              </label>
+            </div>
+
+            <p class="form-note" id="settingsMessage" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="admin-panel is-hidden" data-panel="backup">
+          <div class="backup-grid">
+            <div class="backup-panel">
+              <p class="eyebrow">Export</p>
+              <h2>Download your content</h2>
+              <p>Save all posts and settings into one JSON file.</p>
+              <button class="button" type="button" id="exportButton">Export JSON</button>
+            </div>
+            <div class="backup-panel">
+              <p class="eyebrow">Import</p>
+              <h2>Restore content</h2>
+              <p>Import a JSON file previously exported from this admin page.</p>
+              <label class="file-field">
+                Import JSON
+                <input id="importInput" type="file" accept="application/json,.json">
+              </label>
+              <p class="form-note" id="importMessage" aria-live="polite"></p>
+            </div>
+            <div class="backup-panel warning-panel">
+              <p class="eyebrow">Reset</p>
+              <h2>Start over</h2>
+              <p>Replace current local posts with the built-in sample content.</p>
+              <button class="button danger" type="button" id="resetButton">Reset local content</button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
