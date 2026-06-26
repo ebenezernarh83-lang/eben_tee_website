@@ -12,7 +12,7 @@
     format: "EPUB Ebook",
     delivery: "Delivered as an EPUB after purchase",
     coverImage: "assets/african-online-income-blueprint-cover.png",
-    paymentLink: "",
+    paymentLink: "https://selar.com/2gr1zv269p",
     sampleLink: "",
     preview:
       "A practical 90-day guide to building skills, proof of work, offers, and ethical online income opportunities for Ghana, Africa, and the global digital market.",
