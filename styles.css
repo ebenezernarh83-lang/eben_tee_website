@@ -3779,7 +3779,7 @@ body[data-view="ebook"] .ebook-cover {
   position: relative;
   z-index: 1;
   width: min(430px, 100%);
-  aspect-ratio: 0.68;
+  aspect-ratio: 1600 / 2560;
   display: grid;
   align-content: space-between;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -3796,6 +3796,7 @@ body[data-view="ebook"] .ebook-cover {
     inset -20px 0 34px rgba(0, 0, 0, 0.22),
     inset 1px 0 0 rgba(255, 255, 255, 0.16);
   transform: rotateX(5deg) rotateY(-13deg) rotateZ(1deg);
+  overflow: hidden;
 }
 
 body[data-view="ebook"] .ebook-cover::after {
@@ -3805,6 +3806,25 @@ body[data-view="ebook"] .ebook-cover::after {
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 20px;
   pointer-events: none;
+}
+
+body[data-view="ebook"] .ebook-cover.has-image {
+  padding: 0;
+  background: #111827;
+}
+
+body[data-view="ebook"] .ebook-cover.has-image::after {
+  inset: 0;
+  border-radius: inherit;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: inset -28px 0 42px rgba(0, 0, 0, 0.18);
+}
+
+body[data-view="ebook"] .ebook-cover img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 body[data-view="ebook"] .ebook-cover-label {
@@ -3944,7 +3964,7 @@ body[data-view="ebook"] .ebook-contact .contact-cards {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   body[data-view="ebook"] .ebook-hero,
   body[data-view="ebook"] .ebook-band,
   body[data-view="ebook"] .ebook-preview,

@@ -3,40 +3,45 @@
 
   const store = window.BuildHubData;
   const EBOOK_SETTINGS = {
-    title: "Building Project Field Guide",
+    title: "The African Online Income Blueprint",
     subtitle:
-      "A practical digital guide for project owners, clients, and builders who want clearer site planning, progress checks, and construction decisions.",
-    author: "By Eben Tee",
+      "The no-hype 90-day playbook for turning skill, content, and service into real online income.",
+    author: "By Ebenezer",
     price: "Contact to buy",
-    pages: "45+ pages",
-    format: "PDF Ebook",
-    delivery: "Delivered as a PDF after purchase",
+    pages: "33 chapters",
+    format: "EPUB Ebook",
+    delivery: "Delivered as an EPUB after purchase",
+    coverImage: "assets/african-online-income-blueprint-cover.png",
     paymentLink: "",
     sampleLink: "",
     preview:
-      "This guide explains how to think through each building stage before money is wasted: planning, foundation checks, blockwork quality, roofing progress, finishing decisions, and simple ways to communicate clearly with workers on site.",
+      "A practical 90-day guide to building skills, proof of work, offers, and ethical online income opportunities for Ghana, Africa, and the global digital market.",
     features: [
-      "Building stage checklist from foundation to finishing",
-      "Simple site inspection points for project owners",
-      "Common construction mistakes and how to avoid them",
-      "Budget and material planning notes",
-      "Questions to ask workers before each stage"
+      "Choose your first online income lane with a realistic 90-day plan",
+      "Build proof of work, content, and offers people can trust",
+      "Use AI, YouTube, short-form content, and digital products ethically",
+      "Find service opportunities in virtual assistance, social media, and simple websites",
+      "Price, deliver, and promote your work with practical outreach steps"
     ]
   };
 
-  let settings = {};
+  let settings = { ...(store.defaultSettings || {}) };
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
   document.addEventListener("DOMContentLoaded", async () => {
-    const content = await store.loadPublicContent();
-    settings = content.settings;
+    settings = store.loadSettings ? store.loadSettings() : settings;
 
     bindNavigation();
     bindBuyButtons();
-    renderSettings();
     renderEbook();
+    renderSettings();
+
+    const content = await store.loadPublicContent();
+    settings = content.settings;
+
+    renderSettings();
   });
 
   function bindNavigation() {
@@ -143,6 +148,12 @@
       const key = node.dataset.ebook;
       node.textContent = EBOOK_SETTINGS[key] || "";
     });
+
+    const cover = $("#ebookCoverImage");
+    if (cover && EBOOK_SETTINGS.coverImage) {
+      cover.src = EBOOK_SETTINGS.coverImage;
+      cover.alt = `${EBOOK_SETTINGS.title} ebook cover`;
+    }
 
     const features = $("#ebookFeatures");
     if (features) {

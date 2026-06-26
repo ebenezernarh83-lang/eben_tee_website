@@ -61,7 +61,7 @@ This project is deployed to Cloudflare Pages as `ebentee`.
 Build the clean public folder:
 
 ```bash
-rm -rf dist && mkdir -p dist && cp index.html book.html admin.html styles.css data.js app.js book.js admin.js dist/
+rm -rf dist && mkdir -p dist && cp index.html book.html admin.html styles.css data.js app.js book.js admin.js dist/ && cp -R assets dist/
 ```
 
 Deploy:
