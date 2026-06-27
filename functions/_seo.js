@@ -13,33 +13,46 @@ const categoryLabels = {
 const defaultSettings = {
   brandName: "Eben Tee",
   ownerName: "Eben Tee",
-  tagline: "Drone visuals, construction stories, and project updates.",
+  tagline: "Ghana drone videos, real estate tours, construction news, and project stories.",
   about:
-    "I share practical updates from the work I do: building projects, construction lessons, site walkthroughs, client progress, and useful video content from the field.",
+    "Eben Tee documents Ghana's beauty, progress, and culture through drone visuals, estate tours, construction walkthroughs, road trips, and simple project updates.",
   location: "Accra, Ghana",
   youtube: "https://www.youtube.com/@ebentee",
   services: [
-    "Drone services and aerial video",
-    "Building project updates",
-    "Site progress reporting",
-    "Construction news and field notes",
-    "YouTube walkthroughs and education"
+    "Drone services and aerial video for projects",
+    "Real estate, land, and community tour videos",
+    "Construction site walkthroughs",
+    "Building project progress reporting",
+    "Ghana infrastructure and development news"
   ]
 };
 
 const samplePosts = [
   {
     id: "sample-1",
-    title: "Roofing progress at the duplex project",
-    category: "building-project",
+    title: "Drone services for Ghana real estate and construction projects",
+    category: "service-update",
     status: "published",
-    publishedAt: "2026-06-20",
-    location: "Accra site",
+    publishedAt: "2026-06-27",
+    location: "Accra, Ghana",
     summary:
-      "A clean project update covering roof framing, timber treatment, fascia alignment, and the next work items before installation.",
+      "Book Eben Tee for clean aerial footage, estate visuals, project progress clips, and social media-ready walkthroughs.",
     body:
-      "The roofing team moved from layout into active framing this week. The focus was keeping the ridge line straight, checking timber treatment, and making sure the fascia edges line up before sheets go on.\n\nThe next work package is roof covering, rainwater detailing, and a short quality check before ceiling work starts.",
-    tags: ["roofing", "project update", "duplex"]
+      "Eben Tee is built around visual stories from Ghana: drone views, road trips, estate tours, construction progress, and practical updates that help people see places clearly before they visit, buy, build, or invest.\n\nWatch Eben Tee on YouTube: https://www.youtube.com/@ebentee",
+    tags: ["drone services", "real estate", "construction", "Ghana", "video"]
+  },
+  {
+    id: "sample-2",
+    title: "Assin Bereku 24-hour economy market project gets sod cut",
+    category: "construction-news",
+    status: "published",
+    publishedAt: "2026-06-26",
+    location: "Assin Bereku, Central Region",
+    summary:
+      "GNA reports that sod has been cut for a 24-hour economy market at Assin Bereku, a project expected to support trade and local jobs.",
+    body:
+      "The Ghana News Agency reported on June 26, 2026 that President John Dramani Mahama cut sod for the construction of a 24-hour economy market at Assin Bereku in the Assin North District of the Central Region.\n\nSource: https://gna.org.gh/2026/06/president-mahama-cuts-sod-for-construction-of-24-hour-economy-market/",
+    tags: ["market project", "Assin Bereku", "Central Region", "Ghana news"]
   }
 ];
 

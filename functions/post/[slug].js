@@ -90,6 +90,7 @@ function renderPost(post, settings) {
           <a href="/#about">Services</a>
           <a href="/#projects">Projects</a>
           <a href="/#videos">Videos</a>
+          <a href="/#news">News</a>
           <a class="button small nav-cta" href="/book">Ebook</a>
         </div>
       </nav>

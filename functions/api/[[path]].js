@@ -8,91 +8,109 @@ const categories = new Set(["video", "construction-news", "building-project", "s
 const defaultSettings = {
   brandName: "Eben Tee",
   ownerName: "Eben Tee",
-  tagline: "Drone visuals, construction stories, and project updates.",
+  tagline: "Ghana drone videos, real estate tours, construction news, and project stories.",
   about:
-    "I share practical updates from the work I do: building projects, construction lessons, site walkthroughs, client progress, and useful video content from the field.",
-  phone: "+233 000 000 000",
-  whatsapp: "233000000000",
-  email: "hello@example.com",
+    "Eben Tee documents Ghana's beauty, progress, and culture through drone visuals, estate tours, construction walkthroughs, road trips, and simple project updates. This site brings the videos, services, ebook, and Ghana project stories together in one professional home.",
+  phone: "",
+  whatsapp: "",
+  email: "",
   location: "Accra, Ghana",
   youtube: "https://www.youtube.com/@ebentee",
-  facebook: "https://www.facebook.com/",
-  instagram: "https://www.instagram.com/",
-  tiktok: "https://www.tiktok.com/",
+  facebook: "https://www.facebook.com/ebentee83/",
+  instagram: "https://www.instagram.com/ebentee_yt/",
+  tiktok: "",
   services: [
-    "Drone services and aerial video",
-    "Building project updates",
-    "Site progress reporting",
-    "Construction news and field notes",
-    "YouTube walkthroughs and education",
-    "Project consultation"
+    "Drone services and aerial video for projects",
+    "Real estate, land, and community tour videos",
+    "Construction site walkthroughs",
+    "Building project progress reporting",
+    "Ghana infrastructure and development news",
+    "YouTube storytelling and social media content"
   ]
 };
 
 const samplePosts = [
   {
     id: "sample-1",
-    title: "Roofing progress at the duplex project",
-    category: "building-project",
+    title: "Drone services for Ghana real estate and construction projects",
+    category: "service-update",
     status: "published",
-    publishedAt: "2026-06-20",
-    location: "Accra site",
+    publishedAt: "2026-06-27",
+    location: "Accra, Ghana",
     summary:
-      "A clean project update covering roof framing, timber treatment, fascia alignment, and the next work items before installation.",
+      "Book Eben Tee for clean aerial footage, estate visuals, project progress clips, and social media-ready walkthroughs.",
     body:
-      "The roofing team moved from layout into active framing this week. The focus was keeping the ridge line straight, checking timber treatment, and making sure the fascia edges line up before sheets go on.\n\nThe next work package is roof covering, rainwater detailing, and a short quality check before ceiling work starts.",
-    tags: ["roofing", "project update", "duplex"],
+      "Eben Tee is built around visual stories from Ghana: drone views, road trips, estate tours, construction progress, and practical updates that help people see places clearly before they visit, buy, build, or invest.\n\nFor real estate developers, builders, land sellers, businesses, and project teams, the focus is simple: capture the location, show the access roads and surroundings, reveal the project progress, and turn the footage into content that can work on YouTube, TikTok, Instagram, and Facebook.\n\nBest fit: land and estate tours, construction progress videos, building project documentation, site walkthroughs, business promo videos, and Ghana travel or development stories.\n\nWatch Eben Tee on YouTube: https://www.youtube.com/@ebentee",
+    tags: ["drone services", "real estate", "construction", "Ghana", "video"],
     featured: true,
-    projectStage: "Roofing",
-    progress: 64,
-    createdAt: "2026-06-20T08:00:00.000Z"
+    projectStage: "Drone services",
+    progress: 100,
+    createdAt: "2026-06-27T08:00:00.000Z"
   },
   {
     id: "sample-2",
-    title: "Site walkthrough: foundation checklist before concrete",
+    title: "East Legon Hills is growing fast - what the drone view shows",
     category: "video",
     status: "published",
-    publishedAt: "2026-06-18",
-    location: "Field video",
+    publishedAt: "2026-06-24",
+    location: "East Legon Hills, Ghana",
     summary:
-      "A video-style update on the checks to make before concrete goes into a foundation trench.",
+      "A realistic Eben Tee-style look at land, estates, access roads, and the fast growth around East Legon Hills.",
     body:
-      "Before concrete is poured, the team should check trench depth, setting-out lines, reinforcement position, concrete cover, formwork stability, and access for workers.\n\nThis type of checklist helps avoid expensive mistakes that are hard to correct once the concrete has set.",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    tags: ["foundation", "video", "checklist"],
-    projectStage: "Foundation",
-    progress: 35,
-    createdAt: "2026-06-18T08:00:00.000Z"
+      "East Legon Hills continues to attract attention from land buyers, builders, estate developers, and people watching Accra's expansion. Aerial footage helps viewers understand the roads, neighbourhood layout, nearby activity, and how fast the area is changing.\n\nThis is the type of content Eben Tee creates: practical visual storytelling that helps people see Ghana's progress with their own eyes.\n\nWatch on YouTube: https://www.youtube.com/watch?v=zl6poa0trhk",
+    videoUrl: "https://www.youtube.com/watch?v=zl6poa0trhk",
+    tags: ["East Legon Hills", "land", "real estate", "drone video", "Accra"],
+    projectStage: "Area tour",
+    progress: 100,
+    createdAt: "2026-06-24T08:00:00.000Z"
   },
   {
     id: "sample-3",
-    title: "Blockwork quality notes from the ongoing site",
+    title: "Ghana Big Push road works affected by heavy rains in Ajumako",
     category: "construction-news",
     status: "published",
-    publishedAt: "2026-06-16",
-    location: "Ongoing construction",
+    publishedAt: "2026-06-26",
+    location: "Ajumako-Enyan-Essiam District, Central Region",
     summary:
-      "A quick construction note on block alignment, mortar joints, openings, and supervision during walling.",
+      "Recent reporting shows how rains have slowed parts of Ghana's Big Push road works, including the Ajumako road rehabilitation package.",
     body:
-      "Good blockwork is not only about speed. Alignment, mortar consistency, clean corners, lintel preparation, and opening sizes all matter.\n\nFor this site, the biggest improvement came from checking the first two courses carefully before allowing the team to move fast.",
-    tags: ["blockwork", "site news", "quality"],
-    createdAt: "2026-06-16T08:00:00.000Z"
+      "Recent Ghana project reporting says heavy rains have disrupted sections of the Big Push road works in the Ajumako-Enyan-Essiam District. The road package includes rehabilitation and upgrading works around routes such as Mankessim-Ajumako-Agona Swedru, with contractors dealing with muddy conditions, drainage challenges, and delayed earthworks.\n\nFor people who follow building and land development, this kind of road project matters because access roads influence travel time, material delivery, property value, and how quickly communities can grow.\n\nSource: https://www.modernghana.com/news/1502115/cr-heavy-rains-disruptbig-push-projects-inajum.html",
+    tags: ["Big Push", "roads", "Central Region", "infrastructure", "Ghana projects"],
+    projectStage: "Road works",
+    progress: 55,
+    createdAt: "2026-06-26T08:00:00.000Z"
   },
   {
     id: "sample-4",
-    title: "Finishing plan: tiles, ceiling, doors, and lighting",
-    category: "service-update",
+    title: "Assin Bereku 24-hour economy market project gets sod cut",
+    category: "construction-news",
     status: "published",
-    publishedAt: "2026-06-12",
-    location: "Client planning",
+    publishedAt: "2026-06-26",
+    location: "Assin Bereku, Central Region",
     summary:
-      "A practical update on how finishing decisions are grouped so a project does not stall at the last stage.",
+      "GNA reports that sod has been cut for a 24-hour economy market at Assin Bereku, a project expected to support trade and local jobs.",
     body:
-      "Finishing is where many projects lose time because decisions arrive too late. Tiles, ceiling details, door types, paint colors, sanitary fittings, and lighting should be grouped early.\n\nA simple finishing schedule keeps the client, supplier, and site team moving together.",
-    tags: ["finishing", "planning", "services"],
-    projectStage: "Finishing",
-    progress: 78,
-    createdAt: "2026-06-12T08:00:00.000Z"
+      "The Ghana News Agency reported on June 26, 2026 that President John Dramani Mahama cut sod for the construction of a 24-hour economy market at Assin Bereku in the Assin North District of the Central Region.\n\nThe project was described as an intervention to boost trade and economic activity. For local communities, modern markets can improve trading conditions, support jobs, and create stronger commercial centres around transport, food, retail, and services.\n\nSource: https://gna.org.gh/2026/06/president-mahama-cuts-sod-for-construction-of-24-hour-economy-market/",
+    tags: ["market project", "Assin Bereku", "Central Region", "24-hour economy", "Ghana news"],
+    projectStage: "Sod cutting",
+    progress: 10,
+    createdAt: "2026-06-26T09:00:00.000Z"
+  },
+  {
+    id: "sample-5",
+    title: "Why aerial video helps buyers understand a project before visiting",
+    category: "building-project",
+    status: "published",
+    publishedAt: "2026-06-21",
+    location: "Ghana project sites",
+    summary:
+      "A short project note on how drone footage makes land, estates, and construction progress easier to understand.",
+    body:
+      "A normal photo can show one corner of a site, but aerial video shows the full story: the road network, nearby buildings, drainage path, surrounding land, distance to busy areas, and the real scale of the project.\n\nThat is why drone visuals are useful for land sellers, estate developers, builders, contractors, and people in the diaspora who want to inspect progress from afar. Eben Tee uses that view to make Ghana projects easier to understand and easier to share.",
+    tags: ["aerial video", "project update", "land", "construction", "Ghana"],
+    projectStage: "Visual inspection",
+    progress: 100,
+    createdAt: "2026-06-21T08:00:00.000Z"
   }
 ];
 
