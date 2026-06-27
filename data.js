@@ -231,6 +231,11 @@
     return id ? `https://www.youtube.com/embed/${id}` : "";
   }
 
+  function getYouTubeThumbnailUrl(value) {
+    const id = getYouTubeId(value);
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : "";
+  }
+
   function wrapText(context, text, x, y, maxWidth, lineHeight, maxLines) {
     const words = String(text || "").split(" ");
     let line = "";
@@ -338,7 +343,8 @@
     };
 
     if (!normalized.coverImage || (normalized.id.startsWith("sample-") && normalized.coverImage.startsWith("data:image"))) {
-      normalized.coverImage = createGeneratedCover(normalized.category, normalized.title);
+      normalized.coverImage =
+        getYouTubeThumbnailUrl(normalized.videoUrl) || createGeneratedCover(normalized.category, normalized.title);
     }
 
     return normalized;
@@ -591,6 +597,7 @@
     postSlug,
     postUrl,
     getYouTubeEmbedUrl,
+    getYouTubeThumbnailUrl,
     createGeneratedCover,
     normalizePost,
     loadPosts,

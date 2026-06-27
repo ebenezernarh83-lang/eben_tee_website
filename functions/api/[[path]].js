@@ -360,6 +360,7 @@ function sanitizeSettings(settings) {
 
 function sanitizePost(post) {
   const category = categories.has(post.category) ? post.category : "personal";
+  const videoUrl = cleanUrl(post.videoUrl);
   return {
     id: cleanText(post.id || crypto.randomUUID(), 90),
     title: cleanText(post.title || "Untitled update", 120),
@@ -369,8 +370,8 @@ function sanitizePost(post) {
     location: cleanText(post.location || "", 120),
     summary: cleanText(post.summary || "", 320),
     body: cleanText(post.body || "", 8000),
-    coverImage: cleanCover(post.coverImage),
-    videoUrl: cleanUrl(post.videoUrl),
+    coverImage: cleanCover(post.coverImage) || getYouTubeThumbnailUrl(videoUrl),
+    videoUrl,
     tags: Array.isArray(post.tags) ? post.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
     featured: Boolean(post.featured),
     projectStage: cleanText(post.projectStage || "", 80),
@@ -496,6 +497,32 @@ function cleanUrl(value) {
   } catch (error) {
     return "";
   }
+}
+
+function getYouTubeThumbnailUrl(value) {
+  const id = getYouTubeId(value);
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : "";
+}
+
+function getYouTubeId(value) {
+  const url = String(value || "").trim();
+  if (!url) return "";
+
+  const patterns = [
+    /youtube\.com\/watch\?v=([^&]+)/i,
+    /youtu\.be\/([^?&]+)/i,
+    /youtube\.com\/shorts\/([^?&]+)/i,
+    /youtube\.com\/embed\/([^?&]+)/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1].replace(/[^a-zA-Z0-9_-]/g, "");
+    }
+  }
+
+  return "";
 }
 
 function cleanCover(value) {

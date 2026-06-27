@@ -97,6 +97,7 @@
     $("#postTitle").addEventListener("input", renderEditorPreview);
     $("#postSummary").addEventListener("input", renderEditorPreview);
     $("#postCategory").addEventListener("change", renderEditorPreview);
+    $("#postVideo").addEventListener("input", renderEditorPreview);
     $("#adminSearch").addEventListener("input", renderPostList);
     $("#adminStatusFilter").addEventListener("change", renderPostList);
     $("#adminPostList").addEventListener("click", handlePostAction);
@@ -158,6 +159,13 @@
     const title = String(formData.get("title") || "").trim();
     const category = String(formData.get("category") || "personal");
     const featured = Boolean(formData.get("featured"));
+    const videoUrl = String(formData.get("videoUrl") || "").trim();
+    const existingAutoCover = existing && isAutoYouTubeCover(existing.coverImage, existing.videoUrl);
+    const coverImage =
+      coverData ||
+      store.getYouTubeThumbnailUrl(videoUrl) ||
+      (existingAutoCover ? "" : existing && existing.coverImage) ||
+      store.createGeneratedCover(category, title);
     const nextPost = store.normalizePost({
       ...(existing || {}),
       id: existing ? existing.id : store.makeId(),
@@ -168,12 +176,12 @@
       location: String(formData.get("location") || ""),
       summary: String(formData.get("summary") || ""),
       body: String(formData.get("body") || ""),
-      videoUrl: String(formData.get("videoUrl") || ""),
+      videoUrl,
       projectStage: String(formData.get("projectStage") || ""),
       progress: Number(formData.get("progress") || 0),
       tags: store.parseTags(formData.get("tags")),
       featured,
-      coverImage: coverData || (existing && existing.coverImage) || store.createGeneratedCover(category, title)
+      coverImage
     });
 
     if (featured) {
@@ -192,7 +200,7 @@
     renderAdmin();
   }
 
-  function handleCoverUpload(event) {
+  async function handleCoverUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -202,12 +210,15 @@
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      coverData = String(reader.result || "");
+    $("#postMessage").textContent = "Preparing cover image...";
+    try {
+      coverData = await resizeCoverImage(file);
+      $("#postMessage").textContent = "Cover image ready.";
       renderEditorPreview();
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      $("#postMessage").textContent = "Could not prepare this image. Try a smaller JPG or PNG.";
+      event.target.value = "";
+    }
   }
 
   async function handlePostAction(event) {
@@ -228,7 +239,7 @@
     const post = posts.find((item) => item.id === id);
     if (!post) return;
 
-    coverData = post.coverImage;
+    coverData = isAutoYouTubeCover(post.coverImage, post.videoUrl) ? "" : post.coverImage;
     $("#editorTitle").textContent = "Edit post";
     $("#postId").value = post.id;
     $("#postTitle").value = post.title;
@@ -304,7 +315,7 @@
     $("#postStatus").value = "published";
     $("#postProgress").value = 0;
     $("#postMessage").textContent = "";
-    coverData = store.createGeneratedCover("building-project", "New project update");
+    coverData = "";
     renderEditorPreview();
   }
 
@@ -433,7 +444,8 @@
     const title = $("#postTitle").value || "New post title";
     const summary = $("#postSummary").value || "Your short update preview will appear here.";
     const category = $("#postCategory").value || "building-project";
-    const image = coverData || store.createGeneratedCover(category, title);
+    const videoUrl = $("#postVideo").value || "";
+    const image = coverData || store.getYouTubeThumbnailUrl(videoUrl) || store.createGeneratedCover(category, title);
 
     preview.innerHTML = `
       <img src="${store.escapeHtml(image)}" alt="">
@@ -443,6 +455,48 @@
         <p>${store.escapeHtml(summary)}</p>
       </div>
     `;
+  }
+
+  function isAutoYouTubeCover(coverImage, videoUrl) {
+    return Boolean(coverImage && videoUrl && coverImage === store.getYouTubeThumbnailUrl(videoUrl));
+  }
+
+  function resizeCoverImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onerror = reject;
+      reader.onload = () => {
+        const dataUrl = String(reader.result || "");
+
+        if (file.type === "image/svg+xml") {
+          if (dataUrl.length > 1_500_000) reject(new Error("SVG too large"));
+          else resolve(dataUrl);
+          return;
+        }
+
+        const image = new Image();
+        image.onerror = reject;
+        image.onload = () => {
+          const maxWidth = 1600;
+          const ratio = Math.min(1, maxWidth / Math.max(1, image.naturalWidth || image.width));
+          const width = Math.max(1, Math.round((image.naturalWidth || image.width) * ratio));
+          const height = Math.max(1, Math.round((image.naturalHeight || image.height) * ratio));
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const context = canvas.getContext("2d");
+          context.drawImage(image, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.84);
+
+          if (compressed.length > 2_300_000) reject(new Error("Image too large"));
+          else resolve(compressed);
+        };
+        image.src = dataUrl;
+      };
+
+      reader.readAsDataURL(file);
+    });
   }
 
   async function loadAnalytics() {
