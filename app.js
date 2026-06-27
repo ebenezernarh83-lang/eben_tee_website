@@ -267,10 +267,9 @@
     heroUpdateTimer = window.setInterval(() => {
       activeIndex = (activeIndex + 1) % cards.length;
       cards.forEach((card, index) => card.classList.toggle("is-active", index === activeIndex));
-      cards[activeIndex].scrollIntoView({
+      track.scrollTo({
+        left: cards[activeIndex].offsetLeft,
         behavior: "smooth",
-        block: "nearest",
-        inline: "start"
       });
     }, 10000);
   }
