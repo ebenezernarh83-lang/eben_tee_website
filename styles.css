@@ -4244,3 +4244,132 @@ body[data-view="ebook"] .ebook-contact .contact-cards {
     width: min(100% - 1.25rem, var(--page-max));
   }
 }
+
+/* Compact latest-update carousel in the hero */
+body[data-page="public"] .hero-update-carousel {
+  width: min(100%, 760px);
+  margin-top: clamp(1.25rem, 2.2vw, 2.1rem);
+}
+
+body[data-page="public"] .hero-update-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+
+body[data-page="public"] .hero-update-head span {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body[data-page="public"] .hero-update-head small {
+  color: rgba(238, 245, 255, 0.55);
+  font-weight: 800;
+}
+
+body[data-page="public"] .hero-update-viewport {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+body[data-page="public"] .hero-update-track {
+  display: flex;
+  gap: 0.72rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 0.1rem 0 0.25rem;
+}
+
+body[data-page="public"] .hero-update-track::-webkit-scrollbar {
+  display: none;
+}
+
+body[data-page="public"] .hero-update-card {
+  flex: 0 0 clamp(190px, 31%, 245px);
+  min-height: 118px;
+  scroll-snap-align: start;
+  display: grid;
+  align-content: start;
+  gap: 0.42rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(25, 226, 192, 0.12), transparent 54%),
+    rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 0.85rem;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 16px 42px rgba(0, 0, 0, 0.22);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+body[data-page="public"] .hero-update-card.is-active,
+body[data-page="public"] .hero-update-card:hover {
+  border-color: rgba(25, 226, 192, 0.52);
+  background:
+    linear-gradient(145deg, rgba(25, 226, 192, 0.18), rgba(242, 201, 76, 0.08) 72%),
+    rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+body[data-page="public"] .hero-update-card span {
+  color: var(--gold);
+  font-size: 0.76rem;
+  font-weight: 950;
+}
+
+body[data-page="public"] .hero-update-card strong {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.08;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+body[data-page="public"] .hero-update-card small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(238, 245, 255, 0.68);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.34;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 900px) {
+  body[data-page="public"] .hero-update-carousel {
+    width: 100%;
+  }
+
+  body[data-page="public"] .hero-update-card {
+    flex-basis: min(78vw, 320px);
+    min-height: 112px;
+  }
+}
+
+@media (max-width: 520px) {
+  body[data-page="public"] .hero-update-head {
+    align-items: start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  body[data-page="public"] .hero-update-card {
+    flex-basis: 86vw;
+  }
+}

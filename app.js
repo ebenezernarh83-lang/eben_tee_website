@@ -6,6 +6,7 @@
   let settings = {};
   let activeFilter = "all";
   let activeSearch = "";
+  let heroUpdateTimer = null;
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -109,7 +110,7 @@
   function renderAll() {
     renderSettings();
     renderHero();
-    renderStats();
+    renderHeroUpdates();
     renderPostGrid();
     renderSectionGrids();
   }
@@ -212,14 +213,66 @@
     `;
   }
 
-  function renderStats() {
+  function renderHeroUpdates() {
     const projectCount = posts.filter((post) => post.category === "building-project").length;
-    const videoCount = posts.filter((post) => post.category === "video").length;
-
-    setText("#statPosts", posts.length);
-    setText("#statProjects", projectCount);
-    setText("#statVideos", videoCount);
     setText("#projectCount", `${projectCount} active updates`);
+
+    const carousel = $("#heroUpdates");
+    if (!carousel) return;
+
+    const latest = posts.slice(0, 6);
+    if (!latest.length) {
+      carousel.innerHTML = "";
+      return;
+    }
+
+    carousel.innerHTML = `
+      <div class="hero-update-head">
+        <span>Latest updates</span>
+        <small>Fresh from Eben Tee</small>
+      </div>
+      <div class="hero-update-viewport">
+        <div class="hero-update-track" data-hero-update-track>
+          ${latest
+            .map(
+              (post) => `
+                <a class="hero-update-card" href="${store.escapeHtml(store.postUrl(post))}">
+                  <span>${store.categoryLabel(post.category)} · ${store.formatDate(post.publishedAt)}</span>
+                  <strong>${store.escapeHtml(post.title)}</strong>
+                  <small>${store.escapeHtml(post.summary)}</small>
+                </a>
+              `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+
+    startHeroUpdateCarousel();
+  }
+
+  function startHeroUpdateCarousel() {
+    if (heroUpdateTimer) {
+      window.clearInterval(heroUpdateTimer);
+      heroUpdateTimer = null;
+    }
+
+    const track = $("[data-hero-update-track]");
+    const cards = track ? $$(".hero-update-card", track) : [];
+    if (!track || cards.length < 2) return;
+
+    let activeIndex = 0;
+    cards[activeIndex].classList.add("is-active");
+
+    heroUpdateTimer = window.setInterval(() => {
+      activeIndex = (activeIndex + 1) % cards.length;
+      cards.forEach((card, index) => card.classList.toggle("is-active", index === activeIndex));
+      cards[activeIndex].scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "start"
+      });
+    }, 10000);
   }
 
   function renderPostGrid() {
