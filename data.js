@@ -37,6 +37,7 @@
     instagram: "https://www.instagram.com/",
     tiktok: "https://www.tiktok.com/",
     services: [
+      "Drone services and aerial video",
       "Building project updates",
       "Site progress reporting",
       "Construction news and field notes",
@@ -165,6 +166,27 @@
       day: "numeric",
       year: "numeric"
     }).format(date);
+  }
+
+  function slugify(value) {
+    return (
+      String(value || "")
+        .toLowerCase()
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 70) || "post"
+    );
+  }
+
+  function postSlug(post) {
+    const id = String((post && post.id) || makeId()).replace(/[^a-zA-Z0-9_-]/g, "");
+    return `${slugify(post && post.title)}-${id}`;
+  }
+
+  function postUrl(post) {
+    return `/post/${postSlug(post)}`;
   }
 
   function getYouTubeId(value) {
@@ -456,6 +478,34 @@
     }
   }
 
+  async function loadAnalytics(days = 30) {
+    const safeDays = Math.max(1, Math.min(90, Number(days) || 30));
+    try {
+      return await requestJson(`/api/admin/analytics?days=${safeDays}`);
+    } catch (error) {
+      if (isApiError(error, 401)) throw error;
+      return emptyAnalytics(safeDays, true);
+    }
+  }
+
+  function emptyAnalytics(days, offline) {
+    return {
+      days,
+      offline,
+      totals: {
+        views: 0,
+        uniqueVisitors: 0,
+        todayViews: 0,
+        todayUniqueVisitors: 0
+      },
+      daily: [],
+      topPaths: [],
+      topReferrers: [],
+      devices: [],
+      updatedAt: new Date().toISOString()
+    };
+  }
+
   async function saveAdminContent(content) {
     try {
       const payload = await requestJson("/api/admin/content", {
@@ -522,6 +572,8 @@
     parseTags,
     categoryLabel,
     formatDate,
+    postSlug,
+    postUrl,
     getYouTubeEmbedUrl,
     createGeneratedCover,
     normalizePost,
@@ -532,6 +584,7 @@
     saveSettings,
     loadPublicContent,
     loadAdminContent,
+    loadAnalytics,
     saveAdminContent,
     getPublishedPosts,
     getAdminPin,

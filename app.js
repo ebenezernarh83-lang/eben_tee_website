@@ -183,7 +183,7 @@
     if (!hero || !feature) return;
 
     hero.innerHTML = `
-      <button class="tour-device" type="button" data-open-post="${store.escapeHtml(feature.id)}" aria-label="Open featured project">
+      <a class="tour-device" href="${store.escapeHtml(store.postUrl(feature))}" aria-label="Read featured update">
         <span class="tour-topline">
           <span>Live project</span>
           <strong>4K Tour</strong>
@@ -203,7 +203,7 @@
           <span><strong>4K</strong><small>Quality</small></span>
           <span><strong>GH</strong><small>Stories</small></span>
         </span>
-      </button>
+      </a>
       <div class="tour-note">
         <span class="pill">${store.categoryLabel(feature.category)}</span>
         <strong>${store.escapeHtml(feature.title)}</strong>
@@ -271,7 +271,7 @@
           .map(
             (post) => `
               <article class="project-card" data-category="${store.escapeHtml(post.category)}">
-                <button class="card-button" type="button" data-open-post="${store.escapeHtml(post.id)}">
+                <a class="card-button" href="${store.escapeHtml(store.postUrl(post))}" aria-label="Read ${store.escapeHtml(post.title)}">
                   <img src="${store.escapeHtml(post.coverImage)}" alt="">
                   <span class="pill">${store.escapeHtml(post.projectStage || store.categoryLabel(post.category))}</span>
                   <h3>${store.escapeHtml(post.title)}</h3>
@@ -280,7 +280,7 @@
                     <span style="width: ${post.progress}%"></span>
                   </span>
                   <small>${post.progress}% complete</small>
-                </button>
+                </a>
               </article>
             `
           )
@@ -292,7 +292,7 @@
     const embed = store.getYouTubeEmbedUrl(post.videoUrl);
     return `
       <article class="post-card" data-category="${store.escapeHtml(post.category)}">
-        <button class="card-button" type="button" data-open-post="${store.escapeHtml(post.id)}">
+        <a class="card-button" href="${store.escapeHtml(store.postUrl(post))}" aria-label="Read ${store.escapeHtml(post.title)}">
           <span class="media-frame">
             <img src="${store.escapeHtml(post.coverImage)}" alt="">
             ${embed ? '<span class="play-badge">Play</span>' : ""}
@@ -303,7 +303,7 @@
             <span>${store.escapeHtml(post.summary)}</span>
             ${post.location ? `<small>${store.escapeHtml(post.location)}</small>` : ""}
           </span>
-        </button>
+        </a>
       </article>
     `;
   }

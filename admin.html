@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Admin page for Eben Tee posts and site settings.">
+    <meta name="robots" content="noindex, nofollow">
     <title>Admin | Eben Tee</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="styles.css?v=ebook-1">
+    <link rel="stylesheet" href="styles.css?v=seo-1">
   </head>
   <body data-page="admin">
     <a class="skip-link" href="#adminMain">Skip to admin</a>
@@ -59,6 +60,7 @@
 
         <div class="admin-tabs" role="tablist" aria-label="Admin sections">
           <button class="tab-button is-active" type="button" data-admin-tab="posts">Posts</button>
+          <button class="tab-button" type="button" data-admin-tab="analytics">Analytics</button>
           <button class="tab-button" type="button" data-admin-tab="settings">Site settings</button>
           <button class="tab-button" type="button" data-admin-tab="backup">Backup</button>
         </div>
@@ -179,6 +181,56 @@
               </div>
               <div class="post-manager-list" id="adminPostList"></div>
             </div>
+          </div>
+        </section>
+
+        <section class="admin-panel is-hidden" data-panel="analytics">
+          <div class="analytics-panel">
+            <div class="form-title-row">
+              <div>
+                <p class="eyebrow">Visitor analytics</p>
+                <h2>Website visits</h2>
+              </div>
+              <div class="analytics-controls">
+                <label>
+                  Range
+                  <select id="analyticsDays">
+                    <option value="7">7 days</option>
+                    <option value="30" selected>30 days</option>
+                    <option value="90">90 days</option>
+                  </select>
+                </label>
+                <button class="button small secondary" type="button" id="refreshAnalyticsButton">Refresh</button>
+              </div>
+            </div>
+
+            <div class="analytics-summary" aria-label="Visit summary">
+              <span><strong id="analyticsTotalViews">0</strong> visits</span>
+              <span><strong id="analyticsUniqueVisitors">0</strong> visitors</span>
+              <span><strong id="analyticsTodayViews">0</strong> today</span>
+              <span><strong id="analyticsTopPage">None yet</strong> top page</span>
+            </div>
+
+            <div class="analytics-grid">
+              <div class="analytics-card">
+                <h3>Daily visits</h3>
+                <div class="analytics-chart" id="analyticsDailyChart"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Top pages</h3>
+                <div class="analytics-list" id="analyticsTopPaths"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Traffic sources</h3>
+                <div class="analytics-list" id="analyticsReferrers"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Devices</h3>
+                <div class="analytics-list" id="analyticsDevices"></div>
+              </div>
+            </div>
+
+            <p class="form-note" id="analyticsMessage" aria-live="polite">Open this tab after visitors start using the site.</p>
           </div>
         </section>
 
@@ -306,7 +358,7 @@
       </section>
     </main>
 
-    <script src="data.js"></script>
-    <script src="admin.js"></script>
+    <script src="data.js?v=seo-1"></script>
+    <script src="admin.js?v=seo-1"></script>
   </body>
 </html>

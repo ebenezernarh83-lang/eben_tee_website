@@ -10,9 +10,11 @@ A ready-to-use website for posting YouTube videos, construction news, building p
 - `data.js` stores posts and settings in the browser.
 - `app.js` renders the public site.
 - `book.js` powers the ebook sales page buttons and editable ebook details.
+- `analytics.js` records first-party page visits for the private admin analytics page.
 - `admin.js` powers the admin tools.
 - `styles.css` controls the design.
 - `functions/api/[[path]].js` is the Cloudflare Pages API for login, posts, settings, and sessions.
+- `functions/post/[slug].js`, `functions/sitemap.xml.js`, and `functions/robots.txt.js` create Google-friendly post pages and crawl files.
 - `wrangler.jsonc` binds the site to Cloudflare KV.
 - `dist/` is generated for deployment and should not be edited directly.
 
@@ -50,6 +52,10 @@ On Cloudflare, posts and settings are saved online through Pages Functions into 
 
 When running with a plain local static server, the site still falls back to `localStorage` so you can preview the design without Cloudflare.
 
+## SEO and analytics
+
+Published posts get public URLs under `/post/...`, and `/sitemap.xml` lists the homepage, ebook page, and every published post. Public pages send first-party visit events to `/api/track`; the admin Analytics tab reads private totals from `/api/admin/analytics`.
+
 ## YouTube posts
 
 Paste a YouTube link into the YouTube link field. The public site will show the uploaded cover image on cards and embed the video inside the post popup.
@@ -61,7 +67,7 @@ This project is deployed to Cloudflare Pages as `ebentee`.
 Build the clean public folder:
 
 ```bash
-rm -rf dist && mkdir -p dist && cp index.html book.html admin.html styles.css data.js app.js book.js admin.js dist/ && cp -R assets dist/
+rm -rf dist && mkdir -p dist && cp index.html book.html admin.html styles.css data.js app.js book.js admin.js analytics.js dist/ && cp -R assets dist/
 ```
 
 Deploy:

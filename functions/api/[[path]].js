@@ -1,4 +1,5 @@
 const CONTENT_KEY = "site-content-v1";
+const ANALYTICS_PREFIX = "analytics-v1";
 const SESSION_COOKIE = "ebentee_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 
@@ -19,6 +20,7 @@ const defaultSettings = {
   instagram: "https://www.instagram.com/",
   tiktok: "https://www.tiktok.com/",
   services: [
+    "Drone services and aerial video",
     "Building project updates",
     "Site progress reporting",
     "Construction news and field notes",
@@ -108,6 +110,10 @@ export async function onRequest(context) {
 
     const path = new URL(request.url).pathname.replace(/^\/api\/?/, "");
 
+    if (path === "track" && request.method === "POST") {
+      return trackVisit(request, env);
+    }
+
     if (path === "content" && request.method === "GET") {
       const content = await readContent(env);
       return jsonResponse(publicContent(content));
@@ -138,6 +144,11 @@ export async function onRequest(context) {
     if (path === "admin/content" && request.method === "PUT") {
       if (!(await isAuthenticated(request, env))) return jsonResponse({ error: "Unauthorized" }, 401);
       return saveAdminContent(request, env);
+    }
+
+    if (path === "admin/analytics" && request.method === "GET") {
+      if (!(await isAuthenticated(request, env))) return jsonResponse({ error: "Unauthorized" }, 401);
+      return getAnalytics(request, env);
     }
 
     return jsonResponse({ error: "Not found" }, 404);
@@ -192,6 +203,91 @@ async function saveAdminContent(request, env) {
 
   await writeContent(env, next);
   return jsonResponse(adminContent(next));
+}
+
+async function trackVisit(request, env) {
+  if (!isSameOriginRequest(request)) {
+    return jsonResponse({ ok: false }, 403);
+  }
+
+  const userAgent = request.headers.get("User-Agent") || "";
+  if (isBot(userAgent)) {
+    return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const payload = await request.json().catch(() => ({}));
+  const path = cleanAnalyticsPath(payload.path);
+  if (!path) {
+    return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const todayKey = today();
+  const key = analyticsKey(todayKey);
+  const record = normalizeAnalyticsRecord((await env.EBENTEE_CONTENT.get(key, "json").catch(() => null)) || {
+    date: todayKey
+  });
+  const visitor = await visitorHash(request, env);
+  const referrer = cleanReferrer(payload.referrer, request);
+  const device = deviceType(userAgent);
+
+  record.views += 1;
+  record.updatedAt = new Date().toISOString();
+  record.paths[path] = (record.paths[path] || 0) + 1;
+  record.referrers[referrer] = (record.referrers[referrer] || 0) + 1;
+  record.devices[device] = (record.devices[device] || 0) + 1;
+
+  if (visitor && !record.visitors.includes(visitor)) {
+    record.visitors.push(visitor);
+  }
+
+  if (record.visitors.length > 5000) {
+    record.visitors = record.visitors.slice(-5000);
+  }
+
+  await env.EBENTEE_CONTENT.put(key, JSON.stringify(record));
+  return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+}
+
+async function getAnalytics(request, env) {
+  const url = new URL(request.url);
+  const days = Math.max(1, Math.min(90, Number(url.searchParams.get("days")) || 30));
+  const dates = dateRange(days);
+  const records = await Promise.all(
+    dates.map(async (date) => normalizeAnalyticsRecord((await env.EBENTEE_CONTENT.get(analyticsKey(date), "json")) || { date }))
+  );
+  const visitors = new Set();
+  const paths = {};
+  const referrers = {};
+  const devices = {};
+
+  records.forEach((record) => {
+    record.visitors.forEach((visitor) => visitors.add(visitor));
+    mergeCounts(paths, record.paths);
+    mergeCounts(referrers, record.referrers);
+    mergeCounts(devices, record.devices);
+  });
+
+  const todayRecord = records[records.length - 1] || normalizeAnalyticsRecord({ date: today() });
+  const views = records.reduce((total, record) => total + record.views, 0);
+
+  return jsonResponse({
+    days,
+    totals: {
+      views,
+      uniqueVisitors: visitors.size,
+      todayViews: todayRecord.views,
+      todayUniqueVisitors: todayRecord.visitors.length
+    },
+    daily: records.map((record) => ({
+      date: record.date,
+      views: record.views,
+      uniqueVisitors: record.visitors.length
+    })),
+    topPaths: topCounts(paths, 10),
+    topReferrers: topCounts(referrers, 8),
+    devices: topCounts(devices, 5),
+    updatedAt: new Date().toISOString()
+  });
 }
 
 async function readContent(env) {
@@ -390,6 +486,126 @@ function cleanCover(value) {
   if (text.length > 2_500_000) return "";
   if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://")) return text;
   return "";
+}
+
+function analyticsKey(date) {
+  return `${ANALYTICS_PREFIX}:${date}`;
+}
+
+function normalizeAnalyticsRecord(record) {
+  return {
+    date: cleanText(record.date || today(), 20),
+    views: Math.max(0, Number(record.views) || 0),
+    visitors: Array.isArray(record.visitors) ? record.visitors.map((visitor) => cleanText(visitor, 96)).filter(Boolean) : [],
+    paths: cleanCountMap(record.paths),
+    referrers: cleanCountMap(record.referrers),
+    devices: cleanCountMap(record.devices),
+    updatedAt: cleanText(record.updatedAt || "", 40)
+  };
+}
+
+function cleanCountMap(value) {
+  if (!value || typeof value !== "object") return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([key, count]) => [cleanText(key, 180), Math.max(0, Number(count) || 0)])
+      .filter(([key, count]) => key && count > 0)
+      .slice(0, 100)
+  );
+}
+
+function mergeCounts(target, source) {
+  Object.entries(source || {}).forEach(([key, count]) => {
+    target[key] = (target[key] || 0) + count;
+  });
+}
+
+function topCounts(source, limit) {
+  return Object.entries(source || {})
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, limit);
+}
+
+function dateRange(days) {
+  const dates = [];
+  const now = new Date();
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const date = new Date(now);
+    date.setUTCDate(now.getUTCDate() - offset);
+    dates.push(date.toISOString().slice(0, 10));
+  }
+  return dates;
+}
+
+function isSameOriginRequest(request) {
+  const requestUrl = new URL(request.url);
+  const origin = request.headers.get("Origin");
+  const secFetchSite = request.headers.get("Sec-Fetch-Site");
+
+  if (secFetchSite && !["same-origin", "none", "same-site"].includes(secFetchSite)) {
+    return false;
+  }
+
+  if (!origin) return true;
+
+  try {
+    return new URL(origin).host === requestUrl.host;
+  } catch (error) {
+    return false;
+  }
+}
+
+function cleanAnalyticsPath(value) {
+  const text = cleanText(value || "/", 500);
+
+  try {
+    const url = new URL(text, "https://ebentee.com");
+    let path = url.pathname || "/";
+
+    if (path === "/index.html") path = "/";
+    if (path === "/book.html") path = "/book";
+    if (path.startsWith("/admin") || path.startsWith("/api")) return "";
+
+    return path.slice(0, 180);
+  } catch (error) {
+    return "/";
+  }
+}
+
+function cleanReferrer(value, request) {
+  const text = cleanText(value || request.headers.get("Referer") || "", 500);
+  if (!text) return "Direct";
+
+  try {
+    const referrer = new URL(text);
+    const current = new URL(request.url);
+    if (referrer.host === current.host) return "Internal";
+    return referrer.hostname.replace(/^www\./, "");
+  } catch (error) {
+    return "Direct";
+  }
+}
+
+async function visitorHash(request, env) {
+  const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "";
+  const userAgent = request.headers.get("User-Agent") || "";
+  const seed = `${sessionSecret(env)}:${ip}:${userAgent}`;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(seed));
+  return base64Url(new Uint8Array(digest)).slice(0, 32);
+}
+
+function deviceType(userAgent) {
+  const ua = String(userAgent || "");
+  if (/ipad|tablet/i.test(ua)) return "Tablet";
+  if (/mobi|android|iphone|ipod/i.test(ua)) return "Mobile";
+  return "Desktop";
+}
+
+function isBot(userAgent) {
+  return /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|linkedinbot|embedly|quora|pinterest/i.test(
+    String(userAgent || "")
+  );
 }
 
 function today() {

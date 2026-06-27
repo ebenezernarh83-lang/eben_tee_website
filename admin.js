@@ -4,6 +4,8 @@
   const store = window.BuildHubData;
   let posts = [];
   let settings = {};
+  let analytics = null;
+  let analyticsLoaded = false;
   let coverData = "";
   let adminEventsBound = false;
 
@@ -98,6 +100,8 @@
     $("#adminSearch").addEventListener("input", renderPostList);
     $("#adminStatusFilter").addEventListener("change", renderPostList);
     $("#adminPostList").addEventListener("click", handlePostAction);
+    $("#analyticsDays").addEventListener("change", loadAnalytics);
+    $("#refreshAnalyticsButton").addEventListener("click", loadAnalytics);
     $("#exportButton").addEventListener("click", exportContent);
     $("#importInput").addEventListener("change", importContent);
     $("#resetButton").addEventListener("click", resetContent);
@@ -111,6 +115,10 @@
     $$("[data-panel]").forEach((panel) => {
       panel.classList.toggle("is-hidden", panel.dataset.panel !== panelName);
     });
+
+    if (panelName === "analytics" && !analyticsLoaded) {
+      loadAnalytics();
+    }
   }
 
   async function persistContent(message, pin = "") {
@@ -365,6 +373,7 @@
     renderStats();
     renderPostList();
     renderEditorPreview();
+    renderAnalytics();
   }
 
   function renderStats() {
@@ -434,6 +443,91 @@
         <p>${store.escapeHtml(summary)}</p>
       </div>
     `;
+  }
+
+  async function loadAnalytics() {
+    analyticsLoaded = true;
+    const days = Number($("#analyticsDays").value) || 30;
+    $("#analyticsMessage").textContent = "Loading analytics...";
+
+    try {
+      analytics = await store.loadAnalytics(days);
+      renderAnalytics();
+      $("#analyticsMessage").textContent = analytics.offline
+        ? "Analytics is available on the live Cloudflare site."
+        : `Updated ${new Date(analytics.updatedAt).toLocaleString()}.`;
+    } catch (error) {
+      if (error && error.status === 401) {
+        $("#analyticsMessage").textContent = "Please log in again.";
+        await store.lockAdmin();
+        showLogin();
+        return;
+      }
+
+      $("#analyticsMessage").textContent = "Could not load analytics. Try again.";
+    }
+  }
+
+  function renderAnalytics() {
+    if (!analytics) {
+      setText("#analyticsTotalViews", "0");
+      setText("#analyticsUniqueVisitors", "0");
+      setText("#analyticsTodayViews", "0");
+      setText("#analyticsTopPage", "None yet");
+      renderDailyChart([]);
+      renderCountList("#analyticsTopPaths", []);
+      renderCountList("#analyticsReferrers", []);
+      renderCountList("#analyticsDevices", []);
+      return;
+    }
+
+    setText("#analyticsTotalViews", analytics.totals.views);
+    setText("#analyticsUniqueVisitors", analytics.totals.uniqueVisitors);
+    setText("#analyticsTodayViews", analytics.totals.todayViews);
+    setText("#analyticsTopPage", analytics.topPaths[0] ? analytics.topPaths[0].label : "None yet");
+    renderDailyChart(analytics.daily || []);
+    renderCountList("#analyticsTopPaths", analytics.topPaths || []);
+    renderCountList("#analyticsReferrers", analytics.topReferrers || []);
+    renderCountList("#analyticsDevices", analytics.devices || []);
+  }
+
+  function renderDailyChart(items) {
+    const chart = $("#analyticsDailyChart");
+    if (!chart) return;
+
+    const max = Math.max(1, ...items.map((item) => Number(item.views) || 0));
+    chart.innerHTML = items.length
+      ? items
+          .map((item) => {
+            const height = Math.max(6, Math.round(((Number(item.views) || 0) / max) * 100));
+            const label = item.date.slice(5);
+            return `
+              <span class="analytics-bar" title="${store.escapeHtml(item.date)}: ${item.views} visits">
+                <i style="height: ${height}%"></i>
+                <small>${store.escapeHtml(label)}</small>
+              </span>
+            `;
+          })
+          .join("")
+      : `<p class="empty-state">No visits recorded yet.</p>`;
+  }
+
+  function renderCountList(selector, items) {
+    const list = $(selector);
+    if (!list) return;
+
+    list.innerHTML = items.length
+      ? items
+          .map(
+            (item) => `
+              <div class="analytics-row">
+                <span>${store.escapeHtml(item.label)}</span>
+                <strong>${Number(item.count) || 0}</strong>
+              </div>
+            `
+          )
+          .join("")
+      : `<p class="empty-state">No data yet.</p>`;
   }
 
   function renderShellBrand() {
