@@ -114,6 +114,49 @@ const samplePosts = [
   }
 ];
 
+const samplePortfolio = [
+  {
+    id: "media-sample-1",
+    title: "Estate approach road aerial view",
+    type: "photo",
+    status: "published",
+    publishedAt: "2026-06-27",
+    location: "Accra growth corridor",
+    clientType: "Real estate developer",
+    summary: "Clean aerial visuals that show access roads, nearby estates, land layout, and project surroundings.",
+    tags: ["drone photo", "real estate", "land", "Accra"],
+    featured: true,
+    createdAt: "2026-06-25T08:00:00.000Z"
+  },
+  {
+    id: "media-sample-2",
+    title: "East Legon Hills drone walkthrough",
+    type: "video",
+    status: "published",
+    publishedAt: "2026-06-24",
+    location: "East Legon Hills, Ghana",
+    clientType: "Area tour",
+    summary: "A client-ready video view of roads, estates, land activity, and the fast development around East Legon Hills.",
+    mediaUrl: "https://www.youtube.com/watch?v=zl6poa0trhk",
+    tags: ["drone video", "real estate", "East Legon Hills"],
+    featured: true,
+    createdAt: "2026-06-24T08:00:00.000Z"
+  },
+  {
+    id: "media-sample-3",
+    title: "Construction progress inspection",
+    type: "photo",
+    status: "published",
+    publishedAt: "2026-06-21",
+    location: "Ghana project site",
+    clientType: "Builder / contractor",
+    summary: "Progress visuals for clients who need to see roof level, site access, surrounding buildings, and work progress.",
+    tags: ["construction", "progress", "inspection"],
+    featured: false,
+    createdAt: "2026-06-23T08:00:00.000Z"
+  }
+];
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -207,6 +250,7 @@ async function saveAdminContent(request, env) {
   const current = await readContent(env);
   const next = sanitizeContent({
     posts: payload.posts,
+    portfolio: payload.portfolio,
     settings: payload.settings,
     admin: current.admin
   });
@@ -318,6 +362,7 @@ async function readContent(env) {
   const seeded = sanitizeContent({
     settings: defaultSettings,
     posts: samplePosts,
+    portfolio: samplePortfolio,
     admin: {}
   });
   await writeContent(env, seeded);
@@ -331,9 +376,12 @@ async function writeContent(env, content) {
 function sanitizeContent(content) {
   const settings = sanitizeSettings(content.settings || {});
   const posts = Array.isArray(content.posts) ? content.posts.map(sanitizePost).sort(sortByDateDesc) : [];
+  const portfolio = Array.isArray(content.portfolio)
+    ? content.portfolio.map(sanitizePortfolioItem).sort(sortByDateDesc)
+    : samplePortfolio.map(sanitizePortfolioItem).sort(sortByDateDesc);
   const admin = content.admin && typeof content.admin === "object" ? { ...content.admin } : {};
 
-  return { version: 1, updatedAt: new Date().toISOString(), settings, posts, admin };
+  return { version: 1, updatedAt: new Date().toISOString(), settings, posts, portfolio, admin };
 }
 
 function sanitizeSettings(settings) {
@@ -381,17 +429,46 @@ function sanitizePost(post) {
   };
 }
 
+function sanitizePortfolioItem(item) {
+  const type = item.type === "video" ? "video" : "photo";
+  const mediaUrl = cleanMediaUrl(item.mediaUrl, type);
+  const thumbnail =
+    cleanCover(item.thumbnail) ||
+    getYouTubeThumbnailUrl(mediaUrl) ||
+    (type === "photo" && mediaUrl.startsWith("data:image/") ? mediaUrl : "") ||
+    "";
+
+  return {
+    id: cleanText(item.id || crypto.randomUUID(), 90),
+    type,
+    status: item.status === "draft" ? "draft" : "published",
+    title: cleanText(item.title || "Untitled portfolio item", 120),
+    summary: cleanText(item.summary || "", 360),
+    location: cleanText(item.location || "", 120),
+    clientType: cleanText(item.clientType || "", 90),
+    mediaUrl,
+    thumbnail,
+    tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
+    featured: Boolean(item.featured),
+    publishedAt: cleanText(item.publishedAt || today(), 20),
+    createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
+    updatedAt: new Date().toISOString()
+  };
+}
+
 function publicContent(content) {
   return {
     settings: content.settings,
-    posts: content.posts.filter((post) => post.status === "published").sort(sortByDateDesc)
+    posts: content.posts.filter((post) => post.status === "published").sort(sortByDateDesc),
+    portfolio: content.portfolio.filter((item) => item.status === "published").sort(sortByDateDesc)
   };
 }
 
 function adminContent(content) {
   return {
     settings: content.settings,
-    posts: content.posts.sort(sortByDateDesc)
+    posts: content.posts.sort(sortByDateDesc),
+    portfolio: content.portfolio.sort(sortByDateDesc)
   };
 }
 
@@ -531,6 +608,15 @@ function cleanCover(value) {
   if (text.length > 2_500_000) return "";
   if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://")) return text;
   return "";
+}
+
+function cleanMediaUrl(value, type) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  if (text.length > 3_500_000) return "";
+  if (text.startsWith("data:image/")) return text;
+  if (type === "video" && text.startsWith("data:video/")) return text;
+  return cleanUrl(text);
 }
 
 function analyticsKey(date) {

@@ -2,6 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "build-journal-posts-v1";
+  const PORTFOLIO_KEY = "build-journal-portfolio-v1";
   const SETTINGS_KEY = "build-journal-settings-v1";
   const SESSION_KEY = "build-journal-admin-unlocked";
   const PIN_KEY = "build-journal-admin-pin";
@@ -118,6 +119,45 @@
       tags: ["aerial video", "project update", "land", "construction", "Ghana"],
       projectStage: "Visual inspection",
       progress: 100
+    }
+  ];
+
+  const samplePortfolio = [
+    {
+      title: "Estate approach road aerial view",
+      type: "photo",
+      status: "published",
+      publishedAt: "2026-06-27",
+      location: "Accra growth corridor",
+      clientType: "Real estate developer",
+      summary: "Clean aerial visuals that show access roads, nearby estates, land layout, and project surroundings.",
+      mediaUrl: "",
+      tags: ["drone photo", "real estate", "land", "Accra"],
+      featured: true
+    },
+    {
+      title: "East Legon Hills drone walkthrough",
+      type: "video",
+      status: "published",
+      publishedAt: "2026-06-24",
+      location: "East Legon Hills, Ghana",
+      clientType: "Area tour",
+      summary: "A client-ready video view of roads, estates, land activity, and the fast development around East Legon Hills.",
+      mediaUrl: "https://www.youtube.com/watch?v=zl6poa0trhk",
+      tags: ["drone video", "real estate", "East Legon Hills"],
+      featured: true
+    },
+    {
+      title: "Construction progress inspection",
+      type: "photo",
+      status: "published",
+      publishedAt: "2026-06-21",
+      location: "Ghana project site",
+      clientType: "Builder / contractor",
+      summary: "Progress visuals for clients who need to see roof level, site access, surrounding buildings, and work progress.",
+      mediaUrl: "",
+      tags: ["construction", "progress", "inspection"],
+      featured: false
     }
   ];
 
@@ -322,6 +362,10 @@
     return canvas.toDataURL("image/jpeg", 0.78);
   }
 
+  function createPortfolioCover(type, title) {
+    return createGeneratedCover(type === "video" ? "video" : "service-update", title || "Drone portfolio");
+  }
+
   function normalizePost(post) {
     const normalized = {
       id: String(post.id || makeId()),
@@ -348,6 +392,44 @@
     }
 
     return normalized;
+  }
+
+  function normalizePortfolioItem(item) {
+    const type = item.type === "video" ? "video" : "photo";
+    const mediaUrl = String(item.mediaUrl || "").trim();
+    const title = String(item.title || "Untitled portfolio item").trim();
+    const thumbnail =
+      String(item.thumbnail || "").trim() ||
+      getYouTubeThumbnailUrl(mediaUrl) ||
+      (type === "photo" && mediaUrl ? mediaUrl : "") ||
+      createPortfolioCover(type, title);
+
+    return {
+      id: String(item.id || makeId()).replace(/^post-/, "media-"),
+      type,
+      status: item.status === "draft" ? "draft" : "published",
+      title,
+      summary: String(item.summary || "").trim(),
+      location: String(item.location || "").trim(),
+      clientType: String(item.clientType || "").trim(),
+      mediaUrl,
+      thumbnail,
+      tags: parseTags(item.tags),
+      featured: Boolean(item.featured),
+      publishedAt: item.publishedAt || today(),
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function seedPortfolio() {
+    return samplePortfolio.map((item, index) =>
+      normalizePortfolioItem({
+        ...item,
+        id: `media-sample-${index + 1}`,
+        createdAt: `2026-06-${String(25 - index).padStart(2, "0")}T08:00:00.000Z`
+      })
+    );
   }
 
   function seedPosts() {
@@ -381,6 +463,23 @@
     const seeded = seedPosts();
     savePosts(seeded);
     return seeded;
+  }
+
+  function loadPortfolio() {
+    const stored = readJson(PORTFOLIO_KEY, null);
+    if (Array.isArray(stored) && stored.length) {
+      return stored.map(normalizePortfolioItem).sort(sortByDateDesc);
+    }
+
+    const seeded = seedPortfolio();
+    savePortfolio(seeded);
+    return seeded;
+  }
+
+  function savePortfolio(items) {
+    const normalized = items.map(normalizePortfolioItem).sort(sortByDateDesc);
+    writeJson(PORTFOLIO_KEY, normalized);
+    return normalized;
   }
 
   function loadSettings() {
@@ -422,6 +521,10 @@
     return posts.filter((post) => post.status === "published").sort(sortByDateDesc);
   }
 
+  function getPublishedPortfolio(items) {
+    return items.filter((item) => item.status === "published").sort(sortByDateDesc);
+  }
+
   function getAdminPin() {
     return window.localStorage.getItem(PIN_KEY) || "1234";
   }
@@ -457,6 +560,7 @@
   function localPublicContent() {
     return {
       posts: getPublishedPosts(loadPosts()),
+      portfolio: getPublishedPortfolio(loadPortfolio()),
       settings: loadSettings(),
       offline: true
     };
@@ -465,6 +569,7 @@
   function localAdminContent() {
     return {
       posts: loadPosts(),
+      portfolio: loadPortfolio(),
       settings: loadSettings(),
       offline: true
     };
@@ -472,10 +577,14 @@
 
   function normalizeContentPayload(payload, publishedOnly) {
     const loadedPosts = Array.isArray(payload.posts) ? payload.posts.map(normalizePost).sort(sortByDateDesc) : [];
+    const loadedPortfolio = Array.isArray(payload.portfolio)
+      ? payload.portfolio.map(normalizePortfolioItem).sort(sortByDateDesc)
+      : loadPortfolio();
     const loadedSettings = saveSettings(payload.settings || {});
 
     return {
       posts: publishedOnly ? getPublishedPosts(loadedPosts) : loadedPosts,
+      portfolio: publishedOnly ? getPublishedPortfolio(loadedPortfolio) : loadedPortfolio,
       settings: loadedSettings,
       offline: Boolean(payload.offline)
     };
@@ -536,6 +645,7 @@
       });
       const normalized = normalizeContentPayload(payload, false);
       writeJson(STORAGE_KEY, normalized.posts);
+      writeJson(PORTFOLIO_KEY, normalized.portfolio);
       writeJson(SETTINGS_KEY, normalized.settings);
       return normalized;
     } catch (error) {
@@ -547,6 +657,7 @@
       }
       return {
         posts: savePosts(content.posts || []),
+        portfolio: savePortfolio(content.portfolio || []),
         settings: saveSettings(content.settings || {}),
         offline: true
       };
@@ -599,9 +710,12 @@
     getYouTubeEmbedUrl,
     getYouTubeThumbnailUrl,
     createGeneratedCover,
+    normalizePortfolioItem,
     normalizePost,
     loadPosts,
     savePosts,
+    loadPortfolio,
+    savePortfolio,
     resetPosts,
     loadSettings,
     saveSettings,
@@ -610,6 +724,7 @@
     loadAnalytics,
     saveAdminContent,
     getPublishedPosts,
+    getPublishedPortfolio,
     getAdminPin,
     setAdminPin,
     unlockAdmin,

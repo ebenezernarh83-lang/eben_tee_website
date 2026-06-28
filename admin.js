@@ -3,10 +3,12 @@
 
   const store = window.BuildHubData;
   let posts = [];
+  let portfolio = [];
   let settings = {};
   let analytics = null;
   let analyticsLoaded = false;
   let coverData = "";
+  let portfolioUploadData = "";
   let adminEventsBound = false;
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
@@ -58,6 +60,7 @@
     try {
       const content = await store.loadAdminContent();
       posts = content.posts;
+      portfolio = content.portfolio || [];
       settings = content.settings;
     } catch (error) {
       $("#loginMessage").textContent = "Please log in again.";
@@ -70,6 +73,7 @@
     $("#adminApp").classList.remove("is-hidden");
     bindAdminEvents();
     resetPostForm();
+    resetPortfolioForm();
     fillSettingsForm();
     renderAdmin();
   }
@@ -83,8 +87,10 @@
     });
 
     $("#postForm").addEventListener("submit", savePost);
+    $("#portfolioForm").addEventListener("submit", savePortfolioItem);
     $("#settingsForm").addEventListener("submit", saveSettings);
     $("#newPostButton").addEventListener("click", resetPostForm);
+    $("#newPortfolioButton").addEventListener("click", resetPortfolioForm);
     $("#clearCoverButton").addEventListener("click", () => {
       const category = $("#postCategory").value;
       const title = $("#postTitle").value || "New project update";
@@ -92,15 +98,28 @@
       $("#coverInput").value = "";
       renderEditorPreview();
     });
+    $("#clearPortfolioMediaButton").addEventListener("click", () => {
+      portfolioUploadData = "";
+      $("#portfolioFile").value = "";
+      renderPortfolioPreview();
+    });
 
     $("#coverInput").addEventListener("change", handleCoverUpload);
+    $("#portfolioFile").addEventListener("change", handlePortfolioUpload);
     $("#postTitle").addEventListener("input", renderEditorPreview);
     $("#postSummary").addEventListener("input", renderEditorPreview);
     $("#postCategory").addEventListener("change", renderEditorPreview);
     $("#postVideo").addEventListener("input", renderEditorPreview);
+    $("#portfolioTitle").addEventListener("input", renderPortfolioPreview);
+    $("#portfolioSummary").addEventListener("input", renderPortfolioPreview);
+    $("#portfolioType").addEventListener("change", renderPortfolioPreview);
+    $("#portfolioMediaUrl").addEventListener("input", renderPortfolioPreview);
     $("#adminSearch").addEventListener("input", renderPostList);
     $("#adminStatusFilter").addEventListener("change", renderPostList);
     $("#adminPostList").addEventListener("click", handlePostAction);
+    $("#portfolioSearch").addEventListener("input", renderPortfolioList);
+    $("#portfolioStatusFilter").addEventListener("change", renderPortfolioList);
+    $("#portfolioList").addEventListener("click", handlePortfolioAction);
     $("#analyticsDays").addEventListener("change", loadAnalytics);
     $("#refreshAnalyticsButton").addEventListener("click", loadAnalytics);
     $("#exportButton").addEventListener("click", exportContent);
@@ -124,16 +143,19 @@
 
   async function persistContent(message, pin = "") {
     try {
-      const result = await store.saveAdminContent({ posts, settings, pin });
+      const result = await store.saveAdminContent({ posts, portfolio, settings, pin });
       posts = result.posts;
+      portfolio = result.portfolio || [];
       settings = result.settings;
 
       if (result.offline) {
         setMessage("#postMessage", "Saved locally. Deploy Functions to save online.");
+        setMessage("#portfolioMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#settingsMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#importMessage", "Saved locally. Deploy Functions to save online.");
       } else if (message) {
         setMessage("#postMessage", message);
+        setMessage("#portfolioMessage", message);
         setMessage("#settingsMessage", message);
         setMessage("#importMessage", message);
       }
@@ -141,6 +163,7 @@
     } catch (error) {
       const messageText = error && error.status === 401 ? "Please log in again." : "Could not save online. Try again.";
       setMessage("#postMessage", messageText);
+      setMessage("#portfolioMessage", messageText);
       setMessage("#settingsMessage", messageText);
       setMessage("#importMessage", messageText);
       if (error && error.status === 401) {
@@ -319,6 +342,158 @@
     renderEditorPreview();
   }
 
+  async function savePortfolioItem(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const id = String(formData.get("id") || "").trim();
+    const existing = portfolio.find((item) => item.id === id);
+    const type = String(formData.get("type") || "photo") === "video" ? "video" : "photo";
+    const title = String(formData.get("title") || "").trim();
+    const rawMediaUrl = String(formData.get("mediaUrl") || "").trim();
+    const mediaUrl = portfolioUploadData || rawMediaUrl || (existing && existing.mediaUrl) || "";
+    const uploadChanged = Boolean(portfolioUploadData || rawMediaUrl);
+    const thumbnail =
+      type === "photo" && mediaUrl.startsWith("data:image/")
+        ? mediaUrl
+        : store.getYouTubeThumbnailUrl(mediaUrl) || (uploadChanged ? "" : existing && existing.thumbnail) || "";
+    const featured = Boolean(formData.get("featured"));
+    const nextItem = store.normalizePortfolioItem({
+      ...(existing || {}),
+      id: existing ? existing.id : store.makeId().replace(/^post-/, "media-"),
+      type,
+      status: String(formData.get("status") || "published"),
+      title,
+      publishedAt: String(formData.get("publishedAt") || store.today()),
+      location: String(formData.get("location") || ""),
+      clientType: String(formData.get("clientType") || ""),
+      summary: String(formData.get("summary") || ""),
+      mediaUrl,
+      thumbnail,
+      tags: store.parseTags(formData.get("tags")),
+      featured
+    });
+
+    if (featured) {
+      portfolio = portfolio.map((item) => ({ ...item, featured: false }));
+    }
+
+    if (existing) {
+      portfolio = portfolio.map((item) => (item.id === existing.id ? nextItem : item));
+    } else {
+      portfolio = [nextItem, ...portfolio];
+    }
+
+    $("#portfolioMessage").textContent = "Saving...";
+    if (!(await persistContent("Portfolio media saved online."))) return;
+    editPortfolioItem(nextItem.id);
+    renderAdmin();
+  }
+
+  async function handlePortfolioUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    $("#portfolioMessage").textContent = "Preparing media...";
+    try {
+      if (file.type.startsWith("image/")) {
+        portfolioUploadData = await resizeCoverImage(file);
+        $("#portfolioType").value = "photo";
+      } else if (file.type.startsWith("video/")) {
+        portfolioUploadData = await readLimitedFile(file, 2_400_000, 3_500_000);
+        $("#portfolioType").value = "video";
+      } else {
+        throw new Error("Unsupported media type");
+      }
+
+      $("#portfolioMediaUrl").value = "";
+      $("#portfolioMessage").textContent =
+        file.type.startsWith("video/")
+          ? "Short video ready. For long videos, paste a YouTube link instead."
+          : "Photo ready.";
+      renderPortfolioPreview();
+    } catch (error) {
+      $("#portfolioMessage").textContent =
+        file.type.startsWith("video/")
+          ? "Video is too large for direct upload. Upload it to YouTube and paste the link here."
+          : "Could not prepare this image. Try a smaller JPG or PNG.";
+      event.target.value = "";
+    }
+  }
+
+  async function handlePortfolioAction(event) {
+    const button = event.target.closest("[data-media-action]");
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.mediaAction;
+
+    if (action === "edit") editPortfolioItem(id);
+    if (action === "delete") await deletePortfolioItem(id);
+    if (action === "publish") await togglePortfolioStatus(id);
+    if (action === "feature") await featurePortfolioItem(id);
+  }
+
+  function editPortfolioItem(id) {
+    const item = portfolio.find((entry) => entry.id === id);
+    if (!item) return;
+
+    portfolioUploadData = "";
+    $("#portfolioEditorTitle").textContent = "Edit media item";
+    $("#portfolioId").value = item.id;
+    $("#portfolioTitle").value = item.title;
+    $("#portfolioType").value = item.type;
+    $("#portfolioStatus").value = item.status;
+    $("#portfolioDate").value = item.publishedAt;
+    $("#portfolioLocation").value = item.location;
+    $("#portfolioClientType").value = item.clientType;
+    $("#portfolioSummary").value = item.summary;
+    $("#portfolioMediaUrl").value = item.mediaUrl.startsWith("data:") ? "" : item.mediaUrl;
+    $("#portfolioTags").value = item.tags.join(", ");
+    $("#portfolioFeatured").checked = item.featured;
+    $("#portfolioFile").value = "";
+    $("#portfolioMessage").textContent = "";
+    renderPortfolioPreview();
+  }
+
+  async function deletePortfolioItem(id) {
+    const item = portfolio.find((entry) => entry.id === id);
+    if (!item) return;
+
+    const confirmed = window.confirm(`Delete "${item.title}" from the portfolio?`);
+    if (!confirmed) return;
+
+    portfolio = portfolio.filter((entry) => entry.id !== id);
+    if (!(await persistContent("Portfolio media deleted online."))) return;
+    resetPortfolioForm();
+    renderAdmin();
+  }
+
+  async function togglePortfolioStatus(id) {
+    portfolio = portfolio.map((item) =>
+      item.id === id ? { ...item, status: item.status === "published" ? "draft" : "published" } : item
+    );
+    if (!(await persistContent("Portfolio status updated online."))) return;
+    renderAdmin();
+  }
+
+  async function featurePortfolioItem(id) {
+    portfolio = portfolio.map((item) => ({ ...item, featured: item.id === id }));
+    if (!(await persistContent("Featured portfolio media updated online."))) return;
+    renderAdmin();
+  }
+
+  function resetPortfolioForm() {
+    portfolioUploadData = "";
+    $("#portfolioEditorTitle").textContent = "New media item";
+    $("#portfolioForm").reset();
+    $("#portfolioId").value = "";
+    $("#portfolioDate").value = store.today();
+    $("#portfolioStatus").value = "published";
+    $("#portfolioType").value = "photo";
+    $("#portfolioMessage").textContent = "";
+    renderPortfolioPreview();
+  }
+
   async function saveSettings(event) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -383,7 +558,9 @@
   function renderAdmin() {
     renderStats();
     renderPostList();
+    renderPortfolioList();
     renderEditorPreview();
+    renderPortfolioPreview();
     renderAnalytics();
   }
 
@@ -391,6 +568,7 @@
     $("#adminPublishedCount").textContent = posts.filter((post) => post.status === "published").length;
     $("#adminDraftCount").textContent = posts.filter((post) => post.status === "draft").length;
     $("#adminFeaturedCount").textContent = posts.filter((post) => post.featured).length;
+    $("#adminMediaCount").textContent = portfolio.length;
   }
 
   function renderPostList() {
@@ -437,6 +615,63 @@
     `;
   }
 
+  function renderPortfolioList() {
+    const list = $("#portfolioList");
+    if (!list) return;
+
+    const search = $("#portfolioSearch").value.trim().toLowerCase();
+    const status = $("#portfolioStatusFilter").value;
+    const filtered = portfolio.filter((item) => {
+      const matchesStatus = status === "all" || item.status === status;
+      const haystack = [item.title, item.summary, item.location, item.clientType, item.type, item.tags.join(" ")]
+        .join(" ")
+        .toLowerCase();
+      return matchesStatus && (!search || haystack.includes(search));
+    });
+
+    list.innerHTML = filtered.length
+      ? filtered.map(renderPortfolioManagerItem).join("")
+      : `<p class="empty-state">No portfolio media found.</p>`;
+  }
+
+  function renderPortfolioManagerItem(item) {
+    return `
+      <article class="manager-item" data-category="${store.escapeHtml(item.type)}">
+        ${renderPortfolioManagerThumb(item)}
+        <div>
+          <span class="card-meta">${item.type === "video" ? "Drone video" : "Drone photo"} · ${store.formatDate(item.publishedAt)}</span>
+          <h3>${store.escapeHtml(item.title)}</h3>
+          <p>${store.escapeHtml(item.summary || item.location || "Client portfolio media")}</p>
+          <div class="tag-row compact">
+            <span>${item.status}</span>
+            ${item.featured ? "<span>featured</span>" : ""}
+          </div>
+        </div>
+        <div class="manager-actions">
+          <button type="button" data-media-action="edit" data-id="${store.escapeHtml(item.id)}">Edit</button>
+          <button type="button" data-media-action="publish" data-id="${store.escapeHtml(item.id)}">${
+            item.status === "published" ? "Draft" : "Publish"
+          }</button>
+          <button type="button" data-media-action="feature" data-id="${store.escapeHtml(item.id)}">Feature</button>
+          <button class="danger-link" type="button" data-media-action="delete" data-id="${store.escapeHtml(item.id)}">Delete</button>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderPortfolioManagerThumb(item) {
+    const image = portfolioThumbnail(item);
+    if (image) {
+      return `<img src="${store.escapeHtml(image)}" alt="">`;
+    }
+
+    if (item.type === "video" && item.mediaUrl) {
+      return `<video src="${store.escapeHtml(item.mediaUrl)}" muted playsinline preload="metadata"></video>`;
+    }
+
+    return `<span class="manager-media-placeholder">ET</span>`;
+  }
+
   function renderEditorPreview() {
     const preview = $("#editorPreview");
     if (!preview) return;
@@ -455,6 +690,50 @@
         <p>${store.escapeHtml(summary)}</p>
       </div>
     `;
+  }
+
+  function renderPortfolioPreview() {
+    const preview = $("#portfolioPreview");
+    if (!preview) return;
+
+    const title = $("#portfolioTitle").value || "Drone portfolio title";
+    const summary = $("#portfolioSummary").value || "A short client-facing description will appear here.";
+    const type = $("#portfolioType").value === "video" ? "video" : "photo";
+    const id = $("#portfolioId").value;
+    const existing = portfolio.find((item) => item.id === id);
+    const mediaUrl = portfolioUploadData || $("#portfolioMediaUrl").value.trim() || (existing && existing.mediaUrl) || "";
+    const image =
+      (type === "photo" && mediaUrl.startsWith("data:image/") ? mediaUrl : "") ||
+      store.getYouTubeThumbnailUrl(mediaUrl) ||
+      (existing && existing.thumbnail) ||
+      "";
+
+    preview.innerHTML = `
+      ${renderPortfolioPreviewMedia(type, mediaUrl, image)}
+      <div>
+        <span class="pill">${type === "video" ? "Drone video" : "Drone photo"}</span>
+        <h3>${store.escapeHtml(title)}</h3>
+        <p>${store.escapeHtml(summary)}</p>
+      </div>
+    `;
+  }
+
+  function renderPortfolioPreviewMedia(type, mediaUrl, image) {
+    if (image) {
+      return `<img src="${store.escapeHtml(image)}" alt="">`;
+    }
+
+    if (type === "video" && mediaUrl) {
+      return `<video src="${store.escapeHtml(mediaUrl)}" muted playsinline preload="metadata"></video>`;
+    }
+
+    return `<span class="manager-media-placeholder">ET</span>`;
+  }
+
+  function portfolioThumbnail(item) {
+    if (item.thumbnail) return item.thumbnail;
+    if (item.type === "photo" && item.mediaUrl) return item.mediaUrl;
+    return store.getYouTubeThumbnailUrl(item.mediaUrl);
   }
 
   function isAutoYouTubeCover(coverImage, videoUrl) {
@@ -495,6 +774,24 @@
         image.src = dataUrl;
       };
 
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function readLimitedFile(file, maxBytes, maxDataUrlLength) {
+    return new Promise((resolve, reject) => {
+      if (file.size > maxBytes) {
+        reject(new Error("File too large"));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const dataUrl = String(reader.result || "");
+        if (!dataUrl || dataUrl.length > maxDataUrlLength) reject(new Error("File too large"));
+        else resolve(dataUrl);
+      };
       reader.readAsDataURL(file);
     });
   }
@@ -599,6 +896,7 @@
       version: 1,
       exportedAt: new Date().toISOString(),
       settings,
+      portfolio,
       posts
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -623,6 +921,7 @@
         }
 
         posts = payload.posts.map(store.normalizePost);
+        portfolio = Array.isArray(payload.portfolio) ? payload.portfolio.map(store.normalizePortfolioItem) : portfolio;
         if (payload.settings) {
           settings = payload.settings;
         }
@@ -646,6 +945,7 @@
     if (!confirmed) return;
 
     posts = store.resetPosts();
+    portfolio = store.loadPortfolio();
     if (!(await persistContent("Sample content restored online."))) return;
     resetPostForm();
     renderAdmin();

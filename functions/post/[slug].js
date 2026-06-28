@@ -95,7 +95,7 @@ function renderPost(post, settings) {
     <meta name="twitter:card" content="summary_large_image">
     <title>${escapeHtml(title)}</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="/styles.css?v=seo-discovery-1">
+    <link rel="stylesheet" href="/styles.css?v=portfolio-showcase-1">
     <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
   <body data-page="public" data-view="post">
@@ -154,7 +154,7 @@ function renderPost(post, settings) {
         ${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}
       </div>
     </footer>
-    <script src="/analytics.js?v=seo-discovery-1"></script>
+    <script src="/analytics.js?v=portfolio-showcase-1"></script>
   </body>
 </html>`;
 }

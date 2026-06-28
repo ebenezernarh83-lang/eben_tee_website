@@ -3,6 +3,7 @@
 
   const store = window.BuildHubData;
   let posts = [];
+  let portfolio = [];
   let settings = {};
   let activeFilter = "all";
   let activeSearch = "";
@@ -13,6 +14,7 @@
   document.addEventListener("DOMContentLoaded", async () => {
     const content = await store.loadPublicContent();
     posts = content.posts;
+    portfolio = content.portfolio || [];
     settings = content.settings;
 
     bindNavigation();
@@ -87,11 +89,17 @@
 
     document.addEventListener("click", (event) => {
       const opener = event.target.closest("[data-open-post]");
+      const mediaOpener = event.target.closest("[data-open-media]");
       const closer = event.target.closest("[data-close-dialog]");
 
       if (opener) {
         const post = posts.find((item) => item.id === opener.dataset.openPost);
         if (post) openPostDialog(post);
+      }
+
+      if (mediaOpener) {
+        const item = portfolio.find((entry) => entry.id === mediaOpener.dataset.openMedia);
+        if (item) openMediaDialog(item);
       }
 
       if (closer) {
@@ -110,6 +118,7 @@
     renderSettings();
     renderHero();
     renderHeroUpdates();
+    renderPortfolio();
     renderPostGrid();
     renderSectionGrids();
   }
@@ -289,6 +298,81 @@
     renderProjectGrid(posts.filter((post) => post.category === "building-project").slice(0, 4));
   }
 
+  function renderPortfolio() {
+    const shell = $("#portfolioShowcase");
+    const grid = $("#portfolioGrid");
+    if (!shell || !grid) return;
+
+    const items = portfolio.slice(0, 8);
+    const featured = items.find((item) => item.featured) || items[0];
+    setText("#portfolioCount", `${portfolio.length} media items`);
+
+    if (!items.length || !featured) {
+      shell.innerHTML = `<p class="empty-state">Upload drone photos and videos from the admin Portfolio tab.</p>`;
+      grid.innerHTML = "";
+      return;
+    }
+
+    shell.innerHTML = `
+      <button class="portfolio-feature" type="button" data-open-media="${store.escapeHtml(featured.id)}">
+        <span class="portfolio-feature-media">${renderPortfolioPreview(featured, true)}</span>
+        <span class="portfolio-feature-copy">
+          <span class="pill">${featured.type === "video" ? "Drone video" : "Drone photo"}</span>
+          <strong>${store.escapeHtml(featured.title)}</strong>
+          <small>${store.escapeHtml(featured.summary || "Client-ready drone visuals by Eben Tee.")}</small>
+          <span>${store.escapeHtml([featured.clientType, featured.location].filter(Boolean).join(" · "))}</span>
+        </span>
+      </button>
+    `;
+
+    grid.innerHTML = items
+      .filter((item) => item.id !== featured.id)
+      .slice(0, 6)
+      .map(renderPortfolioCard)
+      .join("");
+  }
+
+  function renderPortfolioCard(item) {
+    return `
+      <button class="portfolio-card" type="button" data-open-media="${store.escapeHtml(item.id)}">
+        <span class="portfolio-card-media">
+          ${renderPortfolioPreview(item, false)}
+          ${item.type === "video" ? '<span class="play-badge">Play</span>' : ""}
+        </span>
+        <span class="portfolio-card-copy">
+          <small>${store.escapeHtml(item.clientType || (item.type === "video" ? "Drone video" : "Drone photo"))}</small>
+          <strong>${store.escapeHtml(item.title)}</strong>
+          ${item.location ? `<span>${store.escapeHtml(item.location)}</span>` : ""}
+        </span>
+      </button>
+    `;
+  }
+
+  function renderPortfolioPreview(item, large) {
+    const image = portfolioImage(item);
+    const label = store.escapeHtml(item.title);
+
+    if (image) {
+      return `<img src="${store.escapeHtml(image)}" alt="${label}">`;
+    }
+
+    if (item.type === "video" && item.mediaUrl) {
+      return `<video src="${store.escapeHtml(item.mediaUrl)}" muted playsinline preload="metadata"></video>`;
+    }
+
+    return `
+      <span class="portfolio-placeholder ${large ? "is-large" : ""}" aria-hidden="true">
+        <span>ET</span>
+      </span>
+    `;
+  }
+
+  function portfolioImage(item) {
+    if (item.thumbnail) return item.thumbnail;
+    if (item.type === "photo" && item.mediaUrl) return item.mediaUrl;
+    return store.getYouTubeThumbnailUrl(item.mediaUrl);
+  }
+
   function renderMiniGrid(selector, items) {
     const container = $(selector);
     if (!container) return;
@@ -374,6 +458,54 @@
     } else {
       dialog.setAttribute("open", "open");
     }
+  }
+
+  function openMediaDialog(item) {
+    const dialog = $("#postDialog");
+    const content = $("#dialogContent");
+    if (!dialog || !content) return;
+
+    content.innerHTML = `
+      <article class="dialog-article portfolio-dialog-article">
+        <div class="dialog-media">
+          ${renderPortfolioDialogMedia(item)}
+        </div>
+        <div class="dialog-body">
+          <span class="pill">${item.type === "video" ? "Drone video" : "Drone photo"}</span>
+          <h2 id="dialogTitle">${store.escapeHtml(item.title)}</h2>
+          <p class="card-meta">${store.formatDate(item.publishedAt)}${item.location ? ` · ${store.escapeHtml(item.location)}` : ""}</p>
+          ${item.summary ? `<p>${store.escapeHtml(item.summary)}</p>` : ""}
+          ${item.clientType ? `<p><strong>Best for:</strong> ${store.escapeHtml(item.clientType)}</p>` : ""}
+          ${renderTags(item.tags)}
+          <a class="button" href="#contact" data-close-dialog>Talk about a project</a>
+        </div>
+      </article>
+    `;
+
+    if (typeof dialog.showModal === "function") {
+      dialog.showModal();
+    } else {
+      dialog.setAttribute("open", "open");
+    }
+  }
+
+  function renderPortfolioDialogMedia(item) {
+    const embed = store.getYouTubeEmbedUrl(item.mediaUrl);
+    const image = portfolioImage(item);
+
+    if (embed) {
+      return `<iframe src="${store.escapeHtml(embed)}" title="${store.escapeHtml(item.title)}" allowfullscreen></iframe>`;
+    }
+
+    if (item.type === "video" && item.mediaUrl) {
+      return `<video src="${store.escapeHtml(item.mediaUrl)}" poster="${store.escapeHtml(image)}" controls playsinline></video>`;
+    }
+
+    if (image) {
+      return `<img src="${store.escapeHtml(image)}" alt="${store.escapeHtml(item.title)}">`;
+    }
+
+    return `<div class="portfolio-placeholder is-large"><span>ET</span></div>`;
   }
 
   function closeDialog() {

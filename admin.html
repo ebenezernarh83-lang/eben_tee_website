@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Admin | Eben Tee</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="styles.css?v=cover-fix-1">
+    <link rel="stylesheet" href="styles.css?v=portfolio-showcase-1">
   </head>
   <body data-page="admin">
     <a class="skip-link" href="#adminMain">Skip to admin</a>
@@ -55,11 +55,13 @@
             <span><strong id="adminPublishedCount">0</strong> published</span>
             <span><strong id="adminDraftCount">0</strong> drafts</span>
             <span><strong id="adminFeaturedCount">0</strong> featured</span>
+            <span><strong id="adminMediaCount">0</strong> media</span>
           </div>
         </div>
 
         <div class="admin-tabs" role="tablist" aria-label="Admin sections">
           <button class="tab-button is-active" type="button" data-admin-tab="posts">Posts</button>
+          <button class="tab-button" type="button" data-admin-tab="portfolio">Portfolio</button>
           <button class="tab-button" type="button" data-admin-tab="analytics">Analytics</button>
           <button class="tab-button" type="button" data-admin-tab="settings">Site settings</button>
           <button class="tab-button" type="button" data-admin-tab="backup">Backup</button>
@@ -180,6 +182,111 @@
                 </label>
               </div>
               <div class="post-manager-list" id="adminPostList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-panel is-hidden" data-panel="portfolio">
+          <div class="admin-layout">
+            <form class="editor-panel" id="portfolioForm">
+              <div class="form-title-row">
+                <div>
+                  <p class="eyebrow">Client portfolio</p>
+                  <h2 id="portfolioEditorTitle">New media item</h2>
+                </div>
+                <button class="button small secondary" type="button" id="newPortfolioButton">New</button>
+              </div>
+
+              <input type="hidden" id="portfolioId" name="id">
+
+              <label>
+                Title
+                <input id="portfolioTitle" name="title" type="text" maxlength="100" required>
+              </label>
+
+              <div class="form-grid">
+                <label>
+                  Type
+                  <select id="portfolioType" name="type">
+                    <option value="photo">Drone photo</option>
+                    <option value="video">Drone video</option>
+                  </select>
+                </label>
+                <label>
+                  Status
+                  <select id="portfolioStatus" name="status">
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Date
+                  <input id="portfolioDate" name="publishedAt" type="date" required>
+                </label>
+                <label>
+                  Location
+                  <input id="portfolioLocation" name="location" type="text" maxlength="90">
+                </label>
+              </div>
+
+              <label>
+                Client or project type
+                <input id="portfolioClientType" name="clientType" type="text" placeholder="Real estate developer, contractor, land seller...">
+              </label>
+
+              <label>
+                Short description
+                <textarea id="portfolioSummary" name="summary" rows="3" maxlength="260"></textarea>
+              </label>
+
+              <label>
+                Photo/video link
+                <input id="portfolioMediaUrl" name="mediaUrl" type="url" placeholder="YouTube link, image link, or direct MP4 link">
+              </label>
+
+              <label class="file-field">
+                Upload photo or short video
+                <input id="portfolioFile" name="mediaFile" type="file" accept="image/*,video/*">
+              </label>
+
+              <label>
+                Tags
+                <input id="portfolioTags" name="tags" type="text" placeholder="drone, real estate, Accra">
+              </label>
+
+              <label class="check-row">
+                <input id="portfolioFeatured" name="featured" type="checkbox">
+                Feature this in the portfolio
+              </label>
+
+              <div class="preview-card" id="portfolioPreview" aria-live="polite"></div>
+
+              <div class="editor-actions">
+                <button class="button" type="submit">Save media</button>
+                <button class="button secondary" type="button" id="clearPortfolioMediaButton">Clear upload</button>
+              </div>
+              <p class="form-note" id="portfolioMessage" aria-live="polite"></p>
+            </form>
+
+            <div class="manager-panel">
+              <div class="manager-toolbar">
+                <label>
+                  Search
+                  <input id="portfolioSearch" type="search" placeholder="Find media...">
+                </label>
+                <label>
+                  Filter
+                  <select id="portfolioStatusFilter">
+                    <option value="all">All media</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </label>
+              </div>
+              <div class="post-manager-list" id="portfolioList"></div>
             </div>
           </div>
         </section>
@@ -358,7 +465,7 @@
       </section>
     </main>
 
-    <script src="data.js?v=cover-fix-1"></script>
-    <script src="admin.js?v=cover-fix-1"></script>
+    <script src="data.js?v=portfolio-showcase-1"></script>
+    <script src="admin.js?v=portfolio-showcase-1"></script>
   </body>
 </html>
