@@ -4331,6 +4331,7 @@ body[data-view="ebook"] .ebook-contact .contact-cards {
 
 /* Compact latest-update carousel in the hero */
 body[data-page="public"] .hero-update-carousel {
+  --hero-update-gap: 0.72rem;
   width: min(100%, 760px);
   margin-top: clamp(1.25rem, 2.2vw, 2.1rem);
 }
@@ -4357,18 +4358,31 @@ body[data-page="public"] .hero-update-head small {
 }
 
 body[data-page="public"] .hero-update-viewport {
+  position: relative;
   overflow: hidden;
   max-width: 100%;
+  border-radius: 20px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
 
 body[data-page="public"] .hero-update-track {
   display: flex;
-  gap: 0.72rem;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
+  width: max-content;
+  overflow: visible;
   scrollbar-width: none;
   padding: 0.1rem 0 0.25rem;
+  animation: hero-update-marquee 58s linear infinite;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+body[data-page="public"] .hero-update-group {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--hero-update-gap);
+  padding-right: var(--hero-update-gap);
 }
 
 body[data-page="public"] .hero-update-track::-webkit-scrollbar {
@@ -4382,17 +4396,17 @@ body[data-page="public"] .hero-update-card {
   display: grid;
   align-content: start;
   gap: 0.42rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(156, 221, 255, 0.72);
   border-radius: 18px;
   background:
-    linear-gradient(145deg, rgba(25, 226, 192, 0.12), transparent 54%),
-    rgba(255, 255, 255, 0.08);
-  color: #fff;
+    linear-gradient(145deg, rgba(223, 247, 255, 0.98), rgba(175, 225, 255, 0.93) 58%, rgba(132, 201, 246, 0.88)),
+    #c8edff;
+  color: #061826;
   padding: 0.85rem;
   text-decoration: none;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 16px 42px rgba(0, 0, 0, 0.22);
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    0 18px 44px rgba(26, 143, 207, 0.2);
   transition:
     border-color 180ms ease,
     background 180ms ease,
@@ -4401,15 +4415,15 @@ body[data-page="public"] .hero-update-card {
 
 body[data-page="public"] .hero-update-card.is-active,
 body[data-page="public"] .hero-update-card:hover {
-  border-color: rgba(25, 226, 192, 0.52);
+  border-color: rgba(218, 246, 255, 0.98);
   background:
-    linear-gradient(145deg, rgba(25, 226, 192, 0.18), rgba(242, 201, 76, 0.08) 72%),
-    rgba(255, 255, 255, 0.1);
+    linear-gradient(145deg, #eefbff, #b7e9ff 56%, #8bd3ff),
+    #d8f4ff;
   transform: translateY(-2px);
 }
 
 body[data-page="public"] .hero-update-card span {
-  color: var(--gold);
+  color: #075985;
   font-size: 0.76rem;
   font-weight: 950;
 }
@@ -4417,7 +4431,7 @@ body[data-page="public"] .hero-update-card span {
 body[data-page="public"] .hero-update-card strong {
   display: -webkit-box;
   overflow: hidden;
-  color: #fff;
+  color: #061826;
   font-size: 1rem;
   line-height: 1.08;
   -webkit-box-orient: vertical;
@@ -4427,12 +4441,34 @@ body[data-page="public"] .hero-update-card strong {
 body[data-page="public"] .hero-update-card small {
   display: -webkit-box;
   overflow: hidden;
-  color: rgba(238, 245, 255, 0.68);
+  color: rgba(6, 24, 38, 0.7);
   font-size: 0.84rem;
   font-weight: 700;
   line-height: 1.34;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+@keyframes hero-update-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-page="public"] .hero-update-track {
+    width: auto;
+    overflow-x: auto;
+    animation: none;
+  }
+
+  body[data-page="public"] .hero-update-group[aria-hidden="true"] {
+    display: none;
+  }
 }
 
 @media (max-width: 900px) {

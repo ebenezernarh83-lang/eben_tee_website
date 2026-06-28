@@ -6,7 +6,6 @@
   let settings = {};
   let activeFilter = "all";
   let activeSearch = "";
-  let heroUpdateTimer = null;
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -226,6 +225,9 @@
       return;
     }
 
+    const updateCards = renderHeroUpdateCards(latest);
+    const duplicateCards = renderHeroUpdateCards(latest, true);
+
     carousel.innerHTML = `
       <div class="hero-update-head">
         <span>Latest updates</span>
@@ -233,45 +235,27 @@
       </div>
       <div class="hero-update-viewport">
         <div class="hero-update-track" data-hero-update-track>
-          ${latest
-            .map(
-              (post) => `
-                <a class="hero-update-card" href="${store.escapeHtml(store.postUrl(post))}">
-                  <span>${store.categoryLabel(post.category)} · ${store.formatDate(post.publishedAt)}</span>
-                  <strong>${store.escapeHtml(post.title)}</strong>
-                  <small>${store.escapeHtml(post.summary)}</small>
-                </a>
-              `
-            )
-            .join("")}
+          <div class="hero-update-group">${updateCards}</div>
+          <div class="hero-update-group" aria-hidden="true">${duplicateCards}</div>
         </div>
       </div>
     `;
 
-    startHeroUpdateCarousel();
   }
 
-  function startHeroUpdateCarousel() {
-    if (heroUpdateTimer) {
-      window.clearInterval(heroUpdateTimer);
-      heroUpdateTimer = null;
-    }
-
-    const track = $("[data-hero-update-track]");
-    const cards = track ? $$(".hero-update-card", track) : [];
-    if (!track || cards.length < 2) return;
-
-    let activeIndex = 0;
-    cards[activeIndex].classList.add("is-active");
-
-    heroUpdateTimer = window.setInterval(() => {
-      activeIndex = (activeIndex + 1) % cards.length;
-      cards.forEach((card, index) => card.classList.toggle("is-active", index === activeIndex));
-      track.scrollTo({
-        left: cards[activeIndex].offsetLeft,
-        behavior: "smooth",
-      });
-    }, 10000);
+  function renderHeroUpdateCards(items, isDuplicate = false) {
+    const tabAttribute = isDuplicate ? ' tabindex="-1"' : "";
+    return items
+      .map(
+        (post) => `
+          <a class="hero-update-card" href="${store.escapeHtml(store.postUrl(post))}"${tabAttribute}>
+            <span>${store.categoryLabel(post.category)} · ${store.formatDate(post.publishedAt)}</span>
+            <strong>${store.escapeHtml(post.title)}</strong>
+            <small>${store.escapeHtml(post.summary)}</small>
+          </a>
+        `
+      )
+      .join("");
   }
 
   function renderPostGrid() {
