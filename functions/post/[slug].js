@@ -31,7 +31,8 @@ function renderPost(post, settings) {
   const description = plainText(post.summary || post.body || settings.tagline, 300);
   const canonical = absolutePostUrl(post);
   const imageMeta = isShareableImage(post.coverImage) ? `<meta property="og:image" content="${escapeHtml(post.coverImage)}">` : "";
-  const schema = {
+  const schemas = [
+    {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
@@ -50,10 +51,30 @@ function renderPost(post, settings) {
     mainEntityOfPage: canonical,
     articleSection: categoryLabel(post.category),
     keywords: post.tags.join(", ")
-  };
+    }
+  ];
 
   if (isShareableImage(post.coverImage)) {
-    schema.image = post.coverImage;
+    schemas[0].image = post.coverImage;
+  }
+
+  const videoEmbedUrl = getYouTubeEmbedUrl(post.videoUrl);
+  if (videoEmbedUrl) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      name: post.title,
+      description,
+      thumbnailUrl: isShareableImage(post.coverImage) ? [post.coverImage] : undefined,
+      uploadDate: post.publishedAt,
+      embedUrl: videoEmbedUrl,
+      contentUrl: post.videoUrl,
+      publisher: {
+        "@type": "Organization",
+        name: settings.brandName,
+        url: SITE_URL
+      }
+    });
   }
 
   return `<!doctype html>
@@ -63,7 +84,9 @@ function renderPost(post, settings) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="${escapeHtml(description)}">
     <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <link rel="canonical" href="${escapeHtml(canonical)}">
+    <link rel="sitemap" type="application/xml" href="${SITE_URL}/sitemap.xml">
     <meta property="og:type" content="article">
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(description)}">
@@ -72,8 +95,8 @@ function renderPost(post, settings) {
     <meta name="twitter:card" content="summary_large_image">
     <title>${escapeHtml(title)}</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="/styles.css?v=seo-1">
-    <script type="application/ld+json">${safeJson(schema)}</script>
+    <link rel="stylesheet" href="/styles.css?v=seo-discovery-1">
+    <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
   <body data-page="public" data-view="post">
     <a class="skip-link" href="#postMain">Skip to post</a>
@@ -131,7 +154,7 @@ function renderPost(post, settings) {
         ${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}
       </div>
     </footer>
-    <script src="/analytics.js?v=seo-1"></script>
+    <script src="/analytics.js?v=seo-discovery-1"></script>
   </body>
 </html>`;
 }
