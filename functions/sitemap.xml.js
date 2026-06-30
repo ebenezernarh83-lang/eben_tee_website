@@ -4,6 +4,7 @@ export async function onRequestGet({ env }) {
   const content = await readPublicContent(env);
   const staticUrls = [
     { loc: `${SITE_URL}/`, lastmod: content.updatedAt, priority: "1.0" },
+    { loc: `${SITE_URL}/projects`, lastmod: content.updatedAt, priority: "0.9" },
     { loc: `${SITE_URL}/book`, lastmod: content.updatedAt, priority: "0.8" }
   ];
   const postUrls = content.posts.map((post) => ({
