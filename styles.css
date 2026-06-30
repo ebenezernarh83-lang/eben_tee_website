@@ -4979,6 +4979,71 @@ body[data-page="public"] .hero-update-card small {
   -webkit-line-clamp: 2;
 }
 
+/* Header fit guard: keep desktop links readable and switch to menu before they squeeze. */
+.site-header .nav-shell {
+  position: relative;
+}
+
+.site-header .brand {
+  flex: 1 1 auto;
+}
+
+.site-header .nav-links {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  min-width: max-content;
+}
+
+.site-header .nav-links a,
+.site-header .nav-links button,
+.site-header .brand-copy strong,
+.site-header .brand-copy small {
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.site-header .nav-links a,
+.site-header .nav-links button {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1180px) {
+  body[data-page="public"] .nav-toggle {
+    display: inline-flex;
+  }
+
+  body[data-page="public"] .nav-links:not(.always-open) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.6rem);
+    z-index: 30;
+    display: none;
+    min-width: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    background: rgba(5, 8, 13, 0.96);
+    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(18px);
+  }
+
+  body[data-page="public"] .nav-links:not(.always-open).is-open {
+    display: flex;
+  }
+
+  body[data-page="public"] .nav-links:not(.always-open) a,
+  body[data-page="public"] .nav-links:not(.always-open) button {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
 @keyframes hero-update-marquee {
   from {
     transform: translate3d(0, 0, 0);

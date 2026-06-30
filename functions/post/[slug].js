@@ -105,7 +105,7 @@ function renderPost(post, settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=project-landing-1">
+    <link rel="stylesheet" href="/styles.css?v=nav-fix-1">
     <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
   <body data-page="public" data-view="post">
@@ -183,7 +183,7 @@ function renderNotFound(settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=seo-1">
+    <link rel="stylesheet" href="/styles.css?v=nav-fix-1">
   </head>
   <body data-page="public" data-view="post">
     <main class="seo-post-page">
