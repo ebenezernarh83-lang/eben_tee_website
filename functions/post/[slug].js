@@ -1,4 +1,5 @@
 import {
+  BRAND_LOGO_URL,
   SITE_URL,
   absolutePostUrl,
   categoryLabel,
@@ -30,7 +31,17 @@ function renderPost(post, settings) {
   const title = `${post.title} | ${settings.brandName}`;
   const description = plainText(post.summary || post.body || settings.tagline, 300);
   const canonical = absolutePostUrl(post);
-  const imageMeta = isShareableImage(post.coverImage) ? `<meta property="og:image" content="${escapeHtml(post.coverImage)}">` : "";
+  const socialImage = isShareableImage(post.coverImage) ? post.coverImage : BRAND_LOGO_URL;
+  const imageMeta = `<meta property="og:image" content="${escapeHtml(socialImage)}">`;
+  const publisher = {
+    "@type": "Organization",
+    name: settings.brandName,
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: BRAND_LOGO_URL
+    }
+  };
   const schemas = [
     {
     "@context": "https://schema.org",
@@ -43,11 +54,7 @@ function renderPost(post, settings) {
       "@type": "Person",
       name: settings.ownerName || settings.brandName
     },
-    publisher: {
-      "@type": "Organization",
-      name: settings.brandName,
-      url: SITE_URL
-    },
+    publisher,
     mainEntityOfPage: canonical,
     articleSection: categoryLabel(post.category),
     keywords: post.tags.join(", ")
@@ -69,11 +76,7 @@ function renderPost(post, settings) {
       uploadDate: post.publishedAt,
       embedUrl: videoEmbedUrl,
       contentUrl: post.videoUrl,
-      publisher: {
-        "@type": "Organization",
-        name: settings.brandName,
-        url: SITE_URL
-      }
+      publisher
     });
   }
 
@@ -91,10 +94,17 @@ function renderPost(post, settings) {
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:url" content="${escapeHtml(canonical)}">
+    <meta property="og:site_name" content="${escapeHtml(settings.brandName)}">
     ${imageMeta}
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="${escapeHtml(socialImage)}">
     <title>${escapeHtml(title)}</title>
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/assets/eben-tee-icon-48.png" type="image/png" sizes="48x48">
+    <link rel="alternate icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#05080d">
     <link rel="stylesheet" href="/styles.css?v=project-landing-1">
     <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
@@ -167,6 +177,12 @@ function renderNotFound(settings) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>Post not found | ${escapeHtml(settings.brandName)}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/assets/eben-tee-icon-48.png" type="image/png" sizes="48x48">
+    <link rel="alternate icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#05080d">
     <link rel="stylesheet" href="/styles.css?v=seo-1">
   </head>
   <body data-page="public" data-view="post">

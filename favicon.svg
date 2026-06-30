@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Eben Tee logo">
+  <defs>
+    <linearGradient id="bg" x1="54" y1="48" x2="462" y2="472" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#05080d"/>
+      <stop offset="1" stop-color="#1b2333"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="10" dy="12" stdDeviation="0" flood-color="#000" flood-opacity=".34"/>
+    </filter>
+  </defs>
+  <rect x="28" y="28" width="456" height="456" rx="92" fill="url(#bg)"/>
+  <circle cx="126" cy="112" r="93" fill="#1c7ebc" opacity=".38"/>
+  <circle cx="388" cy="386" r="112" fill="#22e4ce" opacity=".18"/>
+  <rect x="28" y="28" width="456" height="456" rx="92" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="10"/>
+  <g filter="url(#shadow)" fill="#fff">
+    <path d="M108 134h43v244h-43zM108 134h151v44H108zM108 235h126v42H108zM108 334h151v44H108z"/>
+    <path d="M284 134h166v44H284zM346 134h44v244h-44z"/>
+  </g>
+  <rect x="69" y="405" width="374" height="18" rx="9" fill="#22e4ce"/>
+  <circle cx="420" cy="92" r="18" fill="#ffcb41"/>
+  <circle cx="92" cy="424" r="14" fill="#ffcb41"/>
+</svg>
