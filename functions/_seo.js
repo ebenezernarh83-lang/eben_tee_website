@@ -1,5 +1,5 @@
 export const SITE_URL = "https://ebentee.com";
-export const BRAND_LOGO_URL = `${SITE_URL}/assets/eben-tee-logo-512.png`;
+export const BRAND_LOGO_URL = `${SITE_URL}/assets/eben-tee-logo.png`;
 
 const CONTENT_KEY = "site-content-v1";
 

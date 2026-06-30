@@ -99,13 +99,13 @@ function renderPost(post, settings) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="${escapeHtml(socialImage)}">
     <title>${escapeHtml(title)}</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/assets/eben-tee-icon-48.png" type="image/png" sizes="48x48">
+    <link rel="icon" href="/assets/eben-tee-icon-192.png" type="image/png" sizes="192x192">
     <link rel="alternate icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=nav-fix-1">
+    <link rel="stylesheet" href="/styles.css?v=logo-update-1">
     <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
   <body data-page="public" data-view="post">
@@ -113,7 +113,7 @@ function renderPost(post, settings) {
     <header class="site-header">
       <nav class="nav-shell" aria-label="Main navigation">
         <a class="brand" href="/" aria-label="Home">
-          <span class="brand-mark">${escapeHtml(getInitials(settings.brandName))}</span>
+          <span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-logo-512.png" alt=""></span>
           <span class="brand-copy">
             <strong>${escapeHtml(settings.brandName)}</strong>
             <small>${escapeHtml(settings.tagline)}</small>
@@ -177,13 +177,13 @@ function renderNotFound(settings) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>Post not found | ${escapeHtml(settings.brandName)}</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/assets/eben-tee-icon-48.png" type="image/png" sizes="48x48">
+    <link rel="icon" href="/assets/eben-tee-icon-192.png" type="image/png" sizes="192x192">
     <link rel="alternate icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=nav-fix-1">
+    <link rel="stylesheet" href="/styles.css?v=logo-update-1">
   </head>
   <body data-page="public" data-view="post">
     <main class="seo-post-page">
