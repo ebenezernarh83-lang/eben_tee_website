@@ -13,18 +13,19 @@ const categoryLabels = {
 
 const defaultSettings = {
   brandName: "Eben Tee",
-  ownerName: "Eben Tee",
-  tagline: "Ghana drone videos, real estate tours, construction news, and project stories.",
+  ownerName: "Ebenezer Tetteh",
+  tagline: "INSPIRE. EMPOWER. CREATE IMPACT.",
   about:
-    "Eben Tee documents Ghana's beauty, progress, and culture through drone visuals, estate tours, construction walkthroughs, road trips, and simple project updates.",
+    "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur, drone pilot, videographer, YouTuber, construction project manager, real estate marketer, property manager, and software/digital entrepreneur. I help people see, invest in, build, manage, and promote opportunities in Ghana with clear visual documentation and professional support.",
   location: "Accra, Ghana",
   youtube: "https://www.youtube.com/@ebentee",
   services: [
-    "Drone services and aerial video for projects",
-    "Real estate, land, and community tour videos",
-    "Construction site walkthroughs",
-    "Building project progress reporting",
-    "Ghana infrastructure and development news"
+    "Drone photography, videography, inspections, event coverage, and drone training",
+    "Media production, YouTube documentaries, editing, and social content for Ghana brands",
+    "Land, house, apartment, and real estate marketing for buyers and developers",
+    "Construction supervision, progress reporting, materials tracking, and diaspora updates",
+    "Airbnb, short-stay, furnished apartment, and property management support",
+    "Websites, business systems, MoMo agent software, and digital products for Ghanaian businesses"
   ]
 };
 
@@ -117,19 +118,50 @@ export function isShareableImage(value) {
 }
 
 function normalizeSettings(settings) {
+  const migrated = migrateSettings(settings);
   return {
     ...defaultSettings,
-    ...settings,
-    brandName: cleanText(settings.brandName || defaultSettings.brandName, 80),
-    ownerName: cleanText(settings.ownerName || defaultSettings.ownerName, 80),
-    tagline: cleanText(settings.tagline || defaultSettings.tagline, 160),
-    about: cleanText(settings.about || defaultSettings.about, 1200),
-    location: cleanText(settings.location || defaultSettings.location, 120),
-    youtube: cleanUrl(settings.youtube || defaultSettings.youtube),
-    services: Array.isArray(settings.services)
-      ? settings.services.map((service) => cleanText(service, 100)).filter(Boolean).slice(0, 12)
+    ...migrated,
+    brandName: cleanText(migrated.brandName || defaultSettings.brandName, 80),
+    ownerName: cleanText(migrated.ownerName || defaultSettings.ownerName, 80),
+    tagline: cleanText(migrated.tagline || defaultSettings.tagline, 160),
+    about: cleanText(migrated.about || defaultSettings.about, 1200),
+    location: cleanText(migrated.location || defaultSettings.location, 120),
+    youtube: cleanUrl(migrated.youtube || defaultSettings.youtube),
+    services: Array.isArray(migrated.services)
+      ? migrated.services.map((service) => cleanText(service, 100)).filter(Boolean).slice(0, 12)
       : defaultSettings.services
   };
+}
+
+function migrateSettings(settings) {
+  const migrated = { ...(settings || {}) };
+  const oldTaglines = [
+    "Ghana drone videos, real estate tours, construction news, and project stories.",
+    "Videos, news, and building project updates."
+  ];
+
+  if (!migrated.ownerName || migrated.ownerName === "Eben Tee" || migrated.ownerName === "Your Name") {
+    migrated.ownerName = defaultSettings.ownerName;
+  }
+
+  if (!migrated.tagline || oldTaglines.includes(migrated.tagline)) {
+    migrated.tagline = defaultSettings.tagline;
+  }
+
+  if (
+    !migrated.about ||
+    String(migrated.about).startsWith("Eben Tee documents Ghana's beauty") ||
+    String(migrated.about).startsWith("Eben Tee is built around visual stories")
+  ) {
+    migrated.about = defaultSettings.about;
+  }
+
+  if (!Array.isArray(migrated.services) || migrated.services.length < 6) {
+    migrated.services = defaultSettings.services;
+  }
+
+  return migrated;
 }
 
 function normalizePost(post) {

@@ -7,10 +7,10 @@ const categories = new Set(["video", "construction-news", "building-project", "s
 
 const defaultSettings = {
   brandName: "Eben Tee",
-  ownerName: "Eben Tee",
-  tagline: "Ghana drone videos, real estate tours, construction news, and project stories.",
+  ownerName: "Ebenezer Tetteh",
+  tagline: "INSPIRE. EMPOWER. CREATE IMPACT.",
   about:
-    "Eben Tee documents Ghana's beauty, progress, and culture through drone visuals, estate tours, construction walkthroughs, road trips, and simple project updates. This site brings the videos, services, ebook, and Ghana project stories together in one professional home.",
+    "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur, drone pilot, videographer, YouTuber, construction project manager, real estate marketer, property manager, and software/digital entrepreneur. I help people see, invest in, build, manage, and promote opportunities in Ghana with clear visual documentation and professional support.",
   phone: "",
   whatsapp: "",
   email: "",
@@ -19,13 +19,14 @@ const defaultSettings = {
   facebook: "https://www.facebook.com/ebentee83/",
   instagram: "https://www.instagram.com/ebentee_yt/",
   tiktok: "",
+  x: "",
   services: [
-    "Drone services and aerial video for projects",
-    "Real estate, land, and community tour videos",
-    "Construction site walkthroughs",
-    "Building project progress reporting",
-    "Ghana infrastructure and development news",
-    "YouTube storytelling and social media content"
+    "Drone photography, videography, inspections, event coverage, and drone training",
+    "Media production, YouTube documentaries, editing, and social content for Ghana brands",
+    "Land, house, apartment, and real estate marketing for buyers and developers",
+    "Construction supervision, progress reporting, materials tracking, and diaspora updates",
+    "Airbnb, short-stay, furnished apartment, and property management support",
+    "Websites, business systems, MoMo agent software, and digital products for Ghanaian businesses"
   ]
 };
 
@@ -157,6 +158,90 @@ const samplePortfolio = [
   }
 ];
 
+const sampleProperties = [
+  {
+    id: "property-sample-1",
+    title: "Diaspora-ready land inspection package",
+    propertyType: "Land",
+    status: "published",
+    availability: "available",
+    location: "Accra growth corridor",
+    price: "Enquire for verified options",
+    size: "Plots and serviced land",
+    summary:
+      "For buyers abroad who need clear drone footage, access-road checks, neighbourhood context, and video proof before making a decision.",
+    tags: ["land", "diaspora", "inspection", "Accra"],
+    featured: true,
+    publishedAt: "2026-06-27",
+    createdAt: "2026-06-27T08:00:00.000Z"
+  },
+  {
+    id: "property-sample-2",
+    title: "Real estate video tour for developers",
+    propertyType: "House / Apartment",
+    status: "published",
+    availability: "marketing",
+    location: "Greater Accra and nearby regions",
+    price: "Marketing service",
+    size: "Homes, estates, apartments",
+    summary:
+      "Premium property walk-through and aerial visuals for developers, agents, landlords, and sellers who want stronger buyer enquiries.",
+    tags: ["real estate", "property tour", "developer"],
+    featured: true,
+    publishedAt: "2026-06-26",
+    createdAt: "2026-06-26T08:00:00.000Z"
+  },
+  {
+    id: "property-sample-3",
+    title: "Airbnb and furnished apartment promotion",
+    propertyType: "Short stay",
+    status: "published",
+    availability: "management",
+    location: "Accra, Tema, East Legon, Spintex",
+    price: "Request management quote",
+    size: "Rooms, studios, apartments",
+    summary:
+      "Promotion, guest-ready visuals, booking support, maintenance coordination, and income monitoring for short-stay property owners.",
+    tags: ["airbnb", "short stay", "property management"],
+    featured: false,
+    publishedAt: "2026-06-25",
+    createdAt: "2026-06-25T08:00:00.000Z"
+  }
+];
+
+const sampleTestimonials = [
+  {
+    id: "testimonial-sample-1",
+    name: "Diaspora building client",
+    role: "Construction supervision",
+    status: "published",
+    quote:
+      "The video updates made it easier to understand the site progress from abroad. I could see the work clearly without being in Ghana.",
+    rating: 5,
+    createdAt: "2026-06-24T08:00:00.000Z"
+  },
+  {
+    id: "testimonial-sample-2",
+    name: "Real estate seller",
+    role: "Drone marketing",
+    status: "published",
+    quote:
+      "The aerial view showed the road access and surrounding area better than normal photos. It helped people understand the property quickly.",
+    rating: 5,
+    createdAt: "2026-06-23T08:00:00.000Z"
+  },
+  {
+    id: "testimonial-sample-3",
+    name: "Short-stay owner",
+    role: "Property promotion",
+    status: "published",
+    quote:
+      "The content looked professional and gave the apartment a stronger online presence for guests and enquiries.",
+    rating: 5,
+    createdAt: "2026-06-22T08:00:00.000Z"
+  }
+];
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -251,6 +336,8 @@ async function saveAdminContent(request, env) {
   const next = sanitizeContent({
     posts: payload.posts,
     portfolio: payload.portfolio,
+    properties: payload.properties,
+    testimonials: payload.testimonials,
     settings: payload.settings,
     admin: current.admin
   });
@@ -363,6 +450,8 @@ async function readContent(env) {
     settings: defaultSettings,
     posts: samplePosts,
     portfolio: samplePortfolio,
+    properties: sampleProperties,
+    testimonials: sampleTestimonials,
     admin: {}
   });
   await writeContent(env, seeded);
@@ -379,31 +468,69 @@ function sanitizeContent(content) {
   const portfolio = Array.isArray(content.portfolio)
     ? content.portfolio.map(sanitizePortfolioItem).sort(sortByDateDesc)
     : samplePortfolio.map(sanitizePortfolioItem).sort(sortByDateDesc);
+  const properties = Array.isArray(content.properties)
+    ? content.properties.map(sanitizeProperty).sort(sortByDateDesc)
+    : sampleProperties.map(sanitizeProperty).sort(sortByDateDesc);
+  const testimonials = Array.isArray(content.testimonials)
+    ? content.testimonials.map(sanitizeTestimonial)
+    : sampleTestimonials.map(sanitizeTestimonial);
   const admin = content.admin && typeof content.admin === "object" ? { ...content.admin } : {};
 
-  return { version: 1, updatedAt: new Date().toISOString(), settings, posts, portfolio, admin };
+  return { version: 1, updatedAt: new Date().toISOString(), settings, posts, portfolio, properties, testimonials, admin };
 }
 
 function sanitizeSettings(settings) {
+  const migrated = migrateSettings(settings);
   return {
     ...defaultSettings,
-    ...settings,
-    brandName: cleanText(settings.brandName || defaultSettings.brandName, 80),
-    ownerName: cleanText(settings.ownerName || defaultSettings.ownerName, 80),
-    tagline: cleanText(settings.tagline || defaultSettings.tagline, 160),
-    about: cleanText(settings.about || defaultSettings.about, 1200),
-    phone: cleanText(settings.phone || "", 60),
-    whatsapp: cleanText(settings.whatsapp || "", 60),
-    email: cleanText(settings.email || "", 120),
-    location: cleanText(settings.location || "", 120),
-    youtube: cleanUrl(settings.youtube),
-    facebook: cleanUrl(settings.facebook),
-    instagram: cleanUrl(settings.instagram),
-    tiktok: cleanUrl(settings.tiktok),
-    services: Array.isArray(settings.services)
-      ? settings.services.map((service) => cleanText(service, 100)).filter(Boolean).slice(0, 12)
+    ...migrated,
+    brandName: cleanText(migrated.brandName || defaultSettings.brandName, 80),
+    ownerName: cleanText(migrated.ownerName || defaultSettings.ownerName, 80),
+    tagline: cleanText(migrated.tagline || defaultSettings.tagline, 160),
+    about: cleanText(migrated.about || defaultSettings.about, 1200),
+    phone: cleanText(migrated.phone || "", 60),
+    whatsapp: cleanText(migrated.whatsapp || "", 60),
+    email: cleanText(migrated.email || "", 120),
+    location: cleanText(migrated.location || "", 120),
+    youtube: cleanUrl(migrated.youtube),
+    facebook: cleanUrl(migrated.facebook),
+    instagram: cleanUrl(migrated.instagram),
+    tiktok: cleanUrl(migrated.tiktok),
+    x: cleanUrl(migrated.x),
+    services: Array.isArray(migrated.services)
+      ? migrated.services.map((service) => cleanText(service, 100)).filter(Boolean).slice(0, 12)
       : defaultSettings.services
   };
+}
+
+function migrateSettings(settings) {
+  const migrated = { ...(settings || {}) };
+  const oldTaglines = [
+    "Ghana drone videos, real estate tours, construction news, and project stories.",
+    "Videos, news, and building project updates."
+  ];
+
+  if (!migrated.ownerName || migrated.ownerName === "Eben Tee" || migrated.ownerName === "Your Name") {
+    migrated.ownerName = defaultSettings.ownerName;
+  }
+
+  if (!migrated.tagline || oldTaglines.includes(migrated.tagline)) {
+    migrated.tagline = defaultSettings.tagline;
+  }
+
+  if (
+    !migrated.about ||
+    String(migrated.about).startsWith("Eben Tee documents Ghana's beauty") ||
+    String(migrated.about).startsWith("Eben Tee is built around visual stories")
+  ) {
+    migrated.about = defaultSettings.about;
+  }
+
+  if (!Array.isArray(migrated.services) || migrated.services.length < 6) {
+    migrated.services = defaultSettings.services;
+  }
+
+  return migrated;
 }
 
 function sanitizePost(post) {
@@ -456,11 +583,48 @@ function sanitizePortfolioItem(item) {
   };
 }
 
+function sanitizeProperty(item) {
+  const mediaUrl = cleanMediaUrl(item.mediaUrl, "photo");
+  return {
+    id: cleanText(item.id || crypto.randomUUID(), 90),
+    title: cleanText(item.title || "Untitled property", 120),
+    propertyType: cleanText(item.propertyType || "Property", 80),
+    status: item.status === "draft" ? "draft" : "published",
+    availability: cleanText(item.availability || "available", 80),
+    location: cleanText(item.location || "", 120),
+    price: cleanText(item.price || "Enquire", 100),
+    size: cleanText(item.size || "", 100),
+    summary: cleanText(item.summary || "", 420),
+    mediaUrl,
+    coverImage: cleanCover(item.coverImage) || getYouTubeThumbnailUrl(mediaUrl),
+    tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
+    featured: Boolean(item.featured),
+    publishedAt: cleanText(item.publishedAt || today(), 20),
+    createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function sanitizeTestimonial(item) {
+  return {
+    id: cleanText(item.id || crypto.randomUUID(), 90),
+    name: cleanText(item.name || "Client", 90),
+    role: cleanText(item.role || "", 100),
+    status: item.status === "draft" ? "draft" : "published",
+    quote: cleanText(item.quote || "", 600),
+    rating: Math.max(1, Math.min(5, Number(item.rating) || 5)),
+    createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
+    updatedAt: new Date().toISOString()
+  };
+}
+
 function publicContent(content) {
   return {
     settings: content.settings,
     posts: content.posts.filter((post) => post.status === "published").sort(sortByDateDesc),
-    portfolio: content.portfolio.filter((item) => item.status === "published").sort(sortByDateDesc)
+    portfolio: content.portfolio.filter((item) => item.status === "published").sort(sortByDateDesc),
+    properties: content.properties.filter((item) => item.status === "published").sort(sortByDateDesc),
+    testimonials: content.testimonials.filter((item) => item.status === "published")
   };
 }
 
@@ -468,7 +632,9 @@ function adminContent(content) {
   return {
     settings: content.settings,
     posts: content.posts.sort(sortByDateDesc),
-    portfolio: content.portfolio.sort(sortByDateDesc)
+    portfolio: content.portfolio.sort(sortByDateDesc),
+    properties: content.properties.sort(sortByDateDesc),
+    testimonials: content.testimonials
   };
 }
 

@@ -4,9 +4,53 @@
   const store = window.BuildHubData;
   let posts = [];
   let portfolio = [];
+  let properties = [];
+  let testimonials = [];
   let settings = {};
   let activeFilter = "all";
   let activeSearch = "";
+  let propertySearch = "";
+  let propertyType = "all";
+  let propertyStatus = "all";
+
+  const serviceCards = [
+    {
+      title: "Drone Services",
+      href: "drone-services.html",
+      summary: "Drone photography, videography, land inspections, construction progress updates, events, hotels, resorts, and drone training.",
+      cta: "Book a drone shoot"
+    },
+    {
+      title: "Media and Content Creation",
+      href: "media.html",
+      summary: "YouTube documentaries, Ghana development videos, real estate promos, editing, channel setup, and brand storytelling.",
+      cta: "Start media project"
+    },
+    {
+      title: "Real Estate and Land Marketing",
+      href: "real-estate.html",
+      summary: "Land promotion, property tours, sourcing support, developer marketing, and investment opportunity presentation.",
+      cta: "Find property"
+    },
+    {
+      title: "Construction and Project Management",
+      href: "construction.html",
+      summary: "Site supervision, weekly visual updates, labour and material tracking, cost monitoring, and diaspora progress reports.",
+      cta: "Request site visit"
+    },
+    {
+      title: "Property and Airbnb Management",
+      href: "property-management.html",
+      summary: "Guest communication, check-in support, maintenance coordination, booking monitoring, and short-stay promotion.",
+      cta: "Manage my Airbnb"
+    },
+    {
+      title: "Digital Products and Software",
+      href: "digital-products.html",
+      summary: "Websites, business systems, MoMo agent software, construction trackers, property tools, and digital products.",
+      cta: "Build a system"
+    }
+  ];
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -15,11 +59,15 @@
     const content = await store.loadPublicContent();
     posts = content.posts;
     portfolio = content.portfolio || [];
+    properties = content.properties || [];
+    testimonials = content.testimonials || [];
     settings = content.settings;
 
     bindNavigation();
     bindFilters();
+    bindPropertyFilters();
     bindContactForm();
+    bindNewsletterForm();
     bindDialog();
     renderAll();
   });
@@ -62,6 +110,33 @@
     }
   }
 
+  function bindPropertyFilters() {
+    const search = $("#propertySearch");
+    const type = $("#propertyTypeFilter");
+    const status = $("#propertyStatusFilter");
+
+    if (search) {
+      search.addEventListener("input", () => {
+        propertySearch = search.value.trim().toLowerCase();
+        renderProperties();
+      });
+    }
+
+    if (type) {
+      type.addEventListener("change", () => {
+        propertyType = type.value || "all";
+        renderProperties();
+      });
+    }
+
+    if (status) {
+      status.addEventListener("change", () => {
+        propertyStatus = status.value || "all";
+        renderProperties();
+      });
+    }
+  }
+
   function bindContactForm() {
     const form = $("#contactForm");
     if (!form) return;
@@ -71,8 +146,20 @@
       const formData = new FormData(form);
       const name = String(formData.get("name") || "").trim();
       const contact = String(formData.get("contact") || "").trim();
+      const service = String(formData.get("service") || "").trim();
+      const location = String(formData.get("location") || "").trim();
       const message = String(formData.get("message") || "").trim();
-      const text = `Hello ${settings.ownerName}, my name is ${name}. ${message} My contact is ${contact}.`;
+      const file = form.querySelector('input[type="file"]')?.files?.[0];
+      const text = [
+        `Hello ${settings.ownerName || "Eben Tee"}, my name is ${name}.`,
+        service ? `Service needed: ${service}.` : "",
+        location ? `Location: ${location}.` : "",
+        message,
+        `My contact is ${contact}.`,
+        file ? `I also have a site/property photo to share: ${file.name}.` : ""
+      ]
+        .filter(Boolean)
+        .join("\n");
       const cleanedWhatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
 
       if (cleanedWhatsapp) {
@@ -80,6 +167,24 @@
       } else if (settings.email) {
         window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Project enquiry")}&body=${encodeURIComponent(text)}`;
       }
+    });
+  }
+
+  function bindNewsletterForm() {
+    const form = $("#newsletterForm");
+    if (!form) return;
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const email = String(new FormData(form).get("email") || "").trim();
+      const text = `Hello ${settings.ownerName || "Eben Tee"}, please add me to your Ghana property, construction, and investment updates list. My email is ${email}.`;
+      const cleanedWhatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
+      if (cleanedWhatsapp) {
+        window.open(`https://wa.me/${cleanedWhatsapp}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+      } else if (settings.email) {
+        window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Diaspora investor updates")}&body=${encodeURIComponent(text)}`;
+      }
+      form.reset();
     });
   }
 
@@ -116,15 +221,18 @@
 
   function renderAll() {
     renderSettings();
+    renderServiceCards();
     renderHero();
     renderHeroUpdates();
+    renderProperties();
     renderPortfolio();
     renderPostGrid();
     renderSectionGrids();
+    renderTestimonials();
   }
 
   function renderSettings() {
-    document.title = `${settings.brandName} | Videos, News, and Projects`;
+    document.title = `${settings.brandName} | Ghana Real Estate, Drone, Construction, and Digital Services`;
 
     $$("[data-setting]").forEach((node) => {
       const key = node.dataset.setting;
@@ -136,6 +244,22 @@
       const value = settings[key] || "#";
       node.href = value || "#";
       node.classList.toggle("is-disabled", !settings[key]);
+    });
+
+    $$("[data-whatsapp-link]").forEach((node) => {
+      const cleanedWhatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
+      const text = node.dataset.serviceMessage || "Hello Eben Tee, I want to make an enquiry from your website.";
+      node.href = cleanedWhatsapp
+        ? `https://wa.me/${cleanedWhatsapp}?text=${encodeURIComponent(text)}`
+        : "#contact";
+      if (cleanedWhatsapp) {
+        node.target = "_blank";
+        node.rel = "noreferrer";
+      }
+    });
+
+    $$("[data-call-link]").forEach((node) => {
+      node.href = settings.phone ? `tel:${settings.phone}` : "#contact";
     });
 
     $$("[data-brand-initials]").forEach((node) => {
@@ -174,7 +298,8 @@
         ["YouTube", settings.youtube],
         ["Facebook", settings.facebook],
         ["Instagram", settings.instagram],
-        ["TikTok", settings.tiktok]
+        ["TikTok", settings.tiktok],
+        ["X", settings.x]
       ].filter(([, href]) => href);
 
       socialLinks.innerHTML = links
@@ -184,6 +309,24 @@
         )
         .join("");
     }
+  }
+
+  function renderServiceCards() {
+    const grid = $("#servicePlatformGrid");
+    if (!grid) return;
+
+    grid.innerHTML = serviceCards
+      .map(
+        (service, index) => `
+          <a class="service-platform-card" href="${store.escapeHtml(service.href)}">
+            <span>${String(index + 1).padStart(2, "0")}</span>
+            <strong>${store.escapeHtml(service.title)}</strong>
+            <small>${store.escapeHtml(service.summary)}</small>
+            <em>${store.escapeHtml(service.cta)}</em>
+          </a>
+        `
+      )
+      .join("");
   }
 
   function renderHero() {
@@ -296,6 +439,85 @@
     renderMiniGrid("#videoGrid", posts.filter((post) => post.category === "video").slice(0, 3));
     renderMiniGrid("#newsGrid", posts.filter((post) => post.category === "construction-news").slice(0, 3));
     renderProjectGrid(posts.filter((post) => post.category === "building-project").slice(0, 4));
+  }
+
+  function renderProperties() {
+    const grid = $("#propertyGrid");
+    const empty = $("#propertyEmptyState");
+    if (!grid || !empty) return;
+
+    const filtered = properties.filter((property) => {
+      const haystack = [
+        property.title,
+        property.propertyType,
+        property.availability,
+        property.location,
+        property.price,
+        property.size,
+        property.summary,
+        property.tags.join(" ")
+      ]
+        .join(" ")
+        .toLowerCase();
+      const matchesSearch = !propertySearch || haystack.includes(propertySearch);
+      const typeText = String(property.propertyType || "").toLowerCase();
+      const matchesType =
+        propertyType === "all" ||
+        (propertyType === "land" && typeText.includes("land")) ||
+        (propertyType === "house" && /house|apartment|home|estate/.test(typeText)) ||
+        (propertyType === "short" && /short|airbnb|stay/.test(typeText));
+      const matchesStatus =
+        propertyStatus === "all" || String(property.availability || "").toLowerCase().includes(propertyStatus);
+      return matchesSearch && matchesType && matchesStatus;
+    });
+
+    grid.innerHTML = filtered.map(renderPropertyCard).join("");
+    empty.classList.toggle("is-hidden", filtered.length > 0);
+  }
+
+  function renderPropertyCard(property) {
+    const image = property.coverImage || store.createGeneratedCover("building-project", property.title);
+    const whatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
+    const message = `Hello Eben Tee, I want to enquire about: ${property.title} in ${property.location}.`;
+    const href = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : "#contact";
+
+    return `
+      <article class="property-card">
+        <img src="${store.escapeHtml(image)}" alt="">
+        <div class="property-card-copy">
+          <span>${store.escapeHtml(property.propertyType)} · ${store.escapeHtml(property.availability)}</span>
+          <strong>${store.escapeHtml(property.title)}</strong>
+          <small>${store.escapeHtml(property.location)}</small>
+          <p>${store.escapeHtml(property.summary)}</p>
+          <div class="property-facts">
+            <span>${store.escapeHtml(property.price)}</span>
+            <span>${store.escapeHtml(property.size || "Details on request")}</span>
+          </div>
+          <a class="button small" href="${store.escapeHtml(href)}" ${whatsapp ? 'target="_blank" rel="noreferrer"' : ""}>WhatsApp enquiry</a>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderTestimonials() {
+    const grid = $("#testimonialGrid");
+    if (!grid) return;
+
+    grid.innerHTML = testimonials.length
+      ? testimonials
+          .slice(0, 6)
+          .map(
+            (item) => `
+              <article class="testimonial-card">
+                <span>${"*".repeat(Math.max(1, Math.min(5, Number(item.rating) || 5)))}</span>
+                <p>${store.escapeHtml(item.quote)}</p>
+                <strong>${store.escapeHtml(item.name)}</strong>
+                <small>${store.escapeHtml(item.role)}</small>
+              </article>
+            `
+          )
+          .join("")
+      : `<p class="empty-state">Client reviews will appear here.</p>`;
   }
 
   function renderPortfolio() {

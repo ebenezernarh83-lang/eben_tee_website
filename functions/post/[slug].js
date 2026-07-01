@@ -105,7 +105,7 @@ function renderPost(post, settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=logo-update-1">
+    <link rel="stylesheet" href="/styles.css?v=platform-1">
     <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
   <body data-page="public" data-view="post">
@@ -120,10 +120,14 @@ function renderPost(post, settings) {
           </span>
         </a>
         <div class="nav-links always-open">
-          <a href="/#about">Services</a>
+          <a href="/about">About</a>
+          <a href="/services">Services</a>
+          <a href="/real-estate">Properties</a>
+          <a href="/construction">Construction</a>
           <a href="/projects">Projects</a>
-          <a href="/#videos">Videos</a>
-          <a href="/#news">News</a>
+          <a href="/media">Media</a>
+          <a href="/portfolio">Portfolio</a>
+          <a href="/contact">Contact</a>
           <a class="button small nav-cta" href="/book">Ebook</a>
         </div>
       </nav>
@@ -164,7 +168,7 @@ function renderPost(post, settings) {
         ${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}
       </div>
     </footer>
-    <script src="/analytics.js?v=project-landing-1"></script>
+    <script src="/analytics.js?v=platform-1"></script>
   </body>
 </html>`;
 }
@@ -183,7 +187,7 @@ function renderNotFound(settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=logo-update-1">
+    <link rel="stylesheet" href="/styles.css?v=platform-1">
   </head>
   <body data-page="public" data-view="post">
     <main class="seo-post-page">

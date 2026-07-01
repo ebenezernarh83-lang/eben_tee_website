@@ -4,6 +4,17 @@ export async function onRequestGet({ env }) {
   const content = await readPublicContent(env);
   const staticUrls = [
     { loc: `${SITE_URL}/`, lastmod: content.updatedAt, priority: "1.0" },
+    { loc: `${SITE_URL}/about`, lastmod: content.updatedAt, priority: "0.8" },
+    { loc: `${SITE_URL}/services`, lastmod: content.updatedAt, priority: "0.95" },
+    { loc: `${SITE_URL}/drone-services`, lastmod: content.updatedAt, priority: "0.9" },
+    { loc: `${SITE_URL}/real-estate`, lastmod: content.updatedAt, priority: "0.95" },
+    { loc: `${SITE_URL}/construction`, lastmod: content.updatedAt, priority: "0.9" },
+    { loc: `${SITE_URL}/property-management`, lastmod: content.updatedAt, priority: "0.85" },
+    { loc: `${SITE_URL}/media`, lastmod: content.updatedAt, priority: "0.85" },
+    { loc: `${SITE_URL}/digital-products`, lastmod: content.updatedAt, priority: "0.85" },
+    { loc: `${SITE_URL}/portfolio`, lastmod: content.updatedAt, priority: "0.85" },
+    { loc: `${SITE_URL}/blog`, lastmod: content.updatedAt, priority: "0.85" },
+    { loc: `${SITE_URL}/contact`, lastmod: content.updatedAt, priority: "0.9" },
     { loc: `${SITE_URL}/projects`, lastmod: content.updatedAt, priority: "0.9" },
     { loc: `${SITE_URL}/book`, lastmod: content.updatedAt, priority: "0.8" }
   ];

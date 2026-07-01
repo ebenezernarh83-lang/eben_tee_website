@@ -5170,3 +5170,625 @@ body[data-page="public"] .brand-mark {
     font-size: clamp(1.75rem, 8vw, 2.7rem);
   }
 }
+
+/* Eben Tee platform upgrade */
+body[data-page="public"] .platform-intro,
+body[data-page="public"] .services-platform,
+body[data-page="public"] .properties-band,
+body[data-page="public"] .why-band,
+body[data-page="public"] .youtube-band,
+body[data-page="public"] .testimonials-band,
+body[data-page="public"] .newsletter-band {
+  width: min(1760px, calc(100% - 5rem));
+  margin-inline: auto;
+}
+
+body[data-page="public"] .platform-intro,
+body[data-page="public"] .why-band,
+body[data-page="public"] .youtube-band,
+body[data-page="public"] .newsletter-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.58fr);
+  gap: clamp(1.4rem, 3vw, 3rem);
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(245, 184, 0, 0.18), transparent 34%),
+    linear-gradient(315deg, rgba(255, 255, 255, 0.08), transparent 48%),
+    rgba(255, 255, 255, 0.055);
+  padding: clamp(1.25rem, 3vw, 2.2rem);
+}
+
+body[data-page="public"] .platform-intro {
+  margin-top: clamp(1.2rem, 2vw, 2rem);
+}
+
+body[data-page="public"] .platform-intro h2,
+body[data-page="public"] .services-platform h2,
+body[data-page="public"] .properties-band h2,
+body[data-page="public"] .why-band h2,
+body[data-page="public"] .youtube-band h2,
+body[data-page="public"] .testimonials-band h2,
+body[data-page="public"] .newsletter-band h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4.4rem);
+  line-height: 1;
+}
+
+body[data-page="public"] .platform-intro p,
+body[data-page="public"] .why-band p,
+body[data-page="public"] .youtube-band p {
+  color: rgba(238, 245, 255, 0.78);
+  font-size: clamp(1rem, 1.4vw, 1.22rem);
+}
+
+body[data-page="public"] .platform-signature {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  text-align: center;
+}
+
+body[data-page="public"] .platform-signature img {
+  width: min(280px, 72vw);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+body[data-page="public"] .platform-signature span,
+body[data-page="public"] .platform-signature strong {
+  display: block;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+body[data-page="public"] .platform-signature span {
+  color: #f5b800;
+  font-weight: 900;
+}
+
+body[data-page="public"] .platform-signature strong {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+body[data-page="public"] .service-platform-grid,
+body[data-page="public"] .property-grid,
+body[data-page="public"] .testimonial-grid,
+body[data-page="public"] .why-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+body[data-page="public"] .service-platform-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body[data-page="public"] .service-platform-card,
+body[data-page="public"] .property-card,
+body[data-page="public"] .testimonial-card,
+body[data-page="public"] .why-grid span {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, rgba(245, 184, 0, 0.13), transparent 42%),
+    rgba(255, 255, 255, 0.065);
+  color: #fff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+}
+
+body[data-page="public"] .service-platform-card {
+  min-height: 260px;
+  display: grid;
+  align-content: space-between;
+  gap: 0.9rem;
+  padding: clamp(1rem, 2vw, 1.4rem);
+  text-decoration: none;
+}
+
+body[data-page="public"] .service-platform-card span {
+  color: #f5b800;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+}
+
+body[data-page="public"] .service-platform-card strong {
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  line-height: 1.08;
+}
+
+body[data-page="public"] .service-platform-card small,
+body[data-page="public"] .service-platform-card em,
+body[data-page="public"] .property-card p,
+body[data-page="public"] .property-card small,
+body[data-page="public"] .testimonial-card small {
+  color: rgba(238, 245, 255, 0.74);
+}
+
+body[data-page="public"] .service-platform-card em {
+  font-style: normal;
+  font-weight: 900;
+}
+
+body[data-page="public"] .property-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.4fr) minmax(180px, 0.4fr);
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+body[data-page="public"] .property-toolbar label {
+  color: rgba(238, 245, 255, 0.72);
+  font-weight: 850;
+}
+
+body[data-page="public"] .property-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body[data-page="public"] .property-card {
+  overflow: hidden;
+}
+
+body[data-page="public"] .property-card img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #fff;
+}
+
+body[data-page="public"] .property-card-copy,
+body[data-page="public"] .testimonial-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: clamp(1rem, 2vw, 1.25rem);
+}
+
+body[data-page="public"] .property-card-copy > span,
+body[data-page="public"] .testimonial-card span {
+  color: #f5b800;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body[data-page="public"] .property-card strong {
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+body[data-page="public"] .property-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+body[data-page="public"] .property-facts span,
+body[data-page="public"] .why-grid span {
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  padding: 0.7rem;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+}
+
+body[data-page="public"] .why-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body[data-page="public"] .youtube-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: end;
+}
+
+body[data-page="public"] .testimonial-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body[data-page="public"] .testimonial-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+}
+
+body[data-page="public"] .newsletter-form {
+  display: flex;
+  gap: 0.75rem;
+}
+
+body[data-page="public"] .newsletter-form input {
+  min-height: 54px;
+}
+
+body[data-page="public"] .floating-cta {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  display: grid;
+  gap: 0.55rem;
+}
+
+body[data-page="public"] .floating-cta a {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: #f5b800;
+  color: #090909;
+  padding: 0.7rem 1rem;
+  font-weight: 950;
+  text-decoration: none;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+}
+
+body[data-page="public"] .floating-cta a + a {
+  background: #fff;
+}
+
+@media (max-width: 1180px) {
+  body[data-page="public"] .platform-intro,
+  body[data-page="public"] .services-platform,
+  body[data-page="public"] .properties-band,
+  body[data-page="public"] .why-band,
+  body[data-page="public"] .youtube-band,
+  body[data-page="public"] .testimonials-band,
+  body[data-page="public"] .newsletter-band {
+    width: min(100% - 1.25rem, 1760px);
+  }
+
+  body[data-page="public"] .service-platform-grid,
+  body[data-page="public"] .property-grid,
+  body[data-page="public"] .testimonial-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-page="public"] .platform-intro,
+  body[data-page="public"] .why-band,
+  body[data-page="public"] .youtube-band,
+  body[data-page="public"] .newsletter-band,
+  body[data-page="public"] .property-toolbar,
+  body[data-page="public"] .newsletter-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body[data-page="public"] .service-platform-grid,
+  body[data-page="public"] .property-grid,
+  body[data-page="public"] .testimonial-grid,
+  body[data-page="public"] .why-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body[data-page="public"] .service-platform-card {
+    min-height: 0;
+  }
+
+  body[data-page="public"] .youtube-actions,
+  body[data-page="public"] .newsletter-form {
+    display: grid;
+  }
+
+  body[data-page="public"] .floating-cta {
+    left: 0.75rem;
+    right: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Eben Tee platform landing pages */
+body[data-view="platform"] {
+  background:
+    radial-gradient(circle at 82% 8%, rgba(242, 201, 76, 0.14), transparent 31rem),
+    linear-gradient(145deg, #040507 0%, #0a0d12 44%, #10100b 100%);
+}
+
+.platform-page {
+  width: min(1500px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 72px 0 96px;
+}
+
+.platform-page-hero {
+  min-height: calc(100svh - 112px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.52fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+  position: relative;
+  isolation: isolate;
+}
+
+.platform-page-hero::before {
+  content: "";
+  position: absolute;
+  inset: -72px -24px auto;
+  height: min(62svh, 620px);
+  background:
+    linear-gradient(115deg, rgba(16, 21, 28, 0.9), rgba(7, 9, 12, 0.45)),
+    repeating-linear-gradient(105deg, rgba(242, 201, 76, 0.08) 0 1px, transparent 1px 64px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: -1;
+}
+
+.platform-page-copy h1 {
+  max-width: 1040px;
+  margin: 28px 0 22px;
+  color: #fff;
+  font-size: clamp(3.3rem, 7.4vw, 8.2rem);
+  line-height: 0.92;
+  letter-spacing: 0;
+}
+
+.platform-page-copy .lead {
+  max-width: 880px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(1.12rem, 2vw, 1.55rem);
+  line-height: 1.55;
+}
+
+.platform-page-card {
+  align-self: stretch;
+  min-height: 560px;
+  padding: clamp(24px, 4vw, 46px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  border: 1px solid rgba(242, 201, 76, 0.32);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)),
+    linear-gradient(180deg, rgba(242, 201, 76, 0.16), transparent);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.32);
+}
+
+.platform-page-card img {
+  width: min(78%, 340px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  align-self: center;
+  filter: drop-shadow(0 30px 48px rgba(0, 0, 0, 0.34));
+}
+
+.platform-page-card span,
+.platform-page-stats small,
+.platform-info-card span,
+.platform-process-card span {
+  color: rgba(255, 255, 255, 0.56);
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.platform-page-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #fff;
+  font-size: clamp(1.8rem, 3vw, 3.2rem);
+  line-height: 1;
+}
+
+.platform-page-card p {
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.65;
+}
+
+.platform-page-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0 54px;
+}
+
+.platform-page-stats span {
+  min-height: 122px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.platform-page-stats strong {
+  color: #f2c94c;
+  font-size: clamp(1.3rem, 2vw, 2.1rem);
+  line-height: 1.05;
+}
+
+.platform-page-section {
+  padding: clamp(52px, 7vw, 96px) 0;
+}
+
+.platform-card-grid,
+.platform-process-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.platform-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+}
+
+.platform-info-card,
+.platform-process-card {
+  min-height: 270px;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035)),
+    rgba(5, 8, 13, 0.86);
+}
+
+.platform-info-card strong,
+.platform-process-card strong {
+  display: block;
+  margin: 30px 0 14px;
+  color: #fff;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.08;
+}
+
+.platform-info-card p,
+.platform-process-card p,
+.platform-spotlight p,
+.platform-contact-strip p {
+  color: rgba(255, 255, 255, 0.69);
+  line-height: 1.65;
+}
+
+.platform-process-section {
+  display: grid;
+  grid-template-columns: 0.38fr 1fr;
+  gap: clamp(28px, 5vw, 70px);
+  align-items: start;
+}
+
+.platform-process-section h2,
+.platform-spotlight h2,
+.platform-contact-strip h2 {
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4.7rem);
+  line-height: 0.98;
+  margin: 0;
+}
+
+.platform-spotlight,
+.platform-contact-strip {
+  margin: clamp(40px, 6vw, 86px) 0;
+  padding: clamp(28px, 5vw, 56px);
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(300px, 0.52fr);
+  gap: clamp(24px, 4vw, 52px);
+  align-items: center;
+  border: 1px solid rgba(242, 201, 76, 0.28);
+  border-radius: 8px;
+  background:
+    linear-gradient(125deg, rgba(242, 201, 76, 0.15), rgba(255, 255, 255, 0.045) 44%, rgba(5, 8, 13, 0.86)),
+    #0b0e13;
+}
+
+.platform-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: flex-end;
+}
+
+.page-portfolio-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.page-media-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.platform-contact-panel {
+  margin-top: 0;
+}
+
+body[data-view="platform"] .property-toolbar {
+  margin-bottom: 28px;
+}
+
+body[data-view="platform"] .post-grid,
+body[data-view="platform"] .property-grid,
+body[data-view="platform"] .portfolio-grid {
+  align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+  .platform-page {
+    width: min(100% - 28px, 760px);
+    padding-top: 38px;
+  }
+
+  .platform-page-hero {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    gap: 26px;
+    padding: 34px 0 12px;
+  }
+
+  .platform-page-hero::before {
+    inset: -38px -14px auto;
+    height: 100%;
+  }
+
+  .platform-page-copy h1 {
+    font-size: clamp(3rem, 13vw, 5.8rem);
+  }
+
+  .platform-page-card {
+    min-height: 0;
+  }
+
+  .platform-page-card img {
+    width: min(52vw, 260px);
+  }
+
+  .platform-page-stats,
+  .platform-process-section,
+  .platform-spotlight,
+  .platform-contact-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-process-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .platform-contact-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .platform-page {
+    width: min(100% - 24px, 560px);
+    padding-bottom: 76px;
+  }
+
+  .platform-page-copy h1 {
+    font-size: clamp(3rem, 15vw, 4.3rem);
+  }
+
+  .platform-page-copy .lead {
+    font-size: 1.05rem;
+  }
+
+  .platform-page-stats,
+  .platform-card-grid,
+  .platform-process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-info-card,
+  .platform-process-card {
+    min-height: 0;
+  }
+
+  .platform-spotlight,
+  .platform-contact-strip {
+    padding: 24px;
+  }
+
+  .platform-contact-actions .button {
+    width: 100%;
+  }
+}

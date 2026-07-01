@@ -3,6 +3,8 @@
 
   const STORAGE_KEY = "build-journal-posts-v1";
   const PORTFOLIO_KEY = "build-journal-portfolio-v1";
+  const PROPERTIES_KEY = "build-journal-properties-v1";
+  const TESTIMONIALS_KEY = "build-journal-testimonials-v1";
   const SETTINGS_KEY = "build-journal-settings-v1";
   const SESSION_KEY = "build-journal-admin-unlocked";
   const PIN_KEY = "build-journal-admin-pin";
@@ -25,10 +27,10 @@
 
   const defaultSettings = {
     brandName: "Eben Tee",
-    ownerName: "Eben Tee",
-    tagline: "Ghana drone videos, real estate tours, construction news, and project stories.",
+    ownerName: "Ebenezer Tetteh",
+    tagline: "INSPIRE. EMPOWER. CREATE IMPACT.",
     about:
-      "Eben Tee documents Ghana's beauty, progress, and culture through drone visuals, estate tours, construction walkthroughs, road trips, and simple project updates. This site brings the videos, services, ebook, and Ghana project stories together in one professional home.",
+      "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur, drone pilot, videographer, YouTuber, construction project manager, real estate marketer, property manager, and software/digital entrepreneur. I help people see, invest in, build, manage, and promote opportunities in Ghana with clear visual documentation and professional support.",
     phone: "",
     whatsapp: "",
     email: "",
@@ -37,13 +39,14 @@
     facebook: "https://www.facebook.com/ebentee83/",
     instagram: "https://www.instagram.com/ebentee_yt/",
     tiktok: "",
+    x: "",
     services: [
-      "Drone services and aerial video for projects",
-      "Real estate, land, and community tour videos",
-      "Construction site walkthroughs",
-      "Building project progress reporting",
-      "Ghana infrastructure and development news",
-      "YouTube storytelling and social media content"
+      "Drone photography, videography, inspections, event coverage, and drone training",
+      "Media production, YouTube documentaries, editing, and social content for Ghana brands",
+      "Land, house, apartment, and real estate marketing for buyers and developers",
+      "Construction supervision, progress reporting, materials tracking, and diaspora updates",
+      "Airbnb, short-stay, furnished apartment, and property management support",
+      "Websites, business systems, MoMo agent software, and digital products for Ghanaian businesses"
     ]
   };
 
@@ -158,6 +161,78 @@
       mediaUrl: "",
       tags: ["construction", "progress", "inspection"],
       featured: false
+    }
+  ];
+
+  const sampleProperties = [
+    {
+      title: "Diaspora-ready land inspection package",
+      propertyType: "Land",
+      status: "published",
+      availability: "available",
+      location: "Accra growth corridor",
+      price: "Enquire for verified options",
+      size: "Plots and serviced land",
+      summary:
+        "For buyers abroad who need clear drone footage, access-road checks, neighbourhood context, and video proof before making a decision.",
+      mediaUrl: "",
+      tags: ["land", "diaspora", "inspection", "Accra"],
+      featured: true
+    },
+    {
+      title: "Real estate video tour for developers",
+      propertyType: "House / Apartment",
+      status: "published",
+      availability: "marketing",
+      location: "Greater Accra and nearby regions",
+      price: "Marketing service",
+      size: "Homes, estates, apartments",
+      summary:
+        "Premium property walk-through and aerial visuals for developers, agents, landlords, and sellers who want stronger buyer enquiries.",
+      mediaUrl: "",
+      tags: ["real estate", "property tour", "developer"],
+      featured: true
+    },
+    {
+      title: "Airbnb and furnished apartment promotion",
+      propertyType: "Short stay",
+      status: "published",
+      availability: "management",
+      location: "Accra, Tema, East Legon, Spintex",
+      price: "Request management quote",
+      size: "Rooms, studios, apartments",
+      summary:
+        "Promotion, guest-ready visuals, booking support, maintenance coordination, and income monitoring for short-stay property owners.",
+      mediaUrl: "",
+      tags: ["airbnb", "short stay", "property management"],
+      featured: false
+    }
+  ];
+
+  const sampleTestimonials = [
+    {
+      name: "Diaspora building client",
+      role: "Construction supervision",
+      status: "published",
+      quote:
+        "The video updates made it easier to understand the site progress from abroad. I could see the work clearly without being in Ghana.",
+      rating: 5
+    },
+    {
+      name: "Real estate seller",
+      role: "Drone marketing",
+      status: "published",
+      quote:
+        "The aerial view showed the road access and surrounding area better than normal photos. It helped people understand the property quickly.",
+      rating: 5
+    },
+    {
+      name: "Short-stay owner",
+      role: "Property promotion",
+      status: "published",
+      quote:
+        "The content looked professional and gave the apartment a stronger online presence for guests and enquiries.",
+      rating: 5
     }
   ];
 
@@ -366,6 +441,10 @@
     return createGeneratedCover(type === "video" ? "video" : "service-update", title || "Drone portfolio");
   }
 
+  function createPropertyCover(title) {
+    return createGeneratedCover("building-project", title || "Ghana property opportunity");
+  }
+
   function normalizePost(post) {
     const normalized = {
       id: String(post.id || makeId()),
@@ -422,12 +501,74 @@
     };
   }
 
+  function normalizeProperty(item) {
+    const title = String(item.title || "Untitled property").trim();
+    const mediaUrl = String(item.mediaUrl || "").trim();
+    const coverImage =
+      String(item.coverImage || "").trim() ||
+      getYouTubeThumbnailUrl(mediaUrl) ||
+      (mediaUrl.startsWith("data:image/") ? mediaUrl : "") ||
+      createPropertyCover(title);
+
+    return {
+      id: String(item.id || makeId()).replace(/^post-/, "property-"),
+      title,
+      propertyType: String(item.propertyType || "Property").trim(),
+      status: item.status === "draft" ? "draft" : "published",
+      availability: String(item.availability || "available").trim(),
+      location: String(item.location || "").trim(),
+      price: String(item.price || "Enquire").trim(),
+      size: String(item.size || "").trim(),
+      summary: String(item.summary || "").trim(),
+      mediaUrl,
+      coverImage,
+      tags: parseTags(item.tags),
+      featured: Boolean(item.featured),
+      publishedAt: item.publishedAt || today(),
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function normalizeTestimonial(item) {
+    return {
+      id: String(item.id || makeId()).replace(/^post-/, "testimonial-"),
+      name: String(item.name || "Client").trim(),
+      role: String(item.role || "").trim(),
+      status: item.status === "draft" ? "draft" : "published",
+      quote: String(item.quote || "").trim(),
+      rating: Math.max(1, Math.min(5, Number(item.rating) || 5)),
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
   function seedPortfolio() {
     return samplePortfolio.map((item, index) =>
       normalizePortfolioItem({
         ...item,
         id: `media-sample-${index + 1}`,
         createdAt: `2026-06-${String(25 - index).padStart(2, "0")}T08:00:00.000Z`
+      })
+    );
+  }
+
+  function seedProperties() {
+    return sampleProperties.map((item, index) =>
+      normalizeProperty({
+        ...item,
+        id: `property-sample-${index + 1}`,
+        createdAt: `2026-06-${String(25 - index).padStart(2, "0")}T08:00:00.000Z`
+      })
+    );
+  }
+
+  function seedTestimonials() {
+    return sampleTestimonials.map((item, index) =>
+      normalizeTestimonial({
+        ...item,
+        id: `testimonial-sample-${index + 1}`,
+        createdAt: `2026-06-${String(24 - index).padStart(2, "0")}T08:00:00.000Z`
       })
     );
   }
@@ -482,9 +623,43 @@
     return normalized;
   }
 
+  function loadProperties() {
+    const stored = readJson(PROPERTIES_KEY, null);
+    if (Array.isArray(stored) && stored.length) {
+      return stored.map(normalizeProperty).sort(sortByDateDesc);
+    }
+
+    const seeded = seedProperties();
+    saveProperties(seeded);
+    return seeded;
+  }
+
+  function saveProperties(items) {
+    const normalized = items.map(normalizeProperty).sort(sortByDateDesc);
+    writeJson(PROPERTIES_KEY, normalized);
+    return normalized;
+  }
+
+  function loadTestimonials() {
+    const stored = readJson(TESTIMONIALS_KEY, null);
+    if (Array.isArray(stored) && stored.length) {
+      return stored.map(normalizeTestimonial);
+    }
+
+    const seeded = seedTestimonials();
+    saveTestimonials(seeded);
+    return seeded;
+  }
+
+  function saveTestimonials(items) {
+    const normalized = items.map(normalizeTestimonial);
+    writeJson(TESTIMONIALS_KEY, normalized);
+    return normalized;
+  }
+
   function loadSettings() {
     const stored = readJson(SETTINGS_KEY, {});
-    const migrated = { ...stored };
+    const migrated = migrateSettings(stored);
 
     if (!migrated.brandName || migrated.brandName === "Build Journal") {
       migrated.brandName = defaultSettings.brandName;
@@ -502,15 +677,46 @@
   }
 
   function saveSettings(settings) {
+    const migrated = migrateSettings(settings || {});
     const nextSettings = {
       ...defaultSettings,
-      ...settings,
-      services: Array.isArray(settings.services)
-        ? settings.services.map((service) => String(service).trim()).filter(Boolean)
+      ...migrated,
+      services: Array.isArray(migrated.services)
+        ? migrated.services.map((service) => String(service).trim()).filter(Boolean)
         : defaultSettings.services
     };
     writeJson(SETTINGS_KEY, nextSettings);
     return nextSettings;
+  }
+
+  function migrateSettings(settings) {
+    const migrated = { ...(settings || {}) };
+    const oldTaglines = [
+      "Ghana drone videos, real estate tours, construction news, and project stories.",
+      "Videos, news, and building project updates."
+    ];
+
+    if (!migrated.ownerName || migrated.ownerName === "Eben Tee" || migrated.ownerName === "Your Name") {
+      migrated.ownerName = defaultSettings.ownerName;
+    }
+
+    if (!migrated.tagline || oldTaglines.includes(migrated.tagline)) {
+      migrated.tagline = defaultSettings.tagline;
+    }
+
+    if (
+      !migrated.about ||
+      String(migrated.about).startsWith("Eben Tee documents Ghana's beauty") ||
+      String(migrated.about).startsWith("Eben Tee is built around visual stories")
+    ) {
+      migrated.about = defaultSettings.about;
+    }
+
+    if (!Array.isArray(migrated.services) || migrated.services.length < 6) {
+      migrated.services = defaultSettings.services;
+    }
+
+    return migrated;
   }
 
   function sortByDateDesc(a, b) {
@@ -523,6 +729,14 @@
 
   function getPublishedPortfolio(items) {
     return items.filter((item) => item.status === "published").sort(sortByDateDesc);
+  }
+
+  function getPublishedProperties(items) {
+    return items.filter((item) => item.status === "published").sort(sortByDateDesc);
+  }
+
+  function getPublishedTestimonials(items) {
+    return items.filter((item) => item.status === "published");
   }
 
   function getAdminPin() {
@@ -561,6 +775,8 @@
     return {
       posts: getPublishedPosts(loadPosts()),
       portfolio: getPublishedPortfolio(loadPortfolio()),
+      properties: getPublishedProperties(loadProperties()),
+      testimonials: getPublishedTestimonials(loadTestimonials()),
       settings: loadSettings(),
       offline: true
     };
@@ -570,6 +786,8 @@
     return {
       posts: loadPosts(),
       portfolio: loadPortfolio(),
+      properties: loadProperties(),
+      testimonials: loadTestimonials(),
       settings: loadSettings(),
       offline: true
     };
@@ -580,11 +798,19 @@
     const loadedPortfolio = Array.isArray(payload.portfolio)
       ? payload.portfolio.map(normalizePortfolioItem).sort(sortByDateDesc)
       : loadPortfolio();
+    const loadedProperties = Array.isArray(payload.properties)
+      ? payload.properties.map(normalizeProperty).sort(sortByDateDesc)
+      : loadProperties();
+    const loadedTestimonials = Array.isArray(payload.testimonials)
+      ? payload.testimonials.map(normalizeTestimonial)
+      : loadTestimonials();
     const loadedSettings = saveSettings(payload.settings || {});
 
     return {
       posts: publishedOnly ? getPublishedPosts(loadedPosts) : loadedPosts,
       portfolio: publishedOnly ? getPublishedPortfolio(loadedPortfolio) : loadedPortfolio,
+      properties: publishedOnly ? getPublishedProperties(loadedProperties) : loadedProperties,
+      testimonials: publishedOnly ? getPublishedTestimonials(loadedTestimonials) : loadedTestimonials,
       settings: loadedSettings,
       offline: Boolean(payload.offline)
     };
@@ -646,6 +872,8 @@
       const normalized = normalizeContentPayload(payload, false);
       writeJson(STORAGE_KEY, normalized.posts);
       writeJson(PORTFOLIO_KEY, normalized.portfolio);
+      writeJson(PROPERTIES_KEY, normalized.properties);
+      writeJson(TESTIMONIALS_KEY, normalized.testimonials);
       writeJson(SETTINGS_KEY, normalized.settings);
       return normalized;
     } catch (error) {
@@ -658,6 +886,8 @@
       return {
         posts: savePosts(content.posts || []),
         portfolio: savePortfolio(content.portfolio || []),
+        properties: saveProperties(content.properties || []),
+        testimonials: saveTestimonials(content.testimonials || []),
         settings: saveSettings(content.settings || {}),
         offline: true
       };
@@ -711,11 +941,17 @@
     getYouTubeThumbnailUrl,
     createGeneratedCover,
     normalizePortfolioItem,
+    normalizeProperty,
+    normalizeTestimonial,
     normalizePost,
     loadPosts,
     savePosts,
     loadPortfolio,
     savePortfolio,
+    loadProperties,
+    saveProperties,
+    loadTestimonials,
+    saveTestimonials,
     resetPosts,
     loadSettings,
     saveSettings,

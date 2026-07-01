@@ -4,11 +4,14 @@
   const store = window.BuildHubData;
   let posts = [];
   let portfolio = [];
+  let properties = [];
+  let testimonials = [];
   let settings = {};
   let analytics = null;
   let analyticsLoaded = false;
   let coverData = "";
   let portfolioUploadData = "";
+  let propertyUploadData = "";
   let adminEventsBound = false;
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
@@ -61,6 +64,8 @@
       const content = await store.loadAdminContent();
       posts = content.posts;
       portfolio = content.portfolio || [];
+      properties = content.properties || [];
+      testimonials = content.testimonials || [];
       settings = content.settings;
     } catch (error) {
       $("#loginMessage").textContent = "Please log in again.";
@@ -74,6 +79,8 @@
     bindAdminEvents();
     resetPostForm();
     resetPortfolioForm();
+    resetPropertyForm();
+    resetTestimonialForm();
     fillSettingsForm();
     renderAdmin();
   }
@@ -88,9 +95,13 @@
 
     $("#postForm").addEventListener("submit", savePost);
     $("#portfolioForm").addEventListener("submit", savePortfolioItem);
+    $("#propertyForm").addEventListener("submit", saveProperty);
+    $("#testimonialForm").addEventListener("submit", saveTestimonial);
     $("#settingsForm").addEventListener("submit", saveSettings);
     $("#newPostButton").addEventListener("click", resetPostForm);
     $("#newPortfolioButton").addEventListener("click", resetPortfolioForm);
+    $("#newPropertyButton").addEventListener("click", resetPropertyForm);
+    $("#newTestimonialButton").addEventListener("click", resetTestimonialForm);
     $("#clearCoverButton").addEventListener("click", () => {
       const category = $("#postCategory").value;
       const title = $("#postTitle").value || "New project update";
@@ -103,9 +114,15 @@
       $("#portfolioFile").value = "";
       renderPortfolioPreview();
     });
+    $("#clearPropertyMediaButton").addEventListener("click", () => {
+      propertyUploadData = "";
+      $("#propertyFile").value = "";
+      renderPropertyPreview();
+    });
 
     $("#coverInput").addEventListener("change", handleCoverUpload);
     $("#portfolioFile").addEventListener("change", handlePortfolioUpload);
+    $("#propertyFile").addEventListener("change", handlePropertyUpload);
     $("#postTitle").addEventListener("input", renderEditorPreview);
     $("#postSummary").addEventListener("input", renderEditorPreview);
     $("#postCategory").addEventListener("change", renderEditorPreview);
@@ -114,12 +131,25 @@
     $("#portfolioSummary").addEventListener("input", renderPortfolioPreview);
     $("#portfolioType").addEventListener("change", renderPortfolioPreview);
     $("#portfolioMediaUrl").addEventListener("input", renderPortfolioPreview);
+    $("#propertyTitle").addEventListener("input", renderPropertyPreview);
+    $("#propertySummary").addEventListener("input", renderPropertyPreview);
+    $("#propertyMediaUrl").addEventListener("input", renderPropertyPreview);
+    $("#testimonialName").addEventListener("input", renderTestimonialPreview);
+    $("#testimonialRole").addEventListener("input", renderTestimonialPreview);
+    $("#testimonialQuote").addEventListener("input", renderTestimonialPreview);
+    $("#testimonialRating").addEventListener("input", renderTestimonialPreview);
     $("#adminSearch").addEventListener("input", renderPostList);
     $("#adminStatusFilter").addEventListener("change", renderPostList);
     $("#adminPostList").addEventListener("click", handlePostAction);
     $("#portfolioSearch").addEventListener("input", renderPortfolioList);
     $("#portfolioStatusFilter").addEventListener("change", renderPortfolioList);
     $("#portfolioList").addEventListener("click", handlePortfolioAction);
+    $("#propertyAdminSearch").addEventListener("input", renderPropertyList);
+    $("#propertyAdminStatusFilter").addEventListener("change", renderPropertyList);
+    $("#propertyList").addEventListener("click", handlePropertyAction);
+    $("#testimonialSearch").addEventListener("input", renderTestimonialList);
+    $("#testimonialStatusFilter").addEventListener("change", renderTestimonialList);
+    $("#testimonialList").addEventListener("click", handleTestimonialAction);
     $("#analyticsDays").addEventListener("change", loadAnalytics);
     $("#refreshAnalyticsButton").addEventListener("click", loadAnalytics);
     $("#exportButton").addEventListener("click", exportContent);
@@ -143,19 +173,25 @@
 
   async function persistContent(message, pin = "") {
     try {
-      const result = await store.saveAdminContent({ posts, portfolio, settings, pin });
+      const result = await store.saveAdminContent({ posts, portfolio, properties, testimonials, settings, pin });
       posts = result.posts;
       portfolio = result.portfolio || [];
+      properties = result.properties || [];
+      testimonials = result.testimonials || [];
       settings = result.settings;
 
       if (result.offline) {
         setMessage("#postMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#portfolioMessage", "Saved locally. Deploy Functions to save online.");
+        setMessage("#propertyMessage", "Saved locally. Deploy Functions to save online.");
+        setMessage("#testimonialMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#settingsMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#importMessage", "Saved locally. Deploy Functions to save online.");
       } else if (message) {
         setMessage("#postMessage", message);
         setMessage("#portfolioMessage", message);
+        setMessage("#propertyMessage", message);
+        setMessage("#testimonialMessage", message);
         setMessage("#settingsMessage", message);
         setMessage("#importMessage", message);
       }
@@ -164,6 +200,8 @@
       const messageText = error && error.status === 401 ? "Please log in again." : "Could not save online. Try again.";
       setMessage("#postMessage", messageText);
       setMessage("#portfolioMessage", messageText);
+      setMessage("#propertyMessage", messageText);
+      setMessage("#testimonialMessage", messageText);
       setMessage("#settingsMessage", messageText);
       setMessage("#importMessage", messageText);
       if (error && error.status === 401) {
@@ -494,6 +532,232 @@
     renderPortfolioPreview();
   }
 
+  async function saveProperty(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const id = String(formData.get("id") || "").trim();
+    const existing = properties.find((item) => item.id === id);
+    const title = String(formData.get("title") || "").trim();
+    const mediaUrl = propertyUploadData || String(formData.get("mediaUrl") || "").trim() || (existing && existing.mediaUrl) || "";
+    const coverImage =
+      (propertyUploadData && propertyUploadData.startsWith("data:image/") ? propertyUploadData : "") ||
+      store.getYouTubeThumbnailUrl(mediaUrl) ||
+      (existing && existing.coverImage) ||
+      store.createGeneratedCover("building-project", title);
+    const featured = Boolean(formData.get("featured"));
+    const nextProperty = store.normalizeProperty({
+      ...(existing || {}),
+      id: existing ? existing.id : store.makeId().replace(/^post-/, "property-"),
+      title,
+      propertyType: String(formData.get("propertyType") || ""),
+      status: String(formData.get("status") || "published"),
+      availability: String(formData.get("availability") || ""),
+      publishedAt: String(formData.get("publishedAt") || store.today()),
+      location: String(formData.get("location") || ""),
+      price: String(formData.get("price") || ""),
+      size: String(formData.get("size") || ""),
+      summary: String(formData.get("summary") || ""),
+      mediaUrl,
+      coverImage,
+      tags: store.parseTags(formData.get("tags")),
+      featured
+    });
+
+    if (featured) {
+      properties = properties.map((property) => ({ ...property, featured: false }));
+    }
+
+    properties = existing
+      ? properties.map((property) => (property.id === existing.id ? nextProperty : property))
+      : [nextProperty, ...properties];
+
+    $("#propertyMessage").textContent = "Saving...";
+    if (!(await persistContent("Property saved online."))) return;
+    editProperty(nextProperty.id);
+    renderAdmin();
+  }
+
+  async function handlePropertyUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      $("#propertyMessage").textContent = "Choose an image file.";
+      event.target.value = "";
+      return;
+    }
+
+    $("#propertyMessage").textContent = "Preparing property image...";
+    try {
+      propertyUploadData = await resizeCoverImage(file);
+      $("#propertyMediaUrl").value = "";
+      $("#propertyMessage").textContent = "Property image ready.";
+      renderPropertyPreview();
+    } catch (error) {
+      $("#propertyMessage").textContent = "Could not prepare this image. Try a smaller JPG or PNG.";
+      event.target.value = "";
+    }
+  }
+
+  async function handlePropertyAction(event) {
+    const button = event.target.closest("[data-property-action]");
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.propertyAction;
+
+    if (action === "edit") editProperty(id);
+    if (action === "delete") await deleteProperty(id);
+    if (action === "publish") await togglePropertyStatus(id);
+    if (action === "feature") await featureProperty(id);
+  }
+
+  function editProperty(id) {
+    const property = properties.find((item) => item.id === id);
+    if (!property) return;
+
+    propertyUploadData = "";
+    $("#propertyEditorTitle").textContent = "Edit property";
+    $("#propertyId").value = property.id;
+    $("#propertyTitle").value = property.title;
+    $("#propertyType").value = property.propertyType;
+    $("#propertyStatus").value = property.status;
+    $("#propertyAvailability").value = property.availability;
+    $("#propertyDate").value = property.publishedAt;
+    $("#propertyLocation").value = property.location;
+    $("#propertyPrice").value = property.price;
+    $("#propertySize").value = property.size;
+    $("#propertySummary").value = property.summary;
+    $("#propertyMediaUrl").value = property.mediaUrl && property.mediaUrl.startsWith("data:") ? "" : property.mediaUrl;
+    $("#propertyTags").value = property.tags.join(", ");
+    $("#propertyFeatured").checked = property.featured;
+    $("#propertyFile").value = "";
+    $("#propertyMessage").textContent = "";
+    renderPropertyPreview();
+  }
+
+  async function deleteProperty(id) {
+    const property = properties.find((item) => item.id === id);
+    if (!property) return;
+
+    const confirmed = window.confirm(`Delete "${property.title}"?`);
+    if (!confirmed) return;
+
+    properties = properties.filter((item) => item.id !== id);
+    if (!(await persistContent("Property deleted online."))) return;
+    resetPropertyForm();
+    renderAdmin();
+  }
+
+  async function togglePropertyStatus(id) {
+    properties = properties.map((property) =>
+      property.id === id ? { ...property, status: property.status === "published" ? "draft" : "published" } : property
+    );
+    if (!(await persistContent("Property status updated online."))) return;
+    renderAdmin();
+  }
+
+  async function featureProperty(id) {
+    properties = properties.map((property) => ({ ...property, featured: property.id === id }));
+    if (!(await persistContent("Featured property updated online."))) return;
+    renderAdmin();
+  }
+
+  function resetPropertyForm() {
+    propertyUploadData = "";
+    $("#propertyEditorTitle").textContent = "New property";
+    $("#propertyForm").reset();
+    $("#propertyId").value = "";
+    $("#propertyDate").value = store.today();
+    $("#propertyStatus").value = "published";
+    $("#propertyAvailability").value = "available";
+    $("#propertyMessage").textContent = "";
+    renderPropertyPreview();
+  }
+
+  async function saveTestimonial(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const id = String(formData.get("id") || "").trim();
+    const existing = testimonials.find((item) => item.id === id);
+    const nextTestimonial = store.normalizeTestimonial({
+      ...(existing || {}),
+      id: existing ? existing.id : store.makeId().replace(/^post-/, "testimonial-"),
+      name: String(formData.get("name") || ""),
+      role: String(formData.get("role") || ""),
+      status: String(formData.get("status") || "published"),
+      quote: String(formData.get("quote") || ""),
+      rating: Number(formData.get("rating") || 5)
+    });
+
+    testimonials = existing
+      ? testimonials.map((item) => (item.id === existing.id ? nextTestimonial : item))
+      : [nextTestimonial, ...testimonials];
+
+    $("#testimonialMessage").textContent = "Saving...";
+    if (!(await persistContent("Testimonial saved online."))) return;
+    editTestimonial(nextTestimonial.id);
+    renderAdmin();
+  }
+
+  async function handleTestimonialAction(event) {
+    const button = event.target.closest("[data-testimonial-action]");
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.testimonialAction;
+
+    if (action === "edit") editTestimonial(id);
+    if (action === "delete") await deleteTestimonial(id);
+    if (action === "publish") await toggleTestimonialStatus(id);
+  }
+
+  function editTestimonial(id) {
+    const item = testimonials.find((entry) => entry.id === id);
+    if (!item) return;
+
+    $("#testimonialEditorTitle").textContent = "Edit testimonial";
+    $("#testimonialId").value = item.id;
+    $("#testimonialName").value = item.name;
+    $("#testimonialRole").value = item.role;
+    $("#testimonialStatus").value = item.status;
+    $("#testimonialRating").value = item.rating;
+    $("#testimonialQuote").value = item.quote;
+    $("#testimonialMessage").textContent = "";
+    renderTestimonialPreview();
+  }
+
+  async function deleteTestimonial(id) {
+    const item = testimonials.find((entry) => entry.id === id);
+    if (!item) return;
+
+    const confirmed = window.confirm(`Delete testimonial from "${item.name}"?`);
+    if (!confirmed) return;
+
+    testimonials = testimonials.filter((entry) => entry.id !== id);
+    if (!(await persistContent("Testimonial deleted online."))) return;
+    resetTestimonialForm();
+    renderAdmin();
+  }
+
+  async function toggleTestimonialStatus(id) {
+    testimonials = testimonials.map((item) =>
+      item.id === id ? { ...item, status: item.status === "published" ? "draft" : "published" } : item
+    );
+    if (!(await persistContent("Testimonial status updated online."))) return;
+    renderAdmin();
+  }
+
+  function resetTestimonialForm() {
+    $("#testimonialEditorTitle").textContent = "New testimonial";
+    $("#testimonialForm").reset();
+    $("#testimonialId").value = "";
+    $("#testimonialStatus").value = "published";
+    $("#testimonialRating").value = 5;
+    $("#testimonialMessage").textContent = "";
+    renderTestimonialPreview();
+  }
+
   async function saveSettings(event) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -526,6 +790,7 @@
       facebook: String(formData.get("facebook") || ""),
       instagram: String(formData.get("instagram") || ""),
       tiktok: String(formData.get("tiktok") || ""),
+      x: String(formData.get("x") || ""),
       services: String(formData.get("services") || "")
         .split("\n")
         .map((service) => service.trim())
@@ -552,6 +817,7 @@
     $("#settingFacebook").value = settings.facebook;
     $("#settingInstagram").value = settings.instagram;
     $("#settingTiktok").value = settings.tiktok;
+    $("#settingX").value = settings.x || "";
     $("#settingServices").value = settings.services.join("\n");
   }
 
@@ -559,8 +825,12 @@
     renderStats();
     renderPostList();
     renderPortfolioList();
+    renderPropertyList();
+    renderTestimonialList();
     renderEditorPreview();
     renderPortfolioPreview();
+    renderPropertyPreview();
+    renderTestimonialPreview();
     renderAnalytics();
   }
 
@@ -569,6 +839,8 @@
     $("#adminDraftCount").textContent = posts.filter((post) => post.status === "draft").length;
     $("#adminFeaturedCount").textContent = posts.filter((post) => post.featured).length;
     $("#adminMediaCount").textContent = portfolio.length;
+    $("#adminPropertyCount").textContent = properties.length;
+    $("#adminTestimonialCount").textContent = testimonials.length;
   }
 
   function renderPostList() {
@@ -672,6 +944,97 @@
     return `<span class="manager-media-placeholder">ET</span>`;
   }
 
+  function renderPropertyList() {
+    const list = $("#propertyList");
+    if (!list) return;
+
+    const search = $("#propertyAdminSearch").value.trim().toLowerCase();
+    const status = $("#propertyAdminStatusFilter").value;
+    const filtered = properties.filter((property) => {
+      const matchesStatus = status === "all" || property.status === status;
+      const haystack = [
+        property.title,
+        property.propertyType,
+        property.availability,
+        property.location,
+        property.price,
+        property.size,
+        property.summary,
+        property.tags.join(" ")
+      ]
+        .join(" ")
+        .toLowerCase();
+      return matchesStatus && (!search || haystack.includes(search));
+    });
+
+    list.innerHTML = filtered.length
+      ? filtered.map(renderPropertyManagerItem).join("")
+      : `<p class="empty-state">No properties found.</p>`;
+  }
+
+  function renderPropertyManagerItem(property) {
+    return `
+      <article class="manager-item" data-category="property">
+        <img src="${store.escapeHtml(property.coverImage || store.createGeneratedCover("building-project", property.title))}" alt="">
+        <div>
+          <span class="card-meta">${store.escapeHtml(property.propertyType)} · ${store.escapeHtml(property.availability)}</span>
+          <h3>${store.escapeHtml(property.title)}</h3>
+          <p>${store.escapeHtml([property.location, property.price, property.size].filter(Boolean).join(" · "))}</p>
+          <div class="tag-row compact">
+            <span>${property.status}</span>
+            ${property.featured ? "<span>featured</span>" : ""}
+          </div>
+        </div>
+        <div class="manager-actions">
+          <button type="button" data-property-action="edit" data-id="${store.escapeHtml(property.id)}">Edit</button>
+          <button type="button" data-property-action="publish" data-id="${store.escapeHtml(property.id)}">${
+            property.status === "published" ? "Draft" : "Publish"
+          }</button>
+          <button type="button" data-property-action="feature" data-id="${store.escapeHtml(property.id)}">Feature</button>
+          <button class="danger-link" type="button" data-property-action="delete" data-id="${store.escapeHtml(property.id)}">Delete</button>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderTestimonialList() {
+    const list = $("#testimonialList");
+    if (!list) return;
+
+    const search = $("#testimonialSearch").value.trim().toLowerCase();
+    const status = $("#testimonialStatusFilter").value;
+    const filtered = testimonials.filter((item) => {
+      const matchesStatus = status === "all" || item.status === status;
+      const haystack = [item.name, item.role, item.quote].join(" ").toLowerCase();
+      return matchesStatus && (!search || haystack.includes(search));
+    });
+
+    list.innerHTML = filtered.length
+      ? filtered.map(renderTestimonialManagerItem).join("")
+      : `<p class="empty-state">No testimonials found.</p>`;
+  }
+
+  function renderTestimonialManagerItem(item) {
+    return `
+      <article class="manager-item" data-category="testimonial">
+        <span class="manager-media-placeholder">"</span>
+        <div>
+          <span class="card-meta">${store.escapeHtml(item.role || "Client review")} · ${item.rating}/5</span>
+          <h3>${store.escapeHtml(item.name)}</h3>
+          <p>${store.escapeHtml(item.quote)}</p>
+          <div class="tag-row compact"><span>${item.status}</span></div>
+        </div>
+        <div class="manager-actions">
+          <button type="button" data-testimonial-action="edit" data-id="${store.escapeHtml(item.id)}">Edit</button>
+          <button type="button" data-testimonial-action="publish" data-id="${store.escapeHtml(item.id)}">${
+            item.status === "published" ? "Draft" : "Publish"
+          }</button>
+          <button class="danger-link" type="button" data-testimonial-action="delete" data-id="${store.escapeHtml(item.id)}">Delete</button>
+        </div>
+      </article>
+    `;
+  }
+
   function renderEditorPreview() {
     const preview = $("#editorPreview");
     if (!preview) return;
@@ -714,6 +1077,50 @@
         <span class="pill">${type === "video" ? "Drone video" : "Drone photo"}</span>
         <h3>${store.escapeHtml(title)}</h3>
         <p>${store.escapeHtml(summary)}</p>
+      </div>
+    `;
+  }
+
+  function renderPropertyPreview() {
+    const preview = $("#propertyPreview");
+    if (!preview) return;
+
+    const title = $("#propertyTitle").value || "Property title";
+    const summary = $("#propertySummary").value || "Property description preview will appear here.";
+    const id = $("#propertyId").value;
+    const existing = properties.find((item) => item.id === id);
+    const mediaUrl = propertyUploadData || $("#propertyMediaUrl").value.trim() || (existing && existing.mediaUrl) || "";
+    const image =
+      (mediaUrl.startsWith("data:image/") ? mediaUrl : "") ||
+      store.getYouTubeThumbnailUrl(mediaUrl) ||
+      (existing && existing.coverImage) ||
+      store.createGeneratedCover("building-project", title);
+
+    preview.innerHTML = `
+      <img src="${store.escapeHtml(image)}" alt="">
+      <div>
+        <span class="pill">${store.escapeHtml($("#propertyType").value || "Property")}</span>
+        <h3>${store.escapeHtml(title)}</h3>
+        <p>${store.escapeHtml(summary)}</p>
+      </div>
+    `;
+  }
+
+  function renderTestimonialPreview() {
+    const preview = $("#testimonialPreview");
+    if (!preview) return;
+
+    const name = $("#testimonialName").value || "Client name";
+    const role = $("#testimonialRole").value || "Service";
+    const quote = $("#testimonialQuote").value || "Client testimonial preview will appear here.";
+    const rating = Math.max(1, Math.min(5, Number($("#testimonialRating").value) || 5));
+
+    preview.innerHTML = `
+      <span class="manager-media-placeholder">${rating}/5</span>
+      <div>
+        <span class="pill">${store.escapeHtml(role)}</span>
+        <h3>${store.escapeHtml(name)}</h3>
+        <p>${store.escapeHtml(quote)}</p>
       </div>
     `;
   }
@@ -897,6 +1304,8 @@
       exportedAt: new Date().toISOString(),
       settings,
       portfolio,
+      properties,
+      testimonials,
       posts
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -922,6 +1331,10 @@
 
         posts = payload.posts.map(store.normalizePost);
         portfolio = Array.isArray(payload.portfolio) ? payload.portfolio.map(store.normalizePortfolioItem) : portfolio;
+        properties = Array.isArray(payload.properties) ? payload.properties.map(store.normalizeProperty) : properties;
+        testimonials = Array.isArray(payload.testimonials)
+          ? payload.testimonials.map(store.normalizeTestimonial)
+          : testimonials;
         if (payload.settings) {
           settings = payload.settings;
         }
@@ -946,6 +1359,8 @@
 
     posts = store.resetPosts();
     portfolio = store.loadPortfolio();
+    properties = store.loadProperties();
+    testimonials = store.loadTestimonials();
     if (!(await persistContent("Sample content restored online."))) return;
     resetPostForm();
     renderAdmin();
