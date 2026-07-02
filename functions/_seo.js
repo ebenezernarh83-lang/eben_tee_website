@@ -2,6 +2,16 @@ export const SITE_URL = "https://ebentee.com";
 export const BRAND_LOGO_URL = `${SITE_URL}/assets/eben-tee-logo.png`;
 
 const CONTENT_KEY = "site-content-v1";
+const serviceOptions = [
+  "Drone Services",
+  "Media and Content Creation",
+  "Real Estate and Land Marketing",
+  "Construction and Project Management",
+  "Property and Airbnb Management",
+  "Digital Products and Software",
+  "Ebook / Digital Product",
+  "General Enquiry"
+];
 
 const categoryLabels = {
   video: "YouTube video",
@@ -58,6 +68,124 @@ const samplePosts = [
   }
 ];
 
+const samplePortfolio = [
+  {
+    id: "media-sample-1",
+    title: "Estate approach road aerial view",
+    type: "photo",
+    status: "published",
+    publishedAt: "2026-06-27",
+    location: "Accra growth corridor",
+    clientType: "Real estate developer",
+    serviceCategory: "Drone Services",
+    summary: "Clean aerial visuals that show access roads, nearby estates, land layout, and project surroundings.",
+    tags: ["drone photo", "real estate", "land", "Accra"],
+    featured: true
+  },
+  {
+    id: "media-sample-2",
+    title: "East Legon Hills drone walkthrough",
+    type: "video",
+    status: "published",
+    publishedAt: "2026-06-24",
+    location: "East Legon Hills, Ghana",
+    clientType: "Area tour",
+    serviceCategory: "Real Estate and Land Marketing",
+    summary: "A client-ready video view of roads, estates, land activity, and the fast development around East Legon Hills.",
+    mediaUrl: "https://www.youtube.com/watch?v=zl6poa0trhk",
+    tags: ["drone video", "real estate", "East Legon Hills"],
+    featured: true
+  },
+  {
+    id: "media-sample-3",
+    title: "Construction progress inspection",
+    type: "photo",
+    status: "published",
+    publishedAt: "2026-06-21",
+    location: "Ghana project site",
+    clientType: "Builder / contractor",
+    serviceCategory: "Construction and Project Management",
+    summary: "Progress visuals for clients who need to see roof level, site access, surrounding buildings, and work progress.",
+    tags: ["construction", "progress", "inspection"]
+  }
+];
+
+const sampleProperties = [
+  {
+    id: "property-sample-1",
+    title: "Diaspora-ready land inspection package",
+    propertyType: "Land",
+    status: "published",
+    availability: "available",
+    location: "Accra growth corridor",
+    price: "Enquire for verified options",
+    size: "Plots and serviced land",
+    mapUrl: "https://www.google.com/maps/search/Accra%20growth%20corridor%20Ghana",
+    verificationNotes: "Visual inspection package available before buyer commitment.",
+    summary:
+      "For buyers abroad who need clear drone footage, access-road checks, neighbourhood context, and video proof before making a decision.",
+    tags: ["land", "diaspora", "inspection", "Accra"],
+    featured: true,
+    publishedAt: "2026-06-27"
+  },
+  {
+    id: "property-sample-2",
+    title: "Real estate video tour for developers",
+    propertyType: "House / Apartment",
+    status: "published",
+    availability: "marketing",
+    location: "Greater Accra and nearby regions",
+    price: "Marketing service",
+    size: "Homes, estates, apartments",
+    mapUrl: "https://www.google.com/maps/search/Greater%20Accra%20Ghana",
+    verificationNotes: "Best for developers and property sellers who need stronger buyer enquiries.",
+    summary:
+      "Premium property walk-through and aerial visuals for developers, agents, landlords, and sellers who want stronger buyer enquiries.",
+    tags: ["real estate", "property tour", "developer"],
+    featured: true,
+    publishedAt: "2026-06-26"
+  },
+  {
+    id: "property-sample-3",
+    title: "Airbnb and furnished apartment promotion",
+    propertyType: "Short stay",
+    status: "published",
+    availability: "management",
+    location: "Accra, Tema, East Legon, Spintex",
+    price: "Request management quote",
+    size: "Rooms, studios, apartments",
+    mapUrl: "https://www.google.com/maps/search/Accra%20Tema%20East%20Legon%20Spintex",
+    verificationNotes: "Management support depends on property readiness and owner goals.",
+    summary:
+      "Promotion, guest-ready visuals, booking support, maintenance coordination, and income monitoring for short-stay property owners.",
+    tags: ["airbnb", "short stay", "property management"],
+    publishedAt: "2026-06-25"
+  }
+];
+
+const sampleTestimonials = [
+  {
+    id: "testimonial-sample-1",
+    name: "Diaspora building client",
+    role: "Construction supervision",
+    serviceCategory: "Construction and Project Management",
+    status: "published",
+    quote:
+      "The video updates made it easier to understand the site progress from abroad. I could see the work clearly without being in Ghana.",
+    rating: 5
+  },
+  {
+    id: "testimonial-sample-2",
+    name: "Real estate seller",
+    role: "Drone marketing",
+    serviceCategory: "Drone Services",
+    status: "published",
+    quote:
+      "The aerial view showed the road access and surrounding area better than normal photos. It helped people understand the property quickly.",
+    rating: 5
+  }
+];
+
 export async function readPublicContent(env) {
   const stored = await env.EBENTEE_CONTENT.get(CONTENT_KEY, "json").catch(() => null);
   const source = stored && Array.isArray(stored.posts) ? stored : { settings: defaultSettings, posts: samplePosts };
@@ -66,10 +194,26 @@ export async function readPublicContent(env) {
     .map(normalizePost)
     .filter((post) => post.status === "published")
     .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
+  const portfolioSource = Array.isArray(source.portfolio) && source.portfolio.length ? source.portfolio : samplePortfolio;
+  const propertySource = Array.isArray(source.properties) && source.properties.length ? source.properties : sampleProperties;
+  const testimonialSource =
+    Array.isArray(source.testimonials) && source.testimonials.length ? source.testimonials : sampleTestimonials;
+  const portfolio = portfolioSource
+    .map(normalizePortfolioItem)
+    .filter((item) => item.status === "published")
+    .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
+  const properties = propertySource
+    .map(normalizeProperty)
+    .filter((property) => property.status === "published")
+    .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
+  const testimonials = testimonialSource.map(normalizeTestimonial).filter((item) => item.status === "published");
 
   return {
     settings,
     posts,
+    portfolio,
+    properties,
+    testimonials,
     updatedAt: cleanText(source.updatedAt || new Date().toISOString(), 40)
   };
 }
@@ -83,9 +227,19 @@ export function postSlug(post) {
   return `${slugify(post && post.title)}-${id}`;
 }
 
+export function itemSlug(item, fallback) {
+  const id = cleanText((item && item.id) || fallback || "item", 90).replace(/[^a-zA-Z0-9_-]/g, "");
+  return `${slugify((item && item.title) || fallback || "item")}-${id}`;
+}
+
 export function findPostBySlug(posts, slug) {
   const cleaned = decodeURIComponent(String(slug || "")).replace(/^\/+|\/+$/g, "");
   return posts.find((post) => postSlug(post) === cleaned || post.id === cleaned || cleaned.endsWith(`-${post.id}`));
+}
+
+export function findItemBySlug(items, slug, fallback) {
+  const cleaned = decodeURIComponent(String(slug || "")).replace(/^\/+|\/+$/g, "");
+  return items.find((item) => itemSlug(item, fallback) === cleaned || item.id === cleaned || cleaned.endsWith(`-${item.id}`));
 }
 
 export function escapeHtml(value) {
@@ -111,6 +265,18 @@ export function safeJson(value) {
 
 export function absolutePostUrl(post) {
   return `${SITE_URL}/post/${postSlug(post)}`;
+}
+
+export function absoluteProjectUrl(post) {
+  return `${SITE_URL}/project/${postSlug(post)}`;
+}
+
+export function absolutePropertyUrl(property) {
+  return `${SITE_URL}/property/${itemSlug(property, "ghana-property")}`;
+}
+
+export function absolutePortfolioUrl(item) {
+  return `${SITE_URL}/portfolio/${itemSlug(item, "ghana-drone-portfolio")}`;
 }
 
 export function isShareableImage(value) {
@@ -184,6 +350,63 @@ function normalizePost(post) {
   };
 }
 
+function normalizePortfolioItem(item) {
+  const type = item.type === "video" ? "video" : "photo";
+  const mediaUrl = cleanMediaUrl(item.mediaUrl, type);
+  return {
+    id: cleanText(item.id || "media", 90),
+    type,
+    status: item.status === "draft" ? "draft" : "published",
+    title: cleanText(item.title || "Untitled portfolio item", 120),
+    summary: cleanText(item.summary || "", 420),
+    location: cleanText(item.location || "", 120),
+    clientType: cleanText(item.clientType || "", 90),
+    serviceCategory: normalizeServiceCategory(item.serviceCategory || item.clientType || ""),
+    mapUrl: cleanUrl(item.mapUrl),
+    mediaUrl,
+    thumbnail: cleanCover(item.thumbnail) || getYouTubeThumbnailUrl(mediaUrl) || (type === "photo" ? mediaUrl : ""),
+    tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
+    featured: Boolean(item.featured),
+    publishedAt: cleanText(item.publishedAt || new Date().toISOString().slice(0, 10), 20),
+    updatedAt: cleanText(item.updatedAt || item.createdAt || "", 40)
+  };
+}
+
+function normalizeProperty(item) {
+  const mediaUrl = cleanMediaUrl(item.mediaUrl, "photo");
+  return {
+    id: cleanText(item.id || "property", 90),
+    title: cleanText(item.title || "Untitled property", 120),
+    propertyType: cleanText(item.propertyType || "Property", 80),
+    status: item.status === "draft" ? "draft" : "published",
+    availability: cleanText(item.availability || "available", 80),
+    location: cleanText(item.location || "", 120),
+    price: cleanText(item.price || "Enquire", 100),
+    size: cleanText(item.size || "", 100),
+    summary: cleanText(item.summary || "", 520),
+    mapUrl: cleanUrl(item.mapUrl),
+    verificationNotes: cleanText(item.verificationNotes || "", 320),
+    mediaUrl,
+    coverImage: cleanCover(item.coverImage) || getYouTubeThumbnailUrl(mediaUrl),
+    tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
+    featured: Boolean(item.featured),
+    publishedAt: cleanText(item.publishedAt || new Date().toISOString().slice(0, 10), 20),
+    updatedAt: cleanText(item.updatedAt || item.createdAt || "", 40)
+  };
+}
+
+function normalizeTestimonial(item) {
+  return {
+    id: cleanText(item.id || "testimonial", 90),
+    name: cleanText(item.name || "Client", 90),
+    role: cleanText(item.role || "", 100),
+    serviceCategory: normalizeServiceCategory(item.serviceCategory || item.role || ""),
+    status: item.status === "draft" ? "draft" : "published",
+    quote: cleanText(item.quote || "", 600),
+    rating: Math.max(1, Math.min(5, Number(item.rating) || 5))
+  };
+}
+
 function slugify(value) {
   return (
     String(value || "")
@@ -210,6 +433,15 @@ function cleanUrl(value) {
   } catch (error) {
     return "";
   }
+}
+
+function cleanMediaUrl(value, type) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  if (text.length > 3_500_000) return "";
+  if (text.startsWith("data:image/")) return text;
+  if (type === "video" && text.startsWith("data:video/")) return text;
+  return cleanUrl(text);
 }
 
 function getYouTubeThumbnailUrl(value) {
@@ -244,4 +476,11 @@ function cleanCover(value) {
   if (text.length > 2_500_000) return "";
   if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://")) return text;
   return "";
+}
+
+function normalizeServiceCategory(value) {
+  const text = cleanText(value || "", 100);
+  if (!text) return "";
+  const match = serviceOptions.find((option) => option.toLowerCase() === text.toLowerCase());
+  return match || text;
 }

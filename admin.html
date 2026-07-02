@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="styles.css?v=platform-1">
+    <link rel="stylesheet" href="styles.css?v=platform-3">
   </head>
   <body data-page="admin">
     <a class="skip-link" href="#adminMain">Skip to admin</a>
@@ -38,7 +38,7 @@
         <div class="login-box">
           <p class="eyebrow">Admin access</p>
           <h1>Manage the Eben Tee platform</h1>
-          <p>Enter your private admin PIN to publish posts, properties, portfolio media, testimonials, and site settings.</p>
+          <p>Enter your private admin PIN to publish posts, properties, portfolio media, testimonials, leads, and site settings.</p>
           <form id="loginForm">
             <label>
               Admin PIN
@@ -54,7 +54,7 @@
         <div class="admin-hero">
           <div>
             <p class="eyebrow">Admin studio</p>
-            <h1>Manage posts, properties, portfolio, reviews, analytics, and settings</h1>
+            <h1>Manage posts, properties, portfolio, reviews, leads, analytics, and settings</h1>
           </div>
           <div class="admin-stats" aria-label="Admin statistics">
             <span><strong id="adminPublishedCount">0</strong> published</span>
@@ -63,6 +63,7 @@
             <span><strong id="adminMediaCount">0</strong> media</span>
             <span><strong id="adminPropertyCount">0</strong> properties</span>
             <span><strong id="adminTestimonialCount">0</strong> reviews</span>
+            <span><strong id="adminLeadCount">0</strong> leads</span>
           </div>
         </div>
 
@@ -71,7 +72,9 @@
           <button class="tab-button" type="button" data-admin-tab="portfolio">Portfolio</button>
           <button class="tab-button" type="button" data-admin-tab="properties">Properties</button>
           <button class="tab-button" type="button" data-admin-tab="testimonials">Testimonials</button>
+          <button class="tab-button" type="button" data-admin-tab="leads">Leads</button>
           <button class="tab-button" type="button" data-admin-tab="analytics">Analytics</button>
+          <button class="tab-button" type="button" data-admin-tab="content-plan">Content plan</button>
           <button class="tab-button" type="button" data-admin-tab="settings">Site settings</button>
           <button class="tab-button" type="button" data-admin-tab="backup">Backup</button>
         </div>
@@ -481,6 +484,38 @@
           </div>
         </section>
 
+        <section class="admin-panel is-hidden" data-panel="leads">
+          <div class="analytics-panel">
+            <div class="form-title-row">
+              <div>
+                <p class="eyebrow">Lead inbox</p>
+                <h2>Website enquiries and service requests</h2>
+              </div>
+              <button class="button small secondary" type="button" id="refreshLeadsButton">Refresh</button>
+            </div>
+            <div class="manager-toolbar">
+              <label>
+                Search
+                <input id="leadSearch" type="search" placeholder="Find name, service, location...">
+              </label>
+              <label>
+                Status
+                <select id="leadStatusFilter">
+                  <option value="all">All leads</option>
+                  <option value="new">New</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="quoted">Quoted</option>
+                  <option value="follow-up">Follow-up</option>
+                  <option value="won">Won</option>
+                  <option value="lost">Lost</option>
+                </select>
+              </label>
+            </div>
+            <div class="lead-list" id="leadList"></div>
+            <p class="form-note" id="leadMessage" aria-live="polite"></p>
+          </div>
+        </section>
+
         <section class="admin-panel is-hidden" data-panel="analytics">
           <div class="analytics-panel">
             <div class="form-title-row">
@@ -506,6 +541,7 @@
               <span><strong id="analyticsUniqueVisitors">0</strong> visitors</span>
               <span><strong id="analyticsTodayViews">0</strong> today</span>
               <span><strong id="analyticsTopPage">None yet</strong> top page</span>
+              <span><strong id="analyticsLeadEvents">0</strong> lead actions</span>
             </div>
 
             <div class="analytics-grid">
@@ -525,9 +561,48 @@
                 <h3>Devices</h3>
                 <div class="analytics-list" id="analyticsDevices"></div>
               </div>
+              <div class="analytics-card">
+                <h3>Conversion actions</h3>
+                <div class="analytics-list" id="analyticsEvents"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Services requested</h3>
+                <div class="analytics-list" id="analyticsServices"></div>
+              </div>
             </div>
 
             <p class="form-note" id="analyticsMessage" aria-live="polite">Open this tab after visitors start using the site.</p>
+          </div>
+        </section>
+
+        <section class="admin-panel is-hidden" data-panel="content-plan">
+          <div class="backup-grid content-plan-grid">
+            <div class="backup-panel">
+              <p class="eyebrow">Publishing prompts</p>
+              <h2>Search-friendly post ideas</h2>
+              <div class="content-prompt-list" id="contentPromptList"></div>
+            </div>
+            <div class="backup-panel">
+              <p class="eyebrow">Weekly rhythm</p>
+              <h2>Simple content calendar</h2>
+              <ol class="content-calendar">
+                <li><strong>Monday:</strong> Property, land, or buyer education post.</li>
+                <li><strong>Wednesday:</strong> Construction/site progress or Ghana project update.</li>
+                <li><strong>Friday:</strong> Drone video, YouTube story, or client portfolio feature.</li>
+                <li><strong>Sunday:</strong> Faith, purpose, digital-product, or entrepreneurship note.</li>
+              </ol>
+            </div>
+            <div class="backup-panel">
+              <p class="eyebrow">Post checklist</p>
+              <h2>Before publishing</h2>
+              <ul class="content-checklist">
+                <li>Use a clear location and service keyword in the title.</li>
+                <li>Add a cover image or YouTube link for thumbnail previews.</li>
+                <li>Write a helpful summary people would search for.</li>
+                <li>Add tags like drone services, Ghana real estate, diaspora construction.</li>
+                <li>Link the post to a service or contact action.</li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -660,7 +735,7 @@
       </section>
     </main>
 
-    <script src="data.js?v=platform-1"></script>
-    <script src="admin.js?v=platform-1"></script>
+    <script src="data.js?v=platform-3"></script>
+    <script src="admin.js?v=platform-3"></script>
   </body>
 </html>

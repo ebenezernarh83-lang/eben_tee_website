@@ -1037,7 +1037,7 @@ textarea:focus {
 
 .analytics-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -1134,7 +1134,91 @@ textarea:focus {
   color: var(--ink);
 }
 
-  .warning-panel {
+.lead-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.lead-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fffdfa, #fbf5eb);
+  padding: 1rem;
+  box-shadow: var(--soft-shadow);
+}
+
+.lead-item h3,
+.lead-item p {
+  margin: 0.25rem 0;
+}
+
+.lead-contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+
+.lead-contact-links a {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.36rem 0.62rem;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.lead-actions {
+  grid-template-columns: repeat(2, minmax(92px, 1fr));
+}
+
+.content-plan-grid {
+  align-items: stretch;
+}
+
+.content-prompt-list,
+.content-calendar,
+.content-checklist {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+}
+
+.content-prompt {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.content-prompt span,
+.content-calendar,
+.content-checklist {
+  color: var(--muted);
+}
+
+.content-prompt strong {
+  line-height: 1.25;
+}
+
+.content-calendar,
+.content-checklist {
+  padding-left: 1.2rem;
+}
+
+.warning-panel {
   border-color: rgba(179, 38, 30, 0.3);
 }
 
@@ -1564,7 +1648,9 @@ body[data-page="admin"] {
   .post-grid,
   .post-row,
   .project-grid,
-  .backup-grid {
+  .backup-grid,
+  .platform-proof-grid,
+  .mini-review-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1639,7 +1725,11 @@ body[data-page="admin"] {
   .service-list,
   .backup-grid,
   .form-grid,
-  .manager-toolbar {
+  .manager-toolbar,
+  .platform-proof-grid,
+  .mini-review-grid,
+  .analytics-summary,
+  .analytics-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1652,6 +1742,10 @@ body[data-page="admin"] {
   }
 
   .manager-item {
+    grid-template-columns: 1fr;
+  }
+
+  .lead-item {
     grid-template-columns: 1fr;
   }
 
@@ -4525,7 +4619,8 @@ body[data-view="post"] .card-button,
 }
 
 .seo-post-media img,
-.seo-post-media iframe {
+.seo-post-media iframe,
+.seo-post-media video {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -4562,6 +4657,28 @@ body[data-view="post"] .card-button,
 
 .seo-post-cta p {
   color: var(--muted);
+}
+
+.mini-proof {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 0.85rem;
+}
+
+.mini-proof strong {
+  display: block;
+  color: var(--ink);
+}
+
+.mini-proof p {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+}
+
+.progress-track.large {
+  height: 12px;
+  background: rgba(17, 24, 39, 0.12);
 }
 
 body[data-view="ebook"] .ebook-hero,
@@ -5680,6 +5797,64 @@ body[data-view="platform"] {
   background:
     linear-gradient(125deg, rgba(242, 201, 76, 0.15), rgba(255, 255, 255, 0.045) 44%, rgba(5, 8, 13, 0.86)),
     #0b0e13;
+}
+
+.platform-proof-section {
+  margin: clamp(38px, 6vw, 76px) 0;
+  padding: clamp(24px, 4vw, 46px);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(49, 95, 189, 0.12), transparent 42%),
+    rgba(255, 255, 255, 0.045);
+}
+
+.platform-proof-section h2 {
+  max-width: 880px;
+  margin: 0 0 24px;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4.2rem);
+  line-height: 0.98;
+}
+
+.platform-proof-grid,
+.mini-review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.platform-proof-grid article,
+.mini-review-grid blockquote {
+  min-height: 180px;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(5, 8, 13, 0.72);
+  padding: 22px;
+}
+
+.platform-proof-grid strong,
+.mini-review-grid cite {
+  color: #f2c94c;
+  font-weight: 900;
+}
+
+.platform-proof-grid p,
+.mini-review-grid p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.mini-review-grid {
+  margin-top: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.property-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .platform-contact-actions {

@@ -136,7 +136,7 @@
   function renderProjectCard(post) {
     return `
       <article class="project-page-card">
-        <a href="${store.escapeHtml(store.postUrl(post))}">
+        <a href="${store.escapeHtml(store.projectUrl(post))}">
           <span class="project-page-media">
             <img src="${store.escapeHtml(post.coverImage)}" alt="">
           </span>

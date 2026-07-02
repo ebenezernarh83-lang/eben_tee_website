@@ -141,7 +141,7 @@
     const form = $("#contactForm");
     if (!form) return;
 
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(form);
       const name = String(formData.get("name") || "").trim();
@@ -150,6 +150,17 @@
       const location = String(formData.get("location") || "").trim();
       const message = String(formData.get("message") || "").trim();
       const file = form.querySelector('input[type="file"]')?.files?.[0];
+      await store.submitLead({
+        name,
+        phone: contact,
+        email: contact.includes("@") ? contact : "",
+        service,
+        location,
+        message,
+        page: window.location.pathname,
+        attachmentName: file ? file.name : ""
+      }).catch(() => {});
+      window.EbenTeeAnalytics?.track("lead_form_submit", { service, eventLabel: "Homepage contact form" });
       const text = [
         `Hello ${settings.ownerName || "Eben Tee"}, my name is ${name}.`,
         service ? `Service needed: ${service}.` : "",
@@ -167,6 +178,7 @@
       } else if (settings.email) {
         window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Project enquiry")}&body=${encodeURIComponent(text)}`;
       }
+      form.reset();
     });
   }
 
@@ -180,6 +192,7 @@
       const text = `Hello ${settings.ownerName || "Eben Tee"}, please add me to your Ghana property, construction, and investment updates list. My email is ${email}.`;
       const cleanedWhatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
       if (cleanedWhatsapp) {
+        window.EbenTeeAnalytics?.track("newsletter_signup", { service: "General Enquiry", eventLabel: "Diaspora investor updates" });
         window.open(`https://wa.me/${cleanedWhatsapp}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
       } else if (settings.email) {
         window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Diaspora investor updates")}&body=${encodeURIComponent(text)}`;
@@ -493,6 +506,7 @@
             <span>${store.escapeHtml(property.price)}</span>
             <span>${store.escapeHtml(property.size || "Details on request")}</span>
           </div>
+          <a class="text-link" href="${store.escapeHtml(store.propertyUrl(property))}">View details</a>
           <a class="button small" href="${store.escapeHtml(href)}" ${whatsapp ? 'target="_blank" rel="noreferrer"' : ""}>WhatsApp enquiry</a>
         </div>
       </article>
@@ -613,7 +627,7 @@
           .map(
             (post) => `
               <article class="project-card" data-category="${store.escapeHtml(post.category)}">
-                <a class="card-button" href="${store.escapeHtml(store.postUrl(post))}" aria-label="Read ${store.escapeHtml(post.title)}">
+                <a class="card-button" href="${store.escapeHtml(store.projectUrl(post))}" aria-label="Read ${store.escapeHtml(post.title)}">
                   <img src="${store.escapeHtml(post.coverImage)}" alt="">
                   <span class="pill">${store.escapeHtml(post.projectStage || store.categoryLabel(post.category))}</span>
                   <h3>${store.escapeHtml(post.title)}</h3>

@@ -381,6 +381,139 @@
       spotlightText: "Use the form below to prepare a clear message. If WhatsApp is connected in the admin settings, it will open with your enquiry.",
       spotlightList: ["Book now", "Request quote", "Site visit", "Property enquiry", "Drone shoot"],
       dynamic: "contact"
+    },
+    booking: {
+      eyebrow: "Booking and quotes",
+      title: "Book a drone shoot, site visit, property inspection, or digital project with clear next steps.",
+      intro:
+        "Use the booking page to prepare the details Eben Tee needs before quoting: service, location, date, deliverables, project stage, and contact details.",
+      badge: "Booking foundation",
+      actions: [
+        ["Start booking", "#contactFormPanel"],
+        ["Chat on WhatsApp", "#contactFormPanel", "secondary"],
+        ["View services", "services.html", "secondary"]
+      ],
+      stats: [
+        ["Booking types", "Drone, property, site visits"],
+        ["Flow", "Enquiry, quote, schedule"],
+        ["Next phase", "Payments and calendars"]
+      ],
+      highlights: [
+        ["Drone shoot booking", "Share location, date, purpose, shot list, and desired output for real estate, construction, events, or business promotion."],
+        ["Site visit request", "Send project stage, concerns, contractor contact, and the type of progress update needed."],
+        ["Property inspection", "Request location context, access-road visuals, neighbourhood media, and buyer-focused questions."],
+        ["Digital project quote", "Describe the website, software, tracker, ebook page, or business system you want built."]
+      ],
+      processTitle: "Booking workflow",
+      process: [
+        ["Send request", "Use the form with service, location, date, and message."],
+        ["Confirm scope", "Eben Tee clarifies deliverables, timing, and access."],
+        ["Receive quote", "You get a practical quote and next step."],
+        ["Schedule work", "The job is planned and tracked for delivery."]
+      ],
+      spotlightTitle: "Prepared for payments",
+      spotlightText: "This page is ready for future payment links, booking calendars, drone training registration, and client dashboards.",
+      spotlightList: ["Quote request", "Payment link ready", "Calendar ready", "Client portal ready"],
+      dynamic: "contact"
+    },
+    brochures: {
+      eyebrow: "Service brochures",
+      title: "Download or request Eben Tee service packages for drone, property, construction, management, and digital work.",
+      intro:
+        "This page organizes the service offers clients commonly ask for so they can understand what to request before contacting Eben Tee.",
+      badge: "Client sales assets",
+      actions: [
+        ["Request brochure", "contact.html"],
+        ["Book a quote", "booking.html", "secondary"],
+        ["View services", "services.html", "secondary"]
+      ],
+      stats: [
+        ["Packages", "Drone, property, construction"],
+        ["Audience", "Diaspora and Ghana clients"],
+        ["Next phase", "PDF downloads"]
+      ],
+      highlights: [
+        ["Drone media package", "Aerial photos, edited video, social clips, project walkthrough, and YouTube-ready output."],
+        ["Diaspora construction update package", "Site visit, progress photos, video walkthrough, material/labour notes, and weekly report."],
+        ["Property marketing package", "Drone tour, listing visuals, map context, description, and WhatsApp enquiry content."],
+        ["Airbnb management package", "Property readiness, promotion, booking communication, maintenance coordination, and income notes."]
+      ],
+      processTitle: "How brochures work",
+      process: [
+        ["Choose package", "Select the closest service area."],
+        ["Request details", "Ask for pricing and deliverables."],
+        ["Customize", "Adjust by location, urgency, and project size."],
+        ["Start", "Confirm the quote and begin delivery."]
+      ],
+      spotlightTitle: "PDF downloads can come next",
+      spotlightText: "The page is ready for branded PDF brochures once final package pricing and service boundaries are confirmed.",
+      spotlightList: ["Drone PDF", "Property PDF", "Construction PDF", "Digital services PDF"]
+    },
+    "client-portal": {
+      eyebrow: "Client portal preview",
+      title: "A future dashboard for diaspora clients building, investing, or managing property in Ghana.",
+      intro:
+        "The client portal foundation explains how future private dashboards can show progress updates, photos, videos, expenses, documents, and reports.",
+      badge: "Phase 2 foundation",
+      actions: [
+        ["Request project updates", "booking.html"],
+        ["Start building project", "construction.html", "secondary"],
+        ["Contact Eben Tee", "contact.html", "secondary"]
+      ],
+      stats: [
+        ["Portal status", "Foundation ready"],
+        ["Future data", "Photos, videos, costs"],
+        ["Best for", "Diaspora clients"]
+      ],
+      highlights: [
+        ["Progress timeline", "A private view of construction stage updates, photos, and video walkthroughs."],
+        ["Expense and material notes", "Simple records of materials, labour activity, and key site observations."],
+        ["Report archive", "Weekly or monthly updates stored in one place for owners abroad."],
+        ["Customer dashboard", "Future login for active projects, property management, and digital service clients."]
+      ],
+      processTitle: "Portal roadmap",
+      process: [
+        ["Phase 1", "Public website, admin content, leads, analytics, and SEO routes."],
+        ["Phase 2", "Client login, project records, uploads, and private reports."],
+        ["Phase 3", "Payments, booking calendar, and customer dashboard."],
+        ["Phase 4", "Advanced investment calculators and owner reports."]
+      ],
+      spotlightTitle: "No fake login yet",
+      spotlightText: "This page is intentionally a preview until real authentication, privacy rules, and client data storage are implemented properly.",
+      spotlightList: ["Private login planned", "Progress archive planned", "Payments planned", "Reports planned"]
+    },
+    "business-profile": {
+      eyebrow: "Google Business Profile checklist",
+      title: "Make Eben Tee easier to find for Ghana drone, real estate, construction, and property services.",
+      intro:
+        "Use this checklist to set up and maintain the public business presence that supports Google Search and Maps discovery.",
+      badge: "Local search foundation",
+      actions: [
+        ["Open contact page", "contact.html"],
+        ["View SEO updates", "blog.html", "secondary"],
+        ["Book service", "booking.html", "secondary"]
+      ],
+      stats: [
+        ["Goal", "Search and Maps trust"],
+        ["Focus", "Services and location"],
+        ["Ongoing", "Photos, posts, reviews"]
+      ],
+      highlights: [
+        ["Business identity", "Use Eben Tee, the official logo, accurate phone, WhatsApp, website, and Accra/Ghana service area."],
+        ["Service categories", "Add drone photography, videography, real estate marketing, construction support, property management, and web services where available."],
+        ["Photos and videos", "Upload real drone work, project visuals, property tours, and branded images regularly."],
+        ["Reviews", "Ask real clients to review the service after drone shoots, property support, site updates, or Airbnb management."]
+      ],
+      processTitle: "Monthly local SEO routine",
+      process: [
+        ["Post update", "Share a new project, property, video, or service note."],
+        ["Add media", "Upload fresh photos or video thumbnails."],
+        ["Request reviews", "Ask satisfied clients for honest feedback."],
+        ["Check accuracy", "Confirm phone, website, hours, and service areas."]
+      ],
+      spotlightTitle: "Google decides when changes appear",
+      spotlightText: "The website can be optimized, but Google Search and favicon updates depend on crawling, indexing, and Search Console follow-up.",
+      spotlightList: ["Submit sitemap", "Inspect URLs", "Use stable favicon", "Publish useful content"]
     }
   };
 
@@ -392,6 +525,44 @@
     ["Media / YouTube", "media.html"],
     ["Digital Products", "digital-products.html"]
   ];
+
+  const proofBlocks = {
+    "drone-services": [
+      ["Safety planning", "Confirm location, access, timing, weather, privacy expectations, and safe take-off/landing points before flying."],
+      ["Client deliverables", "Agree on photos, video length, orientation, social clips, thumbnails, and raw-footage needs before capture."],
+      ["Compliance mindset", "Drone work is planned with safe operating distance, responsible location checks, and respect for restricted areas."]
+    ],
+    "real-estate": [
+      ["Buyer clarity", "Every listing can show location, access roads, surroundings, price notes, size, media, and map context."],
+      ["Diaspora support", "Buyers abroad can request visual inspection, drone views, and WhatsApp-ready decision updates."],
+      ["Seller presentation", "Property owners get cleaner visuals and descriptions that make enquiries easier to qualify."]
+    ],
+    construction: [
+      ["Progress proof", "Site updates can include stage, percentage, photos, video, labour/material notes, and next concerns."],
+      ["Remote confidence", "Diaspora clients receive clearer evidence before sending money or making construction decisions."],
+      ["Project records", "Updates build a timeline for foundation, structure, roofing, finishing, and handover."]
+    ],
+    "property-management": [
+      ["Guest readiness", "Promotion, check-in flow, cleaning, maintenance, and owner communication can be tracked together."],
+      ["Income visibility", "Owners can request simple booking and income monitoring for furnished and short-stay units."],
+      ["Better presentation", "Professional visuals help Airbnb and short-stay spaces look more trustworthy online."]
+    ],
+    media: [
+      ["Search-ready videos", "Content can be shaped with strong titles, thumbnails, descriptions, and related website posts."],
+      ["Brand storytelling", "Projects, resorts, businesses, schools, churches, and estates can be turned into documentary-style media."],
+      ["Multi-platform output", "One shoot can produce YouTube video, TikTok/Reels clips, Facebook posts, and website proof."]
+    ],
+    "digital-products": [
+      ["Practical systems", "Websites and trackers focus on the daily work Ghanaian businesses actually need to record."],
+      ["Digital product path", "Ebooks, templates, training pages, and simple checkout links can be added as offers grow."],
+      ["Business automation", "MoMo, property, expense, construction, and client trackers can become Phase 2 tools."]
+    ],
+    services: [
+      ["Combined service packages", "Drone footage, property listing, site visit, and digital reporting can work together."],
+      ["WhatsApp-first enquiry", "Every service has a clear call-to-action for quick client conversation."],
+      ["Professional proof", "Portfolio, testimonials, maps, project pages, and blog updates support trust."]
+    ]
+  };
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -529,6 +700,8 @@
         </div>
       </section>
 
+      ${renderProofSection(page, config)}
+
       <section class="platform-page-section" id="${dynamicAnchor(config.dynamic)}">
         <div id="dynamicPanel"></div>
       </section>
@@ -576,6 +749,45 @@
         <strong>${store.escapeHtml(item[0])}</strong>
         <p>${store.escapeHtml(item[1])}</p>
       </article>
+    `;
+  }
+
+  function renderProofSection(page, config) {
+    const blocks = proofBlocks[page] || proofBlocks.services;
+    const relatedReviews = testimonials
+      .filter((item) => {
+        const category = String(item.serviceCategory || item.role || "").toLowerCase();
+        const title = String(config.eyebrow || "").toLowerCase();
+        return category && title.split(/\W+/).some((word) => word.length > 4 && category.includes(word));
+      })
+      .slice(0, 2);
+
+    return `
+      <section class="platform-proof-section">
+        <div>
+          <p class="eyebrow">Proof and trust</p>
+          <h2>Professional details clients expect before they book.</h2>
+        </div>
+        <div class="platform-proof-grid">
+          ${blocks
+            .map(
+              ([title, text]) => `
+                <article>
+                  <strong>${store.escapeHtml(title)}</strong>
+                  <p>${store.escapeHtml(text)}</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+        ${
+          relatedReviews.length
+            ? `<div class="mini-review-grid">${relatedReviews
+                .map((item) => `<blockquote><p>${store.escapeHtml(item.quote)}</p><cite>${store.escapeHtml(item.name)} · ${store.escapeHtml(item.role)}</cite></blockquote>`)
+                .join("")}</div>`
+            : ""
+        }
+      </section>
     `;
   }
 
@@ -701,7 +913,10 @@
             <span>${store.escapeHtml(property.price)}</span>
             <span>${store.escapeHtml(property.size || "Details on request")}</span>
           </div>
-          <a class="button small" href="${store.escapeHtml(href)}"${target}>WhatsApp enquiry</a>
+          <div class="property-actions">
+            <a class="text-link" href="${store.escapeHtml(store.propertyUrl(property))}">View details</a>
+            <a class="button small" href="${store.escapeHtml(href)}"${target}>WhatsApp enquiry</a>
+          </div>
         </div>
       </article>
     `;
@@ -729,9 +944,7 @@
   function renderPortfolioCard(item) {
     const image = item.thumbnail || (item.type === "photo" ? item.mediaUrl : "") || store.getYouTubeThumbnailUrl(item.mediaUrl);
     return `
-      <a class="portfolio-card page-media-card" href="${store.escapeHtml(item.mediaUrl || "contact.html")}" ${
-      item.mediaUrl ? 'target="_blank" rel="noreferrer"' : ""
-    }>
+      <a class="portfolio-card page-media-card" href="${store.escapeHtml(store.portfolioUrl(item))}">
         <span class="portfolio-card-media">
           ${image ? `<img src="${store.escapeHtml(image)}" alt="${store.escapeHtml(item.title)}">` : `<span class="portfolio-placeholder"><span>ET</span></span>`}
           ${item.type === "video" ? '<span class="play-badge">Play</span>' : ""}
@@ -786,8 +999,28 @@
         <a class="text-link" href="projects.html">Open project desk</a>
       </div>
       <div class="post-grid">
-        ${projects.length ? projects.map(renderPostCard).join("") : `<p class="empty-state">Project updates will appear here after publishing.</p>`}
+        ${projects.length ? projects.map(renderProjectCard).join("") : `<p class="empty-state">Project updates will appear here after publishing.</p>`}
       </div>
+    `;
+  }
+
+  function renderProjectCard(post) {
+    const embed = store.getYouTubeEmbedUrl(post.videoUrl);
+    return `
+      <article class="post-card">
+        <a class="card-button" href="${store.escapeHtml(store.projectUrl(post))}">
+          <span class="media-frame">
+            <img src="${store.escapeHtml(post.coverImage)}" alt="">
+            ${embed ? '<span class="play-badge">Play</span>' : ""}
+          </span>
+          <span class="card-content">
+            <span class="card-meta">${store.categoryLabel(post.category)} · ${store.formatDate(post.publishedAt)}</span>
+            <strong>${store.escapeHtml(post.title)}</strong>
+            <span>${store.escapeHtml(post.summary)}</span>
+            ${post.location ? `<small>${store.escapeHtml(post.location)}</small>` : ""}
+          </span>
+        </a>
+      </article>
     `;
   }
 
@@ -849,13 +1082,25 @@
       </div>
     `;
 
-    $("#pageContactForm").addEventListener("submit", (event) => {
+      $("#pageContactForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
       const file = event.currentTarget.querySelector('input[type="file"]')?.files?.[0];
+      const service = String(formData.get("service") || "").trim();
+      await store.submitLead({
+        name: String(formData.get("name") || "").trim(),
+        email: String(formData.get("email") || "").trim(),
+        phone: String(formData.get("phone") || "").trim(),
+        service,
+        location: String(formData.get("location") || "").trim(),
+        message: String(formData.get("message") || "").trim(),
+        page: window.location.pathname,
+        attachmentName: file ? file.name : ""
+      }).catch(() => {});
+      window.EbenTeeAnalytics?.track("lead_form_submit", { service, eventLabel: "Platform contact form" });
       const text = [
         `Hello ${settings.ownerName || "Eben Tee"}, my name is ${String(formData.get("name") || "").trim()}.`,
-        `Service needed: ${String(formData.get("service") || "").trim()}.`,
+        `Service needed: ${service}.`,
         `Phone/WhatsApp: ${String(formData.get("phone") || "").trim()}.`,
         String(formData.get("email") || "").trim() ? `Email: ${String(formData.get("email") || "").trim()}.` : "",
         String(formData.get("location") || "").trim() ? `Location: ${String(formData.get("location") || "").trim()}.` : "",
@@ -870,6 +1115,7 @@
       } else if (settings.email) {
         window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Eben Tee service enquiry")}&body=${encodeURIComponent(text)}`;
       }
+      event.currentTarget.reset();
     });
   }
 

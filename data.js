@@ -5,6 +5,7 @@
   const PORTFOLIO_KEY = "build-journal-portfolio-v1";
   const PROPERTIES_KEY = "build-journal-properties-v1";
   const TESTIMONIALS_KEY = "build-journal-testimonials-v1";
+  const LEADS_KEY = "build-journal-leads-v1";
   const SETTINGS_KEY = "build-journal-settings-v1";
   const SESSION_KEY = "build-journal-admin-unlocked";
   const PIN_KEY = "build-journal-admin-pin";
@@ -24,6 +25,29 @@
     "service-update": ["#5b2c83", "#147d64", "#f2c94c"],
     personal: ["#334155", "#b45309", "#f2c94c"]
   };
+
+  const leadStatuses = ["new", "contacted", "quoted", "won", "lost", "follow-up"];
+
+  const serviceOptions = [
+    "Drone Services",
+    "Media and Content Creation",
+    "Real Estate and Land Marketing",
+    "Construction and Project Management",
+    "Property and Airbnb Management",
+    "Digital Products and Software",
+    "Ebook / Digital Product",
+    "General Enquiry"
+  ];
+
+  const contentPlanPrompts = [
+    "Drone services in Ghana for real estate sellers",
+    "How diaspora clients can monitor construction progress in Ghana",
+    "Land inspection checklist before buying property in Ghana",
+    "Best areas to film property tours around Accra growth corridors",
+    "Airbnb management tips for Ghana property owners",
+    "How small businesses in Ghana can use websites and simple software",
+    "Ghana infrastructure update with what it means for property buyers"
+  ];
 
   const defaultSettings = {
     brandName: "Eben Tee",
@@ -133,6 +157,7 @@
       publishedAt: "2026-06-27",
       location: "Accra growth corridor",
       clientType: "Real estate developer",
+      serviceCategory: "Drone Services",
       summary: "Clean aerial visuals that show access roads, nearby estates, land layout, and project surroundings.",
       mediaUrl: "",
       tags: ["drone photo", "real estate", "land", "Accra"],
@@ -145,6 +170,7 @@
       publishedAt: "2026-06-24",
       location: "East Legon Hills, Ghana",
       clientType: "Area tour",
+      serviceCategory: "Real Estate and Land Marketing",
       summary: "A client-ready video view of roads, estates, land activity, and the fast development around East Legon Hills.",
       mediaUrl: "https://www.youtube.com/watch?v=zl6poa0trhk",
       tags: ["drone video", "real estate", "East Legon Hills"],
@@ -157,6 +183,7 @@
       publishedAt: "2026-06-21",
       location: "Ghana project site",
       clientType: "Builder / contractor",
+      serviceCategory: "Construction and Project Management",
       summary: "Progress visuals for clients who need to see roof level, site access, surrounding buildings, and work progress.",
       mediaUrl: "",
       tags: ["construction", "progress", "inspection"],
@@ -173,6 +200,8 @@
       location: "Accra growth corridor",
       price: "Enquire for verified options",
       size: "Plots and serviced land",
+      mapUrl: "https://www.google.com/maps/search/Accra%20growth%20corridor%20Ghana",
+      verificationNotes: "Visual inspection package available before buyer commitment.",
       summary:
         "For buyers abroad who need clear drone footage, access-road checks, neighbourhood context, and video proof before making a decision.",
       mediaUrl: "",
@@ -187,6 +216,8 @@
       location: "Greater Accra and nearby regions",
       price: "Marketing service",
       size: "Homes, estates, apartments",
+      mapUrl: "https://www.google.com/maps/search/Greater%20Accra%20Ghana",
+      verificationNotes: "Best for developers and property sellers who need stronger buyer enquiries.",
       summary:
         "Premium property walk-through and aerial visuals for developers, agents, landlords, and sellers who want stronger buyer enquiries.",
       mediaUrl: "",
@@ -201,6 +232,8 @@
       location: "Accra, Tema, East Legon, Spintex",
       price: "Request management quote",
       size: "Rooms, studios, apartments",
+      mapUrl: "https://www.google.com/maps/search/Accra%20Tema%20East%20Legon%20Spintex",
+      verificationNotes: "Management support depends on property readiness and owner goals.",
       summary:
         "Promotion, guest-ready visuals, booking support, maintenance coordination, and income monitoring for short-stay property owners.",
       mediaUrl: "",
@@ -213,6 +246,7 @@
     {
       name: "Diaspora building client",
       role: "Construction supervision",
+      serviceCategory: "Construction and Project Management",
       status: "published",
       quote:
         "The video updates made it easier to understand the site progress from abroad. I could see the work clearly without being in Ghana.",
@@ -221,6 +255,7 @@
     {
       name: "Real estate seller",
       role: "Drone marketing",
+      serviceCategory: "Drone Services",
       status: "published",
       quote:
         "The aerial view showed the road access and surrounding area better than normal photos. It helped people understand the property quickly.",
@@ -229,6 +264,7 @@
     {
       name: "Short-stay owner",
       role: "Property promotion",
+      serviceCategory: "Property and Airbnb Management",
       status: "published",
       quote:
         "The content looked professional and gave the apartment a stronger online presence for guests and enquiries.",
@@ -318,6 +354,23 @@
 
   function postUrl(post) {
     return `/post/${postSlug(post)}`;
+  }
+
+  function itemSlug(item, fallback) {
+    const safeId = String((item && item.id) || makeId()).replace(/[^a-zA-Z0-9_-]/g, "");
+    return `${slugify((item && item.title) || fallback || "item")}-${safeId}`;
+  }
+
+  function propertyUrl(property) {
+    return `/property/${itemSlug(property, "ghana-property")}`;
+  }
+
+  function portfolioUrl(item) {
+    return `/portfolio/${itemSlug(item, "ghana-drone-portfolio")}`;
+  }
+
+  function projectUrl(post) {
+    return `/project/${postSlug(post)}`;
   }
 
   function getYouTubeId(value) {
@@ -491,6 +544,8 @@
       summary: String(item.summary || "").trim(),
       location: String(item.location || "").trim(),
       clientType: String(item.clientType || "").trim(),
+      serviceCategory: normalizeServiceCategory(item.serviceCategory || item.clientType || ""),
+      mapUrl: normalizeUrl(item.mapUrl),
       mediaUrl,
       thumbnail,
       tags: parseTags(item.tags),
@@ -520,6 +575,8 @@
       price: String(item.price || "Enquire").trim(),
       size: String(item.size || "").trim(),
       summary: String(item.summary || "").trim(),
+      mapUrl: normalizeUrl(item.mapUrl),
+      verificationNotes: String(item.verificationNotes || "").trim(),
       mediaUrl,
       coverImage,
       tags: parseTags(item.tags),
@@ -535,12 +592,53 @@
       id: String(item.id || makeId()).replace(/^post-/, "testimonial-"),
       name: String(item.name || "Client").trim(),
       role: String(item.role || "").trim(),
+      serviceCategory: normalizeServiceCategory(item.serviceCategory || item.role || ""),
+      relatedTitle: String(item.relatedTitle || "").trim(),
       status: item.status === "draft" ? "draft" : "published",
       quote: String(item.quote || "").trim(),
       rating: Math.max(1, Math.min(5, Number(item.rating) || 5)),
       createdAt: item.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
+  }
+
+  function normalizeLead(item) {
+    const status = leadStatuses.includes(item.status) ? item.status : "new";
+    return {
+      id: String(item.id || makeId()).replace(/^post-/, "lead-"),
+      status,
+      name: String(item.name || "").trim(),
+      email: String(item.email || "").trim(),
+      phone: String(item.phone || item.contact || "").trim(),
+      service: normalizeServiceCategory(item.service || "General Enquiry"),
+      location: String(item.location || "").trim(),
+      message: String(item.message || "").trim(),
+      page: String(item.page || "").trim().slice(0, 180),
+      source: String(item.source || "Website").trim(),
+      attachmentName: String(item.attachmentName || "").trim(),
+      notes: String(item.notes || "").trim(),
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function normalizeServiceCategory(value) {
+    const text = String(value || "").trim();
+    if (!text) return "General Enquiry";
+    const match = serviceOptions.find((option) => option.toLowerCase() === text.toLowerCase());
+    return match || text.slice(0, 90);
+  }
+
+  function normalizeUrl(value) {
+    const text = String(value || "").trim();
+    if (!text) return "";
+
+    try {
+      const url = new URL(text);
+      return ["http:", "https:"].includes(url.protocol) ? url.toString() : "";
+    } catch (error) {
+      return "";
+    }
   }
 
   function seedPortfolio() {
@@ -657,6 +755,17 @@
     return normalized;
   }
 
+  function loadLeads() {
+    const stored = readJson(LEADS_KEY, []);
+    return Array.isArray(stored) ? stored.map(normalizeLead).sort(sortLeadDesc) : [];
+  }
+
+  function saveLeads(items) {
+    const normalized = items.map(normalizeLead).sort(sortLeadDesc);
+    writeJson(LEADS_KEY, normalized);
+    return normalized;
+  }
+
   function loadSettings() {
     const stored = readJson(SETTINGS_KEY, {});
     const migrated = migrateSettings(stored);
@@ -723,6 +832,10 @@
     return String(b.publishedAt || "").localeCompare(String(a.publishedAt || ""));
   }
 
+  function sortLeadDesc(a, b) {
+    return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+  }
+
   function getPublishedPosts(posts) {
     return posts.filter((post) => post.status === "published").sort(sortByDateDesc);
   }
@@ -749,6 +862,11 @@
 
   function isApiError(error, status) {
     return error && error.status === status;
+  }
+
+  function shouldUseLocalFallback(error) {
+    const status = Number(error && error.status);
+    return !status || status === 404 || status === 405 || status === 501;
   }
 
   async function requestJson(path, options = {}) {
@@ -788,6 +906,7 @@
       portfolio: loadPortfolio(),
       properties: loadProperties(),
       testimonials: loadTestimonials(),
+      leads: loadLeads(),
       settings: loadSettings(),
       offline: true
     };
@@ -804,6 +923,7 @@
     const loadedTestimonials = Array.isArray(payload.testimonials)
       ? payload.testimonials.map(normalizeTestimonial)
       : loadTestimonials();
+    const loadedLeads = Array.isArray(payload.leads) ? payload.leads.map(normalizeLead).sort(sortLeadDesc) : loadLeads();
     const loadedSettings = saveSettings(payload.settings || {});
 
     return {
@@ -811,6 +931,7 @@
       portfolio: publishedOnly ? getPublishedPortfolio(loadedPortfolio) : loadedPortfolio,
       properties: publishedOnly ? getPublishedProperties(loadedProperties) : loadedProperties,
       testimonials: publishedOnly ? getPublishedTestimonials(loadedTestimonials) : loadedTestimonials,
+      leads: publishedOnly ? [] : loadedLeads,
       settings: loadedSettings,
       offline: Boolean(payload.offline)
     };
@@ -831,6 +952,7 @@
       return normalizeContentPayload(payload, false);
     } catch (error) {
       if (isApiError(error, 401)) throw error;
+      if (!shouldUseLocalFallback(error)) throw error;
       return localAdminContent();
     }
   }
@@ -841,6 +963,7 @@
       return await requestJson(`/api/admin/analytics?days=${safeDays}`);
     } catch (error) {
       if (isApiError(error, 401)) throw error;
+      if (!shouldUseLocalFallback(error)) throw error;
       return emptyAnalytics(safeDays, true);
     }
   }
@@ -859,6 +982,8 @@
       topPaths: [],
       topReferrers: [],
       devices: [],
+      events: [],
+      services: [],
       updatedAt: new Date().toISOString()
     };
   }
@@ -874,11 +999,12 @@
       writeJson(PORTFOLIO_KEY, normalized.portfolio);
       writeJson(PROPERTIES_KEY, normalized.properties);
       writeJson(TESTIMONIALS_KEY, normalized.testimonials);
+      writeJson(LEADS_KEY, normalized.leads);
       writeJson(SETTINGS_KEY, normalized.settings);
       return normalized;
     } catch (error) {
       if (isApiError(error, 401)) throw error;
-      if (error && error.status) throw error;
+      if (!shouldUseLocalFallback(error)) throw error;
 
       if (content.pin) {
         setAdminPin(content.pin);
@@ -888,9 +1014,43 @@
         portfolio: savePortfolio(content.portfolio || []),
         properties: saveProperties(content.properties || []),
         testimonials: saveTestimonials(content.testimonials || []),
+        leads: saveLeads(content.leads || []),
         settings: saveSettings(content.settings || {}),
         offline: true
       };
+    }
+  }
+
+  async function submitLead(lead) {
+    const normalized = normalizeLead(lead || {});
+
+    try {
+      const payload = await requestJson("/api/leads", {
+        method: "POST",
+        body: JSON.stringify(normalized)
+      });
+      return normalizeLead(payload.lead || normalized);
+    } catch (error) {
+      if (!shouldUseLocalFallback(error)) throw error;
+      const leads = saveLeads([normalized, ...loadLeads()]);
+      return leads[0];
+    }
+  }
+
+  async function trackEvent(eventType, detail = {}) {
+    try {
+      await requestJson("/api/track", {
+        method: "POST",
+        body: JSON.stringify({
+          path: window.location.pathname,
+          title: window.document.title,
+          referrer: window.document.referrer || "",
+          eventType,
+          ...detail
+        })
+      });
+    } catch (error) {
+      // Conversion analytics should never interrupt the public site.
     }
   }
 
@@ -904,6 +1064,7 @@
       return true;
     } catch (error) {
       if (isApiError(error, 401)) return false;
+      if (!shouldUseLocalFallback(error)) return false;
       const isMatch = String(pin) === getAdminPin();
       if (isMatch) {
         window.sessionStorage.setItem(SESSION_KEY, "true");
@@ -922,13 +1083,16 @@
       const payload = await requestJson("/api/session");
       return Boolean(payload.authenticated);
     } catch (error) {
-      return window.sessionStorage.getItem(SESSION_KEY) === "true";
+      return shouldUseLocalFallback(error) && window.sessionStorage.getItem(SESSION_KEY) === "true";
     }
   }
 
   window.BuildHubData = {
     categories,
     defaultSettings,
+    leadStatuses,
+    serviceOptions,
+    contentPlanPrompts,
     makeId,
     today,
     escapeHtml,
@@ -937,12 +1101,17 @@
     formatDate,
     postSlug,
     postUrl,
+    itemSlug,
+    propertyUrl,
+    portfolioUrl,
+    projectUrl,
     getYouTubeEmbedUrl,
     getYouTubeThumbnailUrl,
     createGeneratedCover,
     normalizePortfolioItem,
     normalizeProperty,
     normalizeTestimonial,
+    normalizeLead,
     normalizePost,
     loadPosts,
     savePosts,
@@ -952,6 +1121,8 @@
     saveProperties,
     loadTestimonials,
     saveTestimonials,
+    loadLeads,
+    saveLeads,
     resetPosts,
     loadSettings,
     saveSettings,
@@ -959,6 +1130,8 @@
     loadAdminContent,
     loadAnalytics,
     saveAdminContent,
+    submitLead,
+    trackEvent,
     getPublishedPosts,
     getPublishedPortfolio,
     getAdminPin,

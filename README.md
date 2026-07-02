@@ -1,20 +1,23 @@
 # Eben Tee Website
 
-A ready-to-use website for posting YouTube videos, construction news, building project updates, and other work. The live Cloudflare version includes an online admin backend using Pages Functions and KV storage.
+A ready-to-use Eben Tee platform for Ghana drone media, real estate, construction updates, property management, digital products, YouTube stories, leads, and analytics. The live Cloudflare version includes an online admin backend using Pages Functions and KV storage.
 
 ## Files
 
-- `index.html` is the public website.
+- `index.html` is the public homepage.
+- `about.html`, `services.html`, `drone-services.html`, `real-estate.html`, `construction.html`, `property-management.html`, `media.html`, `digital-products.html`, `portfolio.html`, `projects.html`, `blog.html`, `contact.html`, `booking.html`, `brochures.html`, `client-portal.html`, and `business-profile.html` are the public platform pages.
 - `book.html` is the separate ebook sales page.
-- `admin.html` is the admin page for creating and managing posts.
-- `data.js` stores posts and settings in the browser.
+- `admin.html` is the admin page for creating and managing posts, properties, portfolio media, testimonials, leads, analytics, and site settings.
+- `data.js` stores fallback posts, properties, portfolio items, testimonials, leads, and settings in the browser.
 - `app.js` renders the public site.
+- `platform-pages.js` renders the shared service/platform pages.
+- `projects.js` renders the dedicated projects page.
 - `book.js` powers the ebook sales page buttons and editable ebook details.
-- `analytics.js` records first-party page visits for the private admin analytics page.
+- `analytics.js` records first-party page visits and conversion events for the private admin analytics page.
 - `admin.js` powers the admin tools.
 - `styles.css` controls the design.
-- `functions/api/[[path]].js` is the Cloudflare Pages API for login, posts, settings, and sessions.
-- `functions/post/[slug].js`, `functions/sitemap.xml.js`, and `functions/robots.txt.js` create Google-friendly post pages and crawl files.
+- `functions/api/[[path]].js` is the Cloudflare Pages API for login, content, leads, analytics, settings, and sessions.
+- `functions/post/[slug].js`, `functions/project/[slug].js`, `functions/property/[slug].js`, `functions/portfolio/[slug].js`, `functions/sitemap.xml.js`, and `functions/robots.txt.js` create Google-friendly detail pages and crawl files.
 - `wrangler.jsonc` binds the site to Cloudflare KV.
 - `dist/` is generated for deployment and should not be edited directly.
 
@@ -54,7 +57,7 @@ When running with a plain local static server, the site still falls back to `loc
 
 ## SEO and analytics
 
-Published posts get public URLs under `/post/...`, and `/sitemap.xml` lists the homepage, ebook page, and every published post. Public pages send first-party visit events to `/api/track`; the admin Analytics tab reads private totals from `/api/admin/analytics`.
+Published posts get public URLs under `/post/...`; project updates, properties, and portfolio items also get detail URLs under `/project/...`, `/property/...`, and `/portfolio/...`. `/sitemap.xml` lists the homepage, platform pages, ebook page, and all published detail URLs. Public pages send first-party visit and conversion events to `/api/track`; the admin Analytics tab reads private totals from `/api/admin/analytics`.
 
 ## YouTube posts
 
@@ -67,7 +70,7 @@ This project is deployed to Cloudflare Pages as `ebentee`.
 Build the clean public folder:
 
 ```bash
-rm -rf dist && mkdir -p dist && cp index.html book.html admin.html styles.css data.js app.js book.js admin.js analytics.js dist/ && cp -R assets dist/
+rm -rf dist && mkdir -p dist && cp *.html *.css *.js *.png *.ico *.svg *.webmanifest dist/ && cp -R assets dist/
 ```
 
 Deploy:

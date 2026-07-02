@@ -6,6 +6,7 @@
   let portfolio = [];
   let properties = [];
   let testimonials = [];
+  let leads = [];
   let settings = {};
   let analytics = null;
   let analyticsLoaded = false;
@@ -66,6 +67,7 @@
       portfolio = content.portfolio || [];
       properties = content.properties || [];
       testimonials = content.testimonials || [];
+      leads = content.leads || [];
       settings = content.settings;
     } catch (error) {
       $("#loginMessage").textContent = "Please log in again.";
@@ -150,6 +152,15 @@
     $("#testimonialSearch").addEventListener("input", renderTestimonialList);
     $("#testimonialStatusFilter").addEventListener("change", renderTestimonialList);
     $("#testimonialList").addEventListener("click", handleTestimonialAction);
+    $("#leadSearch").addEventListener("input", renderLeadList);
+    $("#leadStatusFilter").addEventListener("change", renderLeadList);
+    $("#leadList").addEventListener("click", handleLeadAction);
+    $("#refreshLeadsButton").addEventListener("click", async () => {
+      const content = await store.loadAdminContent();
+      leads = content.leads || leads;
+      renderLeadList();
+      setMessage("#leadMessage", "Lead inbox refreshed.");
+    });
     $("#analyticsDays").addEventListener("change", loadAnalytics);
     $("#refreshAnalyticsButton").addEventListener("click", loadAnalytics);
     $("#exportButton").addEventListener("click", exportContent);
@@ -173,11 +184,12 @@
 
   async function persistContent(message, pin = "") {
     try {
-      const result = await store.saveAdminContent({ posts, portfolio, properties, testimonials, settings, pin });
+      const result = await store.saveAdminContent({ posts, portfolio, properties, testimonials, leads, settings, pin });
       posts = result.posts;
       portfolio = result.portfolio || [];
       properties = result.properties || [];
       testimonials = result.testimonials || [];
+      leads = result.leads || [];
       settings = result.settings;
 
       if (result.offline) {
@@ -185,6 +197,7 @@
         setMessage("#portfolioMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#propertyMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#testimonialMessage", "Saved locally. Deploy Functions to save online.");
+        setMessage("#leadMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#settingsMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#importMessage", "Saved locally. Deploy Functions to save online.");
       } else if (message) {
@@ -192,6 +205,7 @@
         setMessage("#portfolioMessage", message);
         setMessage("#propertyMessage", message);
         setMessage("#testimonialMessage", message);
+        setMessage("#leadMessage", message);
         setMessage("#settingsMessage", message);
         setMessage("#importMessage", message);
       }
@@ -202,6 +216,7 @@
       setMessage("#portfolioMessage", messageText);
       setMessage("#propertyMessage", messageText);
       setMessage("#testimonialMessage", messageText);
+      setMessage("#leadMessage", messageText);
       setMessage("#settingsMessage", messageText);
       setMessage("#importMessage", messageText);
       if (error && error.status === 401) {
@@ -758,6 +773,36 @@
     renderTestimonialPreview();
   }
 
+  async function handleLeadAction(event) {
+    const button = event.target.closest("[data-lead-action]");
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.leadAction;
+    const lead = leads.find((item) => item.id === id);
+    if (!lead) return;
+
+    if (action === "delete") {
+      const confirmed = window.confirm(`Delete lead from "${lead.name || "website visitor"}"?`);
+      if (!confirmed) return;
+      leads = leads.filter((item) => item.id !== id);
+      $("#leadMessage").textContent = "Saving...";
+      if (!(await persistContent("Lead deleted online."))) return;
+      renderAdmin();
+      return;
+    }
+
+    const statuses = store.leadStatuses || ["new", "contacted", "quoted", "won", "lost", "follow-up"];
+    if (!statuses.includes(action)) return;
+
+    leads = leads.map((item) =>
+      item.id === id ? store.normalizeLead({ ...item, status: action, updatedAt: new Date().toISOString() }) : item
+    );
+    $("#leadMessage").textContent = "Saving...";
+    if (!(await persistContent("Lead status updated online."))) return;
+    renderAdmin();
+  }
+
   async function saveSettings(event) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -827,6 +872,8 @@
     renderPortfolioList();
     renderPropertyList();
     renderTestimonialList();
+    renderLeadList();
+    renderContentPlan();
     renderEditorPreview();
     renderPortfolioPreview();
     renderPropertyPreview();
@@ -841,6 +888,7 @@
     $("#adminMediaCount").textContent = portfolio.length;
     $("#adminPropertyCount").textContent = properties.length;
     $("#adminTestimonialCount").textContent = testimonials.length;
+    $("#adminLeadCount").textContent = leads.length;
   }
 
   function renderPostList() {
@@ -1033,6 +1081,102 @@
         </div>
       </article>
     `;
+  }
+
+  function renderLeadList() {
+    const list = $("#leadList");
+    if (!list) return;
+
+    const search = $("#leadSearch").value.trim().toLowerCase();
+    const status = $("#leadStatusFilter").value;
+    const filtered = leads.filter((lead) => {
+      const matchesStatus = status === "all" || lead.status === status;
+      const haystack = [lead.name, lead.email, lead.phone, lead.service, lead.location, lead.message, lead.source, lead.page]
+        .join(" ")
+        .toLowerCase();
+      return matchesStatus && (!search || haystack.includes(search));
+    });
+
+    list.innerHTML = filtered.length
+      ? filtered.map(renderLeadItem).join("")
+      : `<p class="empty-state">No leads yet. Website enquiries will appear here.</p>`;
+  }
+
+  function renderLeadItem(lead) {
+    const contactLinks = [
+      lead.phone ? `<a href="tel:${store.escapeHtml(lead.phone)}">Call</a>` : "",
+      lead.email ? `<a href="mailto:${store.escapeHtml(lead.email)}">Email</a>` : "",
+      lead.phone
+        ? `<a href="https://wa.me/${store.escapeHtml(lead.phone.replace(/\D/g, ""))}" target="_blank" rel="noreferrer">WhatsApp</a>`
+        : ""
+    ]
+      .filter(Boolean)
+      .join("");
+
+    return `
+      <article class="lead-item">
+        <div>
+          <span class="card-meta">${store.escapeHtml(lead.service)} · ${formatDateTime(lead.createdAt)}</span>
+          <h3>${store.escapeHtml(lead.name || "Website visitor")}</h3>
+          <p>${store.escapeHtml(lead.message || "No message provided.")}</p>
+          <div class="tag-row compact">
+            <span>${store.escapeHtml(lead.status)}</span>
+            ${lead.location ? `<span>${store.escapeHtml(lead.location)}</span>` : ""}
+            ${lead.page ? `<span>${store.escapeHtml(lead.page)}</span>` : ""}
+          </div>
+          <div class="lead-contact-links">${contactLinks}</div>
+        </div>
+        <div class="manager-actions lead-actions">
+          <button type="button" data-lead-action="new" data-id="${store.escapeHtml(lead.id)}">New</button>
+          <button type="button" data-lead-action="contacted" data-id="${store.escapeHtml(lead.id)}">Contacted</button>
+          <button type="button" data-lead-action="quoted" data-id="${store.escapeHtml(lead.id)}">Quoted</button>
+          <button type="button" data-lead-action="follow-up" data-id="${store.escapeHtml(lead.id)}">Follow-up</button>
+          <button type="button" data-lead-action="won" data-id="${store.escapeHtml(lead.id)}">Won</button>
+          <button type="button" data-lead-action="lost" data-id="${store.escapeHtml(lead.id)}">Lost</button>
+          <button class="danger-link" type="button" data-lead-action="delete" data-id="${store.escapeHtml(lead.id)}">Delete</button>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderContentPlan() {
+    const list = $("#contentPromptList");
+    if (!list) return;
+
+    list.innerHTML = store.contentPlanPrompts
+      .map(
+        (prompt) => `
+          <button type="button" class="content-prompt" data-prompt="${store.escapeHtml(prompt)}">
+            <span>Post idea</span>
+            <strong>${store.escapeHtml(prompt)}</strong>
+          </button>
+        `
+      )
+      .join("");
+
+    list.querySelectorAll("[data-prompt]").forEach((button) => {
+      button.addEventListener("click", () => {
+        switchPanel("posts");
+        resetPostForm();
+        $("#postTitle").value = button.dataset.prompt;
+        $("#postCategory").value = guessCategory(button.dataset.prompt);
+        $("#postSummary").value = `Helpful Eben Tee guide about ${button.dataset.prompt.toLowerCase()} for people in Ghana and the diaspora.`;
+        $("#postTags").value = button.dataset.prompt
+          .split(/\s+/)
+          .filter((word) => word.length > 3)
+          .slice(0, 6)
+          .join(", ");
+        renderEditorPreview();
+      });
+    });
+  }
+
+  function guessCategory(prompt) {
+    const text = String(prompt || "").toLowerCase();
+    if (/drone|video|youtube/.test(text)) return "video";
+    if (/construction|project|infrastructure/.test(text)) return "building-project";
+    if (/land|property|real estate|airbnb/.test(text)) return "service-update";
+    return "personal";
   }
 
   function renderEditorPreview() {
@@ -1236,6 +1380,9 @@
       renderCountList("#analyticsTopPaths", []);
       renderCountList("#analyticsReferrers", []);
       renderCountList("#analyticsDevices", []);
+      renderCountList("#analyticsEvents", []);
+      renderCountList("#analyticsServices", []);
+      setText("#analyticsLeadEvents", "0");
       return;
     }
 
@@ -1243,10 +1390,16 @@
     setText("#analyticsUniqueVisitors", analytics.totals.uniqueVisitors);
     setText("#analyticsTodayViews", analytics.totals.todayViews);
     setText("#analyticsTopPage", analytics.topPaths[0] ? analytics.topPaths[0].label : "None yet");
+    setText(
+      "#analyticsLeadEvents",
+      (analytics.events || []).filter((item) => String(item.label).includes("lead")).reduce((sum, item) => sum + Number(item.count || 0), 0)
+    );
     renderDailyChart(analytics.daily || []);
     renderCountList("#analyticsTopPaths", analytics.topPaths || []);
     renderCountList("#analyticsReferrers", analytics.topReferrers || []);
     renderCountList("#analyticsDevices", analytics.devices || []);
+    renderCountList("#analyticsEvents", analytics.events || []);
+    renderCountList("#analyticsServices", analytics.services || []);
   }
 
   function renderDailyChart(items) {
@@ -1306,6 +1459,7 @@
       portfolio,
       properties,
       testimonials,
+      leads,
       posts
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -1335,6 +1489,7 @@
         testimonials = Array.isArray(payload.testimonials)
           ? payload.testimonials.map(store.normalizeTestimonial)
           : testimonials;
+        leads = Array.isArray(payload.leads) ? payload.leads.map(store.normalizeLead) : leads;
         if (payload.settings) {
           settings = payload.settings;
         }
@@ -1361,6 +1516,7 @@
     portfolio = store.loadPortfolio();
     properties = store.loadProperties();
     testimonials = store.loadTestimonials();
+    leads = store.loadLeads();
     if (!(await persistContent("Sample content restored online."))) return;
     resetPostForm();
     renderAdmin();
@@ -1371,8 +1527,24 @@
     return parts.map((part) => part[0] || "").join("").toUpperCase() || "ET";
   }
 
+  function formatDateTime(value) {
+    const date = value ? new Date(value) : new Date();
+    if (Number.isNaN(date.getTime())) return "No date";
+    return new Intl.DateTimeFormat("en", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(date);
+  }
+
   function setMessage(selector, message) {
     const node = $(selector);
     if (node) node.textContent = message;
+  }
+
+  function setText(selector, value) {
+    const node = $(selector);
+    if (node) node.textContent = value;
   }
 })();

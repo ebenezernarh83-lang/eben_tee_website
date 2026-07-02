@@ -1,4 +1,12 @@
-import { SITE_URL, absolutePostUrl, escapeXml, readPublicContent } from "./_seo.js";
+import {
+  SITE_URL,
+  absolutePortfolioUrl,
+  absolutePostUrl,
+  absoluteProjectUrl,
+  absolutePropertyUrl,
+  escapeXml,
+  readPublicContent
+} from "./_seo.js";
 
 export async function onRequestGet({ env }) {
   const content = await readPublicContent(env);
@@ -16,6 +24,10 @@ export async function onRequestGet({ env }) {
     { loc: `${SITE_URL}/blog`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/contact`, lastmod: content.updatedAt, priority: "0.9" },
     { loc: `${SITE_URL}/projects`, lastmod: content.updatedAt, priority: "0.9" },
+    { loc: `${SITE_URL}/booking`, lastmod: content.updatedAt, priority: "0.85" },
+    { loc: `${SITE_URL}/brochures`, lastmod: content.updatedAt, priority: "0.65" },
+    { loc: `${SITE_URL}/client-portal`, lastmod: content.updatedAt, priority: "0.6" },
+    { loc: `${SITE_URL}/business-profile`, lastmod: content.updatedAt, priority: "0.55" },
     { loc: `${SITE_URL}/book`, lastmod: content.updatedAt, priority: "0.8" }
   ];
   const postUrls = content.posts.map((post) => ({
@@ -23,8 +35,25 @@ export async function onRequestGet({ env }) {
     lastmod: post.updatedAt || post.publishedAt || content.updatedAt,
     priority: "0.7"
   }));
+  const projectUrls = content.posts
+    .filter((post) => ["building-project", "construction-news", "service-update"].includes(post.category))
+    .map((post) => ({
+      loc: absoluteProjectUrl(post),
+      lastmod: post.updatedAt || post.publishedAt || content.updatedAt,
+      priority: "0.75"
+    }));
+  const propertyUrls = content.properties.map((property) => ({
+    loc: absolutePropertyUrl(property),
+    lastmod: property.updatedAt || property.publishedAt || content.updatedAt,
+    priority: "0.8"
+  }));
+  const portfolioUrls = content.portfolio.map((item) => ({
+    loc: absolutePortfolioUrl(item),
+    lastmod: item.updatedAt || item.publishedAt || content.updatedAt,
+    priority: "0.7"
+  }));
 
-  const urls = [...staticUrls, ...postUrls]
+  const urls = [...staticUrls, ...postUrls, ...projectUrls, ...propertyUrls, ...portfolioUrls]
     .map(
       (item) => `  <url>
     <loc>${escapeXml(item.loc)}</loc>

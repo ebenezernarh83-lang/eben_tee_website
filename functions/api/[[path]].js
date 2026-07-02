@@ -4,6 +4,17 @@ const SESSION_COOKIE = "ebentee_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 const categories = new Set(["video", "construction-news", "building-project", "service-update", "personal"]);
+const leadStatuses = new Set(["new", "contacted", "quoted", "won", "lost", "follow-up"]);
+const serviceOptions = [
+  "Drone Services",
+  "Media and Content Creation",
+  "Real Estate and Land Marketing",
+  "Construction and Project Management",
+  "Property and Airbnb Management",
+  "Digital Products and Software",
+  "Ebook / Digital Product",
+  "General Enquiry"
+];
 
 const defaultSettings = {
   brandName: "Eben Tee",
@@ -124,6 +135,7 @@ const samplePortfolio = [
     publishedAt: "2026-06-27",
     location: "Accra growth corridor",
     clientType: "Real estate developer",
+    serviceCategory: "Drone Services",
     summary: "Clean aerial visuals that show access roads, nearby estates, land layout, and project surroundings.",
     tags: ["drone photo", "real estate", "land", "Accra"],
     featured: true,
@@ -137,6 +149,7 @@ const samplePortfolio = [
     publishedAt: "2026-06-24",
     location: "East Legon Hills, Ghana",
     clientType: "Area tour",
+    serviceCategory: "Real Estate and Land Marketing",
     summary: "A client-ready video view of roads, estates, land activity, and the fast development around East Legon Hills.",
     mediaUrl: "https://www.youtube.com/watch?v=zl6poa0trhk",
     tags: ["drone video", "real estate", "East Legon Hills"],
@@ -151,6 +164,7 @@ const samplePortfolio = [
     publishedAt: "2026-06-21",
     location: "Ghana project site",
     clientType: "Builder / contractor",
+    serviceCategory: "Construction and Project Management",
     summary: "Progress visuals for clients who need to see roof level, site access, surrounding buildings, and work progress.",
     tags: ["construction", "progress", "inspection"],
     featured: false,
@@ -168,6 +182,8 @@ const sampleProperties = [
     location: "Accra growth corridor",
     price: "Enquire for verified options",
     size: "Plots and serviced land",
+    mapUrl: "https://www.google.com/maps/search/Accra%20growth%20corridor%20Ghana",
+    verificationNotes: "Visual inspection package available before buyer commitment.",
     summary:
       "For buyers abroad who need clear drone footage, access-road checks, neighbourhood context, and video proof before making a decision.",
     tags: ["land", "diaspora", "inspection", "Accra"],
@@ -184,6 +200,8 @@ const sampleProperties = [
     location: "Greater Accra and nearby regions",
     price: "Marketing service",
     size: "Homes, estates, apartments",
+    mapUrl: "https://www.google.com/maps/search/Greater%20Accra%20Ghana",
+    verificationNotes: "Best for developers and property sellers who need stronger buyer enquiries.",
     summary:
       "Premium property walk-through and aerial visuals for developers, agents, landlords, and sellers who want stronger buyer enquiries.",
     tags: ["real estate", "property tour", "developer"],
@@ -200,6 +218,8 @@ const sampleProperties = [
     location: "Accra, Tema, East Legon, Spintex",
     price: "Request management quote",
     size: "Rooms, studios, apartments",
+    mapUrl: "https://www.google.com/maps/search/Accra%20Tema%20East%20Legon%20Spintex",
+    verificationNotes: "Management support depends on property readiness and owner goals.",
     summary:
       "Promotion, guest-ready visuals, booking support, maintenance coordination, and income monitoring for short-stay property owners.",
     tags: ["airbnb", "short stay", "property management"],
@@ -214,6 +234,7 @@ const sampleTestimonials = [
     id: "testimonial-sample-1",
     name: "Diaspora building client",
     role: "Construction supervision",
+    serviceCategory: "Construction and Project Management",
     status: "published",
     quote:
       "The video updates made it easier to understand the site progress from abroad. I could see the work clearly without being in Ghana.",
@@ -224,6 +245,7 @@ const sampleTestimonials = [
     id: "testimonial-sample-2",
     name: "Real estate seller",
     role: "Drone marketing",
+    serviceCategory: "Drone Services",
     status: "published",
     quote:
       "The aerial view showed the road access and surrounding area better than normal photos. It helped people understand the property quickly.",
@@ -234,6 +256,7 @@ const sampleTestimonials = [
     id: "testimonial-sample-3",
     name: "Short-stay owner",
     role: "Property promotion",
+    serviceCategory: "Property and Airbnb Management",
     status: "published",
     quote:
       "The content looked professional and gave the apartment a stronger online presence for guests and enquiries.",
@@ -258,6 +281,10 @@ export async function onRequest(context) {
 
     if (path === "track" && request.method === "POST") {
       return trackVisit(request, env);
+    }
+
+    if (path === "leads" && request.method === "POST") {
+      return createLead(request, env);
     }
 
     if (path === "content" && request.method === "GET") {
@@ -338,6 +365,7 @@ async function saveAdminContent(request, env) {
     portfolio: payload.portfolio,
     properties: payload.properties,
     testimonials: payload.testimonials,
+    leads: payload.leads,
     settings: payload.settings,
     admin: current.admin
   });
@@ -352,6 +380,35 @@ async function saveAdminContent(request, env) {
 
   await writeContent(env, next);
   return jsonResponse(adminContent(next));
+}
+
+async function createLead(request, env) {
+  if (!isSameOriginRequest(request)) {
+    return jsonResponse({ ok: false }, 403);
+  }
+
+  const userAgent = request.headers.get("User-Agent") || "";
+  if (isBot(userAgent)) {
+    return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const payload = await request.json().catch(() => ({}));
+  const lead = sanitizeLead({
+    ...payload,
+    source: payload.source || "Website",
+    page: payload.page || cleanAnalyticsPath(payload.page || new URL(request.url).pathname)
+  });
+
+  if (!lead.name || (!lead.phone && !lead.email) || !lead.message) {
+    return jsonResponse({ error: "Name, contact, and message are required." }, 400);
+  }
+
+  const content = await readContent(env);
+  content.leads = [lead, ...(content.leads || [])].slice(0, 1000);
+  await writeContent(env, content);
+  await trackConversion(env, request, "lead_submit", lead.service, lead.page || "/contact");
+
+  return jsonResponse({ ok: true, lead });
 }
 
 async function trackVisit(request, env) {
@@ -378,12 +435,24 @@ async function trackVisit(request, env) {
   const visitor = await visitorHash(request, env);
   const referrer = cleanReferrer(payload.referrer, request);
   const device = deviceType(userAgent);
+  const eventType = cleanEventType(payload.eventType || "page_view");
+  const eventLabel = cleanText(payload.eventLabel || payload.label || "", 120);
+  const service = normalizeServiceCategory(payload.service || "");
 
   record.views += 1;
   record.updatedAt = new Date().toISOString();
   record.paths[path] = (record.paths[path] || 0) + 1;
   record.referrers[referrer] = (record.referrers[referrer] || 0) + 1;
   record.devices[device] = (record.devices[device] || 0) + 1;
+  record.events[eventType] = (record.events[eventType] || 0) + 1;
+
+  if (eventLabel) {
+    record.eventLabels[eventLabel] = (record.eventLabels[eventLabel] || 0) + 1;
+  }
+
+  if (service) {
+    record.services[service] = (record.services[service] || 0) + 1;
+  }
 
   if (visitor && !record.visitors.includes(visitor)) {
     record.visitors.push(visitor);
@@ -397,6 +466,24 @@ async function trackVisit(request, env) {
   return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
 }
 
+async function trackConversion(env, request, eventType, service, path) {
+  const todayKey = today();
+  const key = analyticsKey(todayKey);
+  const record = normalizeAnalyticsRecord((await env.EBENTEE_CONTENT.get(key, "json").catch(() => null)) || {
+    date: todayKey
+  });
+
+  record.events[eventType] = (record.events[eventType] || 0) + 1;
+  if (service) {
+    record.services[service] = (record.services[service] || 0) + 1;
+  }
+  if (path) {
+    record.paths[path] = (record.paths[path] || 0) + 1;
+  }
+  record.updatedAt = new Date().toISOString();
+  await env.EBENTEE_CONTENT.put(key, JSON.stringify(record));
+}
+
 async function getAnalytics(request, env) {
   const url = new URL(request.url);
   const days = Math.max(1, Math.min(90, Number(url.searchParams.get("days")) || 30));
@@ -408,12 +495,18 @@ async function getAnalytics(request, env) {
   const paths = {};
   const referrers = {};
   const devices = {};
+  const events = {};
+  const eventLabels = {};
+  const services = {};
 
   records.forEach((record) => {
     record.visitors.forEach((visitor) => visitors.add(visitor));
     mergeCounts(paths, record.paths);
     mergeCounts(referrers, record.referrers);
     mergeCounts(devices, record.devices);
+    mergeCounts(events, record.events);
+    mergeCounts(eventLabels, record.eventLabels);
+    mergeCounts(services, record.services);
   });
 
   const todayRecord = records[records.length - 1] || normalizeAnalyticsRecord({ date: today() });
@@ -435,6 +528,9 @@ async function getAnalytics(request, env) {
     topPaths: topCounts(paths, 10),
     topReferrers: topCounts(referrers, 8),
     devices: topCounts(devices, 5),
+    events: topCounts(events, 10),
+    eventLabels: topCounts(eventLabels, 10),
+    services: topCounts(services, 10),
     updatedAt: new Date().toISOString()
   });
 }
@@ -452,6 +548,7 @@ async function readContent(env) {
     portfolio: samplePortfolio,
     properties: sampleProperties,
     testimonials: sampleTestimonials,
+    leads: [],
     admin: {}
   });
   await writeContent(env, seeded);
@@ -474,9 +571,10 @@ function sanitizeContent(content) {
   const testimonials = Array.isArray(content.testimonials)
     ? content.testimonials.map(sanitizeTestimonial)
     : sampleTestimonials.map(sanitizeTestimonial);
+  const leads = Array.isArray(content.leads) ? content.leads.map(sanitizeLead).sort(sortLeadDesc) : [];
   const admin = content.admin && typeof content.admin === "object" ? { ...content.admin } : {};
 
-  return { version: 1, updatedAt: new Date().toISOString(), settings, posts, portfolio, properties, testimonials, admin };
+  return { version: 1, updatedAt: new Date().toISOString(), settings, posts, portfolio, properties, testimonials, leads, admin };
 }
 
 function sanitizeSettings(settings) {
@@ -573,6 +671,8 @@ function sanitizePortfolioItem(item) {
     summary: cleanText(item.summary || "", 360),
     location: cleanText(item.location || "", 120),
     clientType: cleanText(item.clientType || "", 90),
+    serviceCategory: normalizeServiceCategory(item.serviceCategory || item.clientType || ""),
+    mapUrl: cleanUrl(item.mapUrl),
     mediaUrl,
     thumbnail,
     tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
@@ -595,6 +695,8 @@ function sanitizeProperty(item) {
     price: cleanText(item.price || "Enquire", 100),
     size: cleanText(item.size || "", 100),
     summary: cleanText(item.summary || "", 420),
+    mapUrl: cleanUrl(item.mapUrl),
+    verificationNotes: cleanText(item.verificationNotes || "", 320),
     mediaUrl,
     coverImage: cleanCover(item.coverImage) || getYouTubeThumbnailUrl(mediaUrl),
     tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
@@ -610,9 +712,31 @@ function sanitizeTestimonial(item) {
     id: cleanText(item.id || crypto.randomUUID(), 90),
     name: cleanText(item.name || "Client", 90),
     role: cleanText(item.role || "", 100),
+    serviceCategory: normalizeServiceCategory(item.serviceCategory || item.role || ""),
+    relatedTitle: cleanText(item.relatedTitle || "", 120),
     status: item.status === "draft" ? "draft" : "published",
     quote: cleanText(item.quote || "", 600),
     rating: Math.max(1, Math.min(5, Number(item.rating) || 5)),
+    createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function sanitizeLead(item) {
+  const status = leadStatuses.has(item.status) ? item.status : "new";
+  return {
+    id: cleanText(item.id || crypto.randomUUID(), 90).replace(/^post-/, "lead-"),
+    status,
+    name: cleanText(item.name || "", 100),
+    email: cleanText(item.email || "", 140),
+    phone: cleanText(item.phone || item.contact || "", 80),
+    service: normalizeServiceCategory(item.service || "General Enquiry"),
+    location: cleanText(item.location || "", 120),
+    message: cleanText(item.message || "", 1500),
+    page: cleanText(item.page || "", 180),
+    source: cleanText(item.source || "Website", 80),
+    attachmentName: cleanText(item.attachmentName || "", 160),
+    notes: cleanText(item.notes || "", 1200),
     createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
     updatedAt: new Date().toISOString()
   };
@@ -634,7 +758,8 @@ function adminContent(content) {
     posts: content.posts.sort(sortByDateDesc),
     portfolio: content.portfolio.sort(sortByDateDesc),
     properties: content.properties.sort(sortByDateDesc),
-    testimonials: content.testimonials
+    testimonials: content.testimonials,
+    leads: content.leads.sort(sortLeadDesc)
   };
 }
 
@@ -797,6 +922,9 @@ function normalizeAnalyticsRecord(record) {
     paths: cleanCountMap(record.paths),
     referrers: cleanCountMap(record.referrers),
     devices: cleanCountMap(record.devices),
+    events: cleanCountMap(record.events),
+    eventLabels: cleanCountMap(record.eventLabels),
+    services: cleanCountMap(record.services),
     updatedAt: cleanText(record.updatedAt || "", 40)
   };
 }
@@ -870,6 +998,21 @@ function cleanAnalyticsPath(value) {
   }
 }
 
+function cleanEventType(value) {
+  const text = cleanText(value || "page_view", 60)
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return text || "page_view";
+}
+
+function normalizeServiceCategory(value) {
+  const text = cleanText(value || "", 100);
+  if (!text) return "";
+  const match = serviceOptions.find((option) => option.toLowerCase() === text.toLowerCase());
+  return match || text;
+}
+
 function cleanReferrer(value, request) {
   const text = cleanText(value || request.headers.get("Referer") || "", 500);
   if (!text) return "Direct";
@@ -911,6 +1054,10 @@ function today() {
 
 function sortByDateDesc(a, b) {
   return String(b.publishedAt || "").localeCompare(String(a.publishedAt || ""));
+}
+
+function sortLeadDesc(a, b) {
+  return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
 }
 
 function base64Url(bytes) {
