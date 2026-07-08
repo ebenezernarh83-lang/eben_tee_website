@@ -58,8 +58,8 @@
         ["Output", "Clear visuals and practical support"]
       ],
       highlights: [
-        ["Drone Services", "Drone photography, videography, real estate aerial videos, construction progress, site inspections, events, hotels, resorts, and drone training."],
-        ["Media and Content Creation", "YouTube documentaries, Ghana development stories, real estate promos, editing, channel setup, social content, and brand documentaries."],
+        ["Drone Services", "Drone photography, videography, real estate aerial videos, construction progress, site inspections, churches, events, hotels, resorts, and drone training."],
+        ["Media and Content Creation", "YouTube documentaries, Ghana development stories, church and event coverage, real estate promos, editing, channel setup, social content, and brand documentaries."],
         ["Real Estate and Land Marketing", "Land sales promotion, house and apartment tours, buyer inspections, developer marketing, property sourcing, and investment opportunity presentation."],
         ["Construction and Project Management", "Site supervision, weekly photos and videos, material and labour tracking, cost monitoring, and diaspora progress reports."],
         ["Property and Airbnb Management", "Guest communication, check-in support, maintenance coordination, booking monitoring, furnished apartment promotion, and income reporting."],
@@ -78,7 +78,7 @@
     },
     "drone-services": {
       eyebrow: "Drone services in Ghana",
-      title: "Aerial visuals for real estate, construction, land inspection, tourism, events, and business promotion.",
+      title: "Aerial visuals for real estate, construction, land inspection, churches, events, tourism, and business promotion.",
       intro:
         "Book Eben Tee for clean drone photography and videography that shows the location, scale, access roads, surroundings, and story of a place with confidence.",
       badge: "Drone media and inspection",
@@ -96,7 +96,7 @@
         ["Real estate aerial videos", "Show estates, houses, apartments, roads, neighbourhoods, landmarks, and project surroundings."],
         ["Construction progress updates", "Document foundation, block work, roofing, finishing, road works, and site progress for owners and investors."],
         ["Land inspection videos", "Support buyers abroad with drone views, access-road checks, nearby development, and visual proof."],
-        ["Events, resorts, hotels, and businesses", "Create promotional drone clips for events, hospitality, tourism, schools, churches, and brands."],
+        ["Churches, events, resorts, hotels, and businesses", "Create promotional drone clips for church programmes, conferences, weddings, events, hospitality, tourism, schools, and brands."],
         ["Drone training", "Help beginners and young people understand practical drone use, safety, content workflow, and business opportunities."]
       ],
       processTitle: "Drone shoot workflow",

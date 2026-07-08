@@ -31,6 +31,7 @@
   const serviceOptions = [
     "Drone Services",
     "Media and Content Creation",
+    "Church and Event Media Coverage",
     "Real Estate and Land Marketing",
     "Construction and Project Management",
     "Property and Airbnb Management",
@@ -44,6 +45,7 @@
     "How diaspora clients can monitor construction progress in Ghana",
     "Land inspection checklist before buying property in Ghana",
     "Best areas to film property tours around Accra growth corridors",
+    "Drone and video coverage for churches, events, schools, and Ghana businesses",
     "Airbnb management tips for Ghana property owners",
     "How small businesses in Ghana can use websites and simple software",
     "Ghana infrastructure update with what it means for property buyers"

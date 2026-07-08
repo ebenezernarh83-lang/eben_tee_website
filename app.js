@@ -17,13 +17,13 @@
     {
       title: "Drone Services",
       href: "drone-services.html",
-      summary: "Drone photography, videography, land inspections, construction progress updates, events, hotels, resorts, and drone training.",
+      summary: "Drone photography, videography, land inspections, construction progress updates, churches, events, hotels, resorts, and drone training.",
       cta: "Book a drone shoot"
     },
     {
       title: "Media and Content Creation",
       href: "media.html",
-      summary: "YouTube documentaries, Ghana development videos, real estate promos, editing, channel setup, and brand storytelling.",
+      summary: "YouTube documentaries, Ghana development videos, church and event coverage, real estate promos, editing, channel setup, and brand storytelling.",
       cta: "Start media project"
     },
     {
