@@ -380,7 +380,7 @@ async function login(request, env) {
 }
 
 async function saveAdminContent(request, env) {
-  const payload = await request.json();
+  const payload = await persistUploadedMedia(await request.json(), env);
   const current = await readContent(env);
   const next = sanitizeContent({
     posts: payload.posts,
@@ -995,14 +995,16 @@ function getYouTubeId(value) {
 function cleanCover(value) {
   const text = String(value || "").trim();
   if (!text) return "";
-  if (text.length > 2_500_000) return "";
+  if (text.length > 750_000) return "";
   if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://")) return text;
   return "";
 }
 
 function cleanPublicImage(value) {
   const text = String(value || "").trim();
-  return /^https?:\/\//i.test(text) ? text : "";
+  if (/^https?:\/\//i.test(text)) return text;
+  if (text.startsWith("data:image/") && text.length <= 750_000) return text;
+  return "";
 }
 
 function cleanMediaUrl(value, type) {
@@ -1012,6 +1014,75 @@ function cleanMediaUrl(value, type) {
   if (text.startsWith("data:image/")) return text;
   if (type === "video" && text.startsWith("data:video/")) return text;
   return cleanUrl(text);
+}
+
+async function persistUploadedMedia(payload, env) {
+  if (!payload || typeof payload !== "object" || !env.EBENTEE_CONTENT) return payload;
+
+  const posts = Array.isArray(payload.posts) ? payload.posts : [];
+  const portfolio = Array.isArray(payload.portfolio) ? payload.portfolio : [];
+  const properties = Array.isArray(payload.properties) ? payload.properties : [];
+
+  await Promise.all(
+    posts.map(async (post) => {
+      post.coverImage = await storeDataImage(env, post.coverImage, "posts", post.id, "cover");
+    })
+  );
+
+  await Promise.all(
+    portfolio.map(async (item) => {
+      const originalMedia = item.mediaUrl;
+      item.mediaUrl = await storeDataImage(env, item.mediaUrl, "portfolio", item.id, "media");
+      item.thumbnail = originalMedia && item.thumbnail === originalMedia
+        ? item.mediaUrl
+        : await storeDataImage(env, item.thumbnail, "portfolio", item.id, "thumbnail");
+    })
+  );
+
+  await Promise.all(
+    properties.map(async (property) => {
+      const originalMedia = property.mediaUrl;
+      property.mediaUrl = await storeDataImage(env, property.mediaUrl, "properties", property.id, "media");
+      property.coverImage = originalMedia && property.coverImage === originalMedia
+        ? property.mediaUrl
+        : await storeDataImage(env, property.coverImage, "properties", property.id, "cover");
+    })
+  );
+
+  return payload;
+}
+
+async function storeDataImage(env, value, group, id, field) {
+  const parsed = parseDataImage(value);
+  if (!parsed) return value;
+
+  const digest = await crypto.subtle.digest("SHA-256", parsed.bytes);
+  const fingerprint = Array.from(new Uint8Array(digest).slice(0, 8), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  const safeId = String(id || crypto.randomUUID()).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 90) || crypto.randomUUID();
+  const key = `${group}/${safeId}/${field}-${fingerprint}.${parsed.extension}`;
+
+  await env.EBENTEE_CONTENT.put(`media-v1:${key}`, parsed.bytes, {
+    metadata: {
+      contentType: parsed.contentType
+    }
+  });
+
+  return `https://ebentee.com/media-files/${key}`;
+}
+
+function parseDataImage(value) {
+  const text = String(value || "").trim();
+  if (!text.startsWith("data:image/") || text.length > 3_500_000) return null;
+
+  const match = text.match(/^data:(image\/(?:jpeg|png|webp|gif));base64,([a-zA-Z0-9+/=]+)$/);
+  if (!match) return null;
+
+  const binary = atob(match[2]);
+  if (!binary || binary.length > 2_500_000) return null;
+
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  const extension = match[1] === "image/jpeg" ? "jpg" : match[1].split("/")[1];
+  return { bytes, contentType: match[1], extension };
 }
 
 function analyticsKey(date) {

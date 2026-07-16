@@ -1300,15 +1300,14 @@
         const dataUrl = String(reader.result || "");
 
         if (file.type === "image/svg+xml") {
-          if (dataUrl.length > 1_500_000) reject(new Error("SVG too large"));
-          else resolve(dataUrl);
+          reject(new Error("Use JPG, PNG, WebP, or GIF for public media."));
           return;
         }
 
         const image = new Image();
         image.onerror = reject;
         image.onload = () => {
-          const maxWidth = 1600;
+          const maxWidth = 1200;
           const ratio = Math.min(1, maxWidth / Math.max(1, image.naturalWidth || image.width));
           const width = Math.max(1, Math.round((image.naturalWidth || image.width) * ratio));
           const height = Math.max(1, Math.round((image.naturalHeight || image.height) * ratio));
@@ -1317,9 +1316,12 @@
           canvas.height = height;
           const context = canvas.getContext("2d");
           context.drawImage(image, 0, 0, width, height);
-          const compressed = canvas.toDataURL("image/jpeg", 0.84);
+          const qualityLevels = [0.8, 0.65, 0.5];
+          const compressed = qualityLevels
+            .map((quality) => canvas.toDataURL("image/jpeg", quality))
+            .find((candidate) => candidate.length <= 700_000);
 
-          if (compressed.length > 2_300_000) reject(new Error("Image too large"));
+          if (!compressed) reject(new Error("Image too large"));
           else resolve(compressed);
         };
         image.src = dataUrl;

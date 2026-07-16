@@ -16,6 +16,14 @@ export async function onRequestGet({ env, params }) {
   const post = findPostBySlug(content.posts, params.slug);
 
   if (!post) {
+    const redirect = legacyPostRedirect(params.slug);
+    if (redirect) {
+      return new Response(null, {
+        status: 301,
+        headers: { Location: redirect, "Cache-Control": "public, max-age=86400" }
+      });
+    }
+
     return new Response(renderNotFound(content.settings), {
       status: 404,
       headers: htmlHeaders()
@@ -25,6 +33,16 @@ export async function onRequestGet({ env, params }) {
   return new Response(renderPost(post, content.settings), {
     headers: htmlHeaders()
   });
+}
+
+function legacyPostRedirect(value) {
+  const slug = decodeURIComponent(String(value || "")).toLowerCase();
+  if (slug.includes("drone-services-for-ghana-real-estate-and-construction-projects")) return "/drone-services";
+  if (slug.includes("east-legon-hills-is-growing-fast")) {
+    return "/post/buy-land-in-ghana-today-east-legon-hills-is-growing-fast-yt-zl6poa0trhk";
+  }
+  if (slug.includes("big-push-road-works") || slug.includes("ajumako-heavy-rains")) return "/projects";
+  return "";
 }
 
 function renderPost(post, settings) {

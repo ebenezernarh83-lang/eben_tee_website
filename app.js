@@ -22,31 +22,31 @@
     },
     {
       title: "Media and Content Creation",
-      href: "media.html",
+      href: "/media",
       summary: "YouTube documentaries, Ghana development videos, church and event coverage, real estate promos, editing, channel setup, and brand storytelling.",
       cta: "Start media project"
     },
     {
       title: "Real Estate and Land Marketing",
-      href: "real-estate.html",
+      href: "/real-estate",
       summary: "Land promotion, property tours, sourcing support, developer marketing, and investment opportunity presentation.",
       cta: "Find property"
     },
     {
       title: "Construction and Project Management",
-      href: "construction.html",
+      href: "/construction",
       summary: "Site supervision, weekly visual updates, labour and material tracking, cost monitoring, and diaspora progress reports.",
       cta: "Request site visit"
     },
     {
       title: "Property and Airbnb Management",
-      href: "property-management.html",
+      href: "/property-management",
       summary: "Guest communication, check-in support, maintenance coordination, booking monitoring, and short-stay promotion.",
       cta: "Manage my Airbnb"
     },
     {
       title: "Digital Products and Software",
-      href: "digital-products.html",
+      href: "/digital-products",
       summary: "Websites, business systems, MoMo agent software, construction trackers, property tools, and digital products.",
       cta: "Build a system"
     }
@@ -268,11 +268,19 @@
       if (cleanedWhatsapp) {
         node.target = "_blank";
         node.rel = "noreferrer";
+      } else {
+        node.removeAttribute("target");
+        node.removeAttribute("rel");
+        const label = String(node.textContent || "").trim();
+        if (/whatsapp/i.test(label)) {
+          node.textContent = /talk|chat/i.test(label) ? "Send an enquiry" : "Enquire";
+        }
       }
     });
 
     $$("[data-call-link]").forEach((node) => {
       node.href = settings.phone ? `tel:${settings.phone}` : "#contact";
+      node.classList.toggle("is-hidden-contact", !settings.phone);
     });
 
     $$("[data-brand-initials]").forEach((node) => {
@@ -507,7 +515,7 @@
             <span>${store.escapeHtml(property.size || "Details on request")}</span>
           </div>
           <a class="text-link" href="${store.escapeHtml(store.propertyUrl(property))}">View details</a>
-          <a class="button small" href="${store.escapeHtml(href)}" ${whatsapp ? 'target="_blank" rel="noreferrer"' : ""}>WhatsApp enquiry</a>
+          <a class="button small" href="${store.escapeHtml(href)}" ${whatsapp ? 'target="_blank" rel="noreferrer"' : ""}>${whatsapp ? "WhatsApp enquiry" : "Enquire"}</a>
         </div>
       </article>
     `;

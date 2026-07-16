@@ -50,7 +50,7 @@
       actions: [
         ["Book a service", "/contact"],
         ["Book drone shoot", "/drone-services", "secondary"],
-        ["Find property", "real-estate.html", "secondary"]
+        ["Find property", "/real-estate", "secondary"]
       ],
       stats: [
         ["6 service groups", "Media, property, projects, digital"],
@@ -84,8 +84,8 @@
       badge: "Drone media and inspection",
       actions: [
         ["Book a drone shoot", "/contact"],
-        ["View portfolio", "portfolio.html", "secondary"],
-        ["Watch videos", "media.html", "secondary"]
+        ["View portfolio", "/portfolio", "secondary"],
+        ["Watch videos", "/media", "secondary"]
       ],
       stats: [
         ["Use cases", "Land, estates, sites, events"],
@@ -187,7 +187,7 @@
       badge: "Airbnb and property management",
       actions: [
         ["Manage my Airbnb", "/contact"],
-        ["Promote property", "real-estate.html", "secondary"],
+        ["Promote property", "/real-estate", "secondary"],
         ["Request quote", "/contact", "secondary"]
       ],
       stats: [
@@ -323,7 +323,7 @@
       actions: [
         ["Read latest posts", "#blogPosts"],
         ["Suggest a story", "/contact", "secondary"],
-        ["Watch YouTube", "media.html", "secondary"]
+        ["Watch YouTube", "/media", "secondary"]
       ],
       stats: [
         ["Topics", "Property, construction, videos"],
@@ -424,7 +424,7 @@
       badge: "Client sales assets",
       actions: [
         ["Request brochure", "/contact"],
-        ["Book a quote", "booking.html", "secondary"],
+        ["Book a quote", "/booking", "secondary"],
         ["View services", "/services", "secondary"]
       ],
       stats: [
@@ -445,24 +445,24 @@
         ["Customize", "Adjust by location, urgency, and project size."],
         ["Start", "Confirm the quote and begin delivery."]
       ],
-      spotlightTitle: "PDF downloads can come next",
-      spotlightText: "The page is ready for branded PDF brochures once final package pricing and service boundaries are confirmed.",
-      spotlightList: ["Drone PDF", "Property PDF", "Construction PDF", "Digital services PDF"]
+      spotlightTitle: "A package shaped around the real job",
+      spotlightText: "Request the service guide that matches your project. Final scope and pricing are confirmed from the location, timeline, access, and deliverables.",
+      spotlightList: ["Drone media", "Property marketing", "Construction updates", "Digital services"]
     },
     "client-portal": {
-      eyebrow: "Client portal preview",
-      title: "A future dashboard for diaspora clients building, investing, or managing property in Ghana.",
+      eyebrow: "Client service desk",
+      title: "Clear reporting for diaspora clients building, investing, or managing property in Ghana.",
       intro:
-        "The client portal foundation explains how future private dashboards can show progress updates, photos, videos, expenses, documents, and reports.",
-      badge: "Phase 2 foundation",
+        "Eben Tee currently provides project communication through direct reports, photos, videos, documents, email, and WhatsApp while a secure private dashboard is prepared.",
+      badge: "Diaspora client support",
       actions: [
-        ["Request project updates", "booking.html"],
-        ["Start building project", "construction.html", "secondary"],
+        ["Request project updates", "/booking"],
+        ["Start building project", "/construction", "secondary"],
         ["Contact Eben Tee", "/contact", "secondary"]
       ],
       stats: [
-        ["Portal status", "Foundation ready"],
-        ["Future data", "Photos, videos, costs"],
+        ["Reporting", "Photos, videos, notes"],
+        ["Project data", "Progress, costs, records"],
         ["Best for", "Diaspora clients"]
       ],
       highlights: [
@@ -471,16 +471,16 @@
         ["Report archive", "Weekly or monthly updates stored in one place for owners abroad."],
         ["Customer dashboard", "Future login for active projects, property management, and digital service clients."]
       ],
-      processTitle: "Portal roadmap",
+      processTitle: "Current client reporting flow",
       process: [
-        ["Phase 1", "Public website, admin content, leads, analytics, and SEO routes."],
-        ["Phase 2", "Client login, project records, uploads, and private reports."],
-        ["Phase 3", "Payments, booking calendar, and customer dashboard."],
-        ["Phase 4", "Advanced investment calculators and owner reports."]
+        ["Project setup", "Confirm the site, reporting frequency, deliverables, and decision makers."],
+        ["Site documentation", "Capture progress photos, videos, observations, and agreed records."],
+        ["Client update", "Send a clear summary through the client's preferred private channel."],
+        ["Follow-up", "Record questions, decisions, issues, and the next scheduled update."]
       ],
-      spotlightTitle: "No fake login yet",
-      spotlightText: "This page is intentionally a preview until real authentication, privacy rules, and client data storage are implemented properly.",
-      spotlightList: ["Private login planned", "Progress archive planned", "Payments planned", "Reports planned"]
+      spotlightTitle: "Private client access is being built carefully",
+      spotlightText: "Until secure authentication and protected storage are complete, sensitive client records stay out of the public website and are shared directly.",
+      spotlightList: ["Private reporting", "Progress records", "Client communication", "Secure access planned"]
     },
     "business-profile": {
       eyebrow: "Google Business Profile checklist",
@@ -490,8 +490,8 @@
       badge: "Local search foundation",
       actions: [
         ["Open contact page", "/contact"],
-        ["View SEO updates", "blog.html", "secondary"],
-        ["Book service", "booking.html", "secondary"]
+        ["View SEO updates", "/blog", "secondary"],
+        ["Book service", "/booking", "secondary"]
       ],
       stats: [
         ["Goal", "Search and Maps trust"],
@@ -519,11 +519,11 @@
 
   const serviceLinks = [
     ["Drone Services", "/drone-services"],
-    ["Real Estate and Properties", "real-estate.html"],
-    ["Construction Supervision", "construction.html"],
-    ["Property / Airbnb Management", "property-management.html"],
-    ["Media / YouTube", "media.html"],
-    ["Digital Products", "digital-products.html"]
+    ["Real Estate and Properties", "/real-estate"],
+    ["Construction Supervision", "/construction"],
+    ["Property / Airbnb Management", "/property-management"],
+    ["Media / YouTube", "/media"],
+    ["Digital Products", "/digital-products"]
   ];
 
   const proofBlocks = {
@@ -626,11 +626,19 @@
       if (cleanedWhatsapp) {
         node.target = "_blank";
         node.rel = "noreferrer";
+      } else {
+        node.removeAttribute("target");
+        node.removeAttribute("rel");
+        const label = String(node.textContent || "").trim();
+        if (/whatsapp/i.test(label)) {
+          node.textContent = /talk|chat/i.test(label) ? "Send an enquiry" : "Enquire";
+        }
       }
     });
 
     $$("[data-call-link]").forEach((node) => {
       node.href = settings.phone ? `tel:${settings.phone}` : "/contact";
+      node.classList.toggle("is-hidden-contact", !settings.phone);
     });
   }
 
@@ -915,7 +923,7 @@
           </div>
           <div class="property-actions">
             <a class="text-link" href="${store.escapeHtml(store.propertyUrl(property))}">View details</a>
-            <a class="button small" href="${store.escapeHtml(href)}"${target}>WhatsApp enquiry</a>
+            <a class="button small" href="${store.escapeHtml(href)}"${target}>${whatsapp ? "WhatsApp enquiry" : "Enquire"}</a>
           </div>
         </div>
       </article>

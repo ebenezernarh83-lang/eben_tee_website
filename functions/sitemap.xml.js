@@ -27,8 +27,6 @@ export async function onRequestGet({ env }) {
     { loc: `${SITE_URL}/projects`, lastmod: content.updatedAt, priority: "0.9" },
     { loc: `${SITE_URL}/booking`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/brochures`, lastmod: content.updatedAt, priority: "0.65" },
-    { loc: `${SITE_URL}/client-portal`, lastmod: content.updatedAt, priority: "0.6" },
-    { loc: `${SITE_URL}/business-profile`, lastmod: content.updatedAt, priority: "0.55" },
     { loc: `${SITE_URL}/book`, lastmod: content.updatedAt, priority: "0.8" }
   ];
   const postUrls = content.posts.map((post) => ({

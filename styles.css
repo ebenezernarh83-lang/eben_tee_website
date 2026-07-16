@@ -6865,6 +6865,10 @@ body[data-page="public"] .floating-cta a {
   border-radius: 8px !important;
 }
 
+body[data-page="public"] .is-hidden-contact {
+  display: none !important;
+}
+
 body[data-view="guide"] .guide-page {
   padding-block: clamp(2.5rem, 6vw, 5rem) !important;
 }
@@ -7149,6 +7153,25 @@ body[data-view="platform"] .platform-proof-section {
 
   body[data-page="public"] .hero-update-card {
     flex-basis: 82vw !important;
+  }
+
+  body[data-page="public"] {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+
+  body[data-page="public"] .floating-cta {
+    left: auto !important;
+    right: 0.75rem !important;
+    bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+    display: block !important;
+    width: auto !important;
+  }
+
+  body[data-page="public"] .floating-cta a {
+    min-width: 112px;
+    min-height: 44px;
+    padding: 0.62rem 0.9rem;
+    box-shadow: 0 10px 30px rgba(5, 8, 13, 0.24);
   }
 }
 
