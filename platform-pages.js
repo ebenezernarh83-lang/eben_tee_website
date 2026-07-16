@@ -16,7 +16,7 @@
         "Ebenezer Tetteh, known professionally as Eben Tee, works across drone media, YouTube storytelling, real estate marketing, construction project support, property management, and digital business tools in Ghana.",
       badge: "INSPIRE. EMPOWER. CREATE IMPACT.",
       actions: [
-        ["Explore services", "services.html"],
+        ["Explore services", "/services"],
         ["Talk on WhatsApp", "#contactStrip", "secondary"],
         ["Watch YouTube", "https://www.youtube.com/@ebentee", "secondary"]
       ],
@@ -48,8 +48,8 @@
         "Choose the service you need, then send a quick enquiry. Eben Tee can support one-off drone shoots, full property marketing, construction progress updates, Airbnb management, media projects, and digital business systems.",
       badge: "Premium Ghana services",
       actions: [
-        ["Book a service", "contact.html"],
-        ["Book drone shoot", "drone-services.html", "secondary"],
+        ["Book a service", "/contact"],
+        ["Book drone shoot", "/drone-services", "secondary"],
         ["Find property", "real-estate.html", "secondary"]
       ],
       stats: [
@@ -83,7 +83,7 @@
         "Book Eben Tee for clean drone photography and videography that shows the location, scale, access roads, surroundings, and story of a place with confidence.",
       badge: "Drone media and inspection",
       actions: [
-        ["Book a drone shoot", "contact.html"],
+        ["Book a drone shoot", "/contact"],
         ["View portfolio", "portfolio.html", "secondary"],
         ["Watch videos", "media.html", "secondary"]
       ],
@@ -119,8 +119,8 @@
       badge: "Property desk",
       actions: [
         ["Find land in Ghana", "#propertyListings"],
-        ["List your property", "contact.html", "secondary"],
-        ["Request inspection", "contact.html", "secondary"]
+        ["List your property", "/contact", "secondary"],
+        ["Request inspection", "/contact", "secondary"]
       ],
       stats: [
         ["Property types", "Land, houses, apartments"],
@@ -152,9 +152,9 @@
         "Eben Tee supports building owners, diaspora clients, and project teams with construction supervision, photo and video updates, cost monitoring, labour tracking, and progress reports.",
       badge: "Diaspora building support",
       actions: [
-        ["Request a site visit", "contact.html"],
-        ["View project desk", "projects.html", "secondary"],
-        ["Get construction updates", "contact.html", "secondary"]
+        ["Request a site visit", "/contact"],
+        ["View project desk", "/projects", "secondary"],
+        ["Get construction updates", "/contact", "secondary"]
       ],
       stats: [
         ["Stages", "Foundation to finishing"],
@@ -186,9 +186,9 @@
         "Eben Tee helps property owners promote, coordinate, and manage short-stay spaces with better visuals, guest communication, maintenance support, and income tracking.",
       badge: "Airbnb and property management",
       actions: [
-        ["Manage my Airbnb", "contact.html"],
+        ["Manage my Airbnb", "/contact"],
         ["Promote property", "real-estate.html", "secondary"],
-        ["Request quote", "contact.html", "secondary"]
+        ["Request quote", "/contact", "secondary"]
       ],
       stats: [
         ["Services", "Promotion, guests, maintenance"],
@@ -220,7 +220,7 @@
       badge: "YouTube and content creation",
       actions: [
         ["Subscribe on YouTube", "https://www.youtube.com/@ebentee"],
-        ["Start media project", "contact.html", "secondary"],
+        ["Start media project", "/contact", "secondary"],
         ["View videos", "#videoStories", "secondary"]
       ],
       stats: [
@@ -253,9 +253,9 @@
         "Eben Tee also builds and promotes digital tools that help small businesses, construction clients, property owners, and young people work smarter online.",
       badge: "Digital entrepreneur",
       actions: [
-        ["Request a system", "contact.html"],
-        ["Buy ebook", "book.html", "secondary"],
-        ["Discuss software", "contact.html", "secondary"]
+        ["Request a system", "/contact"],
+        ["Buy ebook", "/book", "secondary"],
+        ["Discuss software", "/contact", "secondary"]
       ],
       stats: [
         ["Tools", "Websites and trackers"],
@@ -287,9 +287,9 @@
         "Browse work that shows the kind of visual documentation Eben Tee can create for real estate, construction, tourism, brands, and public project stories.",
       badge: "Client-ready media",
       actions: [
-        ["Book project coverage", "contact.html"],
-        ["View drone services", "drone-services.html", "secondary"],
-        ["Open projects", "projects.html", "secondary"]
+        ["Book project coverage", "/contact"],
+        ["View drone services", "/drone-services", "secondary"],
+        ["Open projects", "/projects", "secondary"]
       ],
       stats: [
         ["Portfolio", "Photos and videos"],
@@ -322,7 +322,7 @@
       badge: "Ghana updates",
       actions: [
         ["Read latest posts", "#blogPosts"],
-        ["Suggest a story", "contact.html", "secondary"],
+        ["Suggest a story", "/contact", "secondary"],
         ["Watch YouTube", "media.html", "secondary"]
       ],
       stats: [
@@ -391,7 +391,7 @@
       actions: [
         ["Start booking", "#contactFormPanel"],
         ["Chat on WhatsApp", "#contactFormPanel", "secondary"],
-        ["View services", "services.html", "secondary"]
+        ["View services", "/services", "secondary"]
       ],
       stats: [
         ["Booking types", "Drone, property, site visits"],
@@ -423,9 +423,9 @@
         "This page organizes the service offers clients commonly ask for so they can understand what to request before contacting Eben Tee.",
       badge: "Client sales assets",
       actions: [
-        ["Request brochure", "contact.html"],
+        ["Request brochure", "/contact"],
         ["Book a quote", "booking.html", "secondary"],
-        ["View services", "services.html", "secondary"]
+        ["View services", "/services", "secondary"]
       ],
       stats: [
         ["Packages", "Drone, property, construction"],
@@ -458,7 +458,7 @@
       actions: [
         ["Request project updates", "booking.html"],
         ["Start building project", "construction.html", "secondary"],
-        ["Contact Eben Tee", "contact.html", "secondary"]
+        ["Contact Eben Tee", "/contact", "secondary"]
       ],
       stats: [
         ["Portal status", "Foundation ready"],
@@ -489,7 +489,7 @@
         "Use this checklist to set up and maintain the public business presence that supports Google Search and Maps discovery.",
       badge: "Local search foundation",
       actions: [
-        ["Open contact page", "contact.html"],
+        ["Open contact page", "/contact"],
         ["View SEO updates", "blog.html", "secondary"],
         ["Book service", "booking.html", "secondary"]
       ],
@@ -518,7 +518,7 @@
   };
 
   const serviceLinks = [
-    ["Drone Services", "drone-services.html"],
+    ["Drone Services", "/drone-services"],
     ["Real Estate and Properties", "real-estate.html"],
     ["Construction Supervision", "construction.html"],
     ["Property / Airbnb Management", "property-management.html"],
@@ -622,7 +622,7 @@
     $$("[data-whatsapp-link]").forEach((node) => {
       const cleanedWhatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
       const text = node.dataset.message || "Hello Eben Tee, I want to make an enquiry from your website.";
-      node.href = cleanedWhatsapp ? `https://wa.me/${cleanedWhatsapp}?text=${encodeURIComponent(text)}` : "contact.html";
+      node.href = cleanedWhatsapp ? `https://wa.me/${cleanedWhatsapp}?text=${encodeURIComponent(text)}` : "/contact";
       if (cleanedWhatsapp) {
         node.target = "_blank";
         node.rel = "noreferrer";
@@ -630,7 +630,7 @@
     });
 
     $$("[data-call-link]").forEach((node) => {
-      node.href = settings.phone ? `tel:${settings.phone}` : "contact.html";
+      node.href = settings.phone ? `tel:${settings.phone}` : "/contact";
     });
   }
 
@@ -713,8 +713,8 @@
           <p>Send a quick message with your service, location, and goal. Eben Tee will guide the next step.</p>
         </div>
         <div class="platform-contact-actions">
-          <a class="button" href="contact.html">Book a service</a>
-          <a class="button secondary" href="contact.html" data-whatsapp-link>Chat on WhatsApp</a>
+          <a class="button" href="/contact">Book a service</a>
+          <a class="button secondary" href="/contact" data-whatsapp-link>Chat on WhatsApp</a>
         </div>
       </section>
     `;
@@ -899,11 +899,11 @@
   function renderPropertyCard(property) {
     const whatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
     const message = `Hello Eben Tee, I want to enquire about ${property.title} in ${property.location}.`;
-    const href = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : "contact.html";
+    const href = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : "/contact";
     const target = whatsapp ? ' target="_blank" rel="noreferrer"' : "";
     return `
       <article class="property-card">
-        <img src="${store.escapeHtml(property.coverImage || store.createGeneratedCover("building-project", property.title))}" alt="">
+        <img src="${store.escapeHtml(property.coverImage || store.createGeneratedCover("building-project", property.title))}" alt="${store.escapeHtml(property.title)}" loading="lazy" decoding="async">
         <div class="property-card-copy">
           <span>${store.escapeHtml(property.propertyType)} · ${store.escapeHtml(property.availability)}</span>
           <strong>${store.escapeHtml(property.title)}</strong>
@@ -946,7 +946,7 @@
     return `
       <a class="portfolio-card page-media-card" href="${store.escapeHtml(store.portfolioUrl(item))}">
         <span class="portfolio-card-media">
-          ${image ? `<img src="${store.escapeHtml(image)}" alt="${store.escapeHtml(item.title)}">` : `<span class="portfolio-placeholder"><span>ET</span></span>`}
+          ${image ? `<img src="${store.escapeHtml(image)}" alt="${store.escapeHtml(item.title)}" loading="lazy" decoding="async">` : `<span class="portfolio-placeholder"><span>ET</span></span>`}
           ${item.type === "video" ? '<span class="play-badge">Play</span>' : ""}
         </span>
         <span class="portfolio-card-copy">
@@ -996,7 +996,7 @@
           <p class="eyebrow">Construction projects</p>
           <h2>Current and completed project documentation</h2>
         </div>
-        <a class="text-link" href="projects.html">Open project desk</a>
+        <a class="text-link" href="/projects">Open project desk</a>
       </div>
       <div class="post-grid">
         ${projects.length ? projects.map(renderProjectCard).join("") : `<p class="empty-state">Project updates will appear here after publishing.</p>`}
@@ -1010,7 +1010,7 @@
       <article class="post-card">
         <a class="card-button" href="${store.escapeHtml(store.projectUrl(post))}">
           <span class="media-frame">
-            <img src="${store.escapeHtml(post.coverImage)}" alt="">
+            <img src="${store.escapeHtml(post.coverImage)}" alt="${store.escapeHtml(post.title)}" loading="lazy" decoding="async">
             ${embed ? '<span class="play-badge">Play</span>' : ""}
           </span>
           <span class="card-content">
@@ -1030,7 +1030,7 @@
       <article class="post-card">
         <a class="card-button" href="${store.escapeHtml(store.postUrl(post))}">
           <span class="media-frame">
-            <img src="${store.escapeHtml(post.coverImage)}" alt="">
+            <img src="${store.escapeHtml(post.coverImage)}" alt="${store.escapeHtml(post.title)}" loading="lazy" decoding="async">
             ${embed ? '<span class="play-badge">Play</span>' : ""}
           </span>
           <span class="card-content">
@@ -1125,7 +1125,7 @@
       if (!target) return;
       if (!settings.phone) {
         event.preventDefault();
-        window.location.href = "contact.html";
+        window.location.href = "/contact";
       }
     });
   }

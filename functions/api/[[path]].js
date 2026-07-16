@@ -1,7 +1,11 @@
 const CONTENT_KEY = "site-content-v1";
 const ANALYTICS_PREFIX = "analytics-v1";
+const LOGIN_RATE_PREFIX = "login-rate-v1";
 const SESSION_COOKIE = "ebentee_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+const LOGIN_WINDOW_SECONDS = 15 * 60;
+const LOGIN_MAX_ATTEMPTS = 8;
+const LOGIN_LOCK_SECONDS = 30 * 60;
 
 const categories = new Set(["video", "construction-news", "building-project", "service-update", "personal"]);
 const leadStatuses = new Set(["new", "contacted", "quoted", "won", "lost", "follow-up"]);
@@ -24,7 +28,7 @@ const defaultSettings = {
     "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur, drone pilot, videographer, YouTuber, construction project manager, real estate marketer, property manager, and software/digital entrepreneur. I help people see, invest in, build, manage, and promote opportunities in Ghana with clear visual documentation and professional support.",
   phone: "",
   whatsapp: "",
-  email: "",
+  email: "ebenteeentertainment@gmail.com",
   location: "Accra, Ghana",
   youtube: "https://www.youtube.com/@ebentee",
   facebook: "https://www.facebook.com/ebentee83/",
@@ -279,6 +283,11 @@ export async function onRequest(context) {
 
     const path = new URL(request.url).pathname.replace(/^\/api\/?/, "");
 
+    if (request.method === "HEAD") {
+      if (["content", "session"].includes(path)) return new Response(null, { status: 200, headers: jsonHeaders() });
+      return new Response(null, { status: 404, headers: jsonHeaders() });
+    }
+
     if (path === "track" && request.method === "POST") {
       return trackVisit(request, env);
     }
@@ -297,14 +306,16 @@ export async function onRequest(context) {
     }
 
     if (path === "login" && request.method === "POST") {
+      if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
       return login(request, env);
     }
 
     if (path === "logout" && request.method === "POST") {
+      if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
       return jsonResponse(
         { ok: true },
         200,
-        { "Set-Cookie": `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureCookie(request)}` }
+        { "Set-Cookie": `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${secureCookie(request)}` }
       );
     }
 
@@ -315,6 +326,7 @@ export async function onRequest(context) {
     }
 
     if (path === "admin/content" && request.method === "PUT") {
+      if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
       if (!(await isAuthenticated(request, env))) return jsonResponse({ error: "Unauthorized" }, 401);
       return saveAdminContent(request, env);
     }
@@ -333,12 +345,22 @@ export async function onRequest(context) {
 async function login(request, env) {
   const payload = await request.json().catch(() => ({}));
   const pin = String(payload.pin || "").trim();
+  const rateLimit = await checkLoginRateLimit(request, env);
+  if (!rateLimit.allowed) {
+    return jsonResponse({ error: "Too many login attempts. Try again later." }, 429, {
+      "Retry-After": String(Math.ceil((rateLimit.retryAfterMs || 0) / 1000))
+    });
+  }
+
   const content = await readContent(env);
   const ok = await verifyPin(pin, content, env);
 
   if (!ok) {
+    await recordFailedLogin(request, env);
     return jsonResponse({ error: "PIN did not match." }, 401);
   }
+
+  await clearLoginRateLimit(request, env);
 
   if (!content.admin.pin) {
     content.admin.pin = await makePinRecord(pin);
@@ -350,7 +372,7 @@ async function login(request, env) {
     { ok: true },
     200,
     {
-      "Set-Cookie": `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_SECONDS}${secureCookie(
+      "Set-Cookie": `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_TTL_SECONDS}${secureCookie(
         request
       )}`
     }
@@ -588,7 +610,7 @@ function sanitizeSettings(settings) {
     about: cleanText(migrated.about || defaultSettings.about, 1200),
     phone: cleanText(migrated.phone || "", 60),
     whatsapp: cleanText(migrated.whatsapp || "", 60),
-    email: cleanText(migrated.email || "", 120),
+    email: cleanText(migrated.email || defaultSettings.email, 120),
     location: cleanText(migrated.location || "", 120),
     youtube: cleanUrl(migrated.youtube),
     facebook: cleanUrl(migrated.facebook),
@@ -745,10 +767,36 @@ function sanitizeLead(item) {
 function publicContent(content) {
   return {
     settings: content.settings,
-    posts: content.posts.filter((post) => post.status === "published").sort(sortByDateDesc),
-    portfolio: content.portfolio.filter((item) => item.status === "published").sort(sortByDateDesc),
-    properties: content.properties.filter((item) => item.status === "published").sort(sortByDateDesc),
+    posts: content.posts.filter((post) => post.status === "published").map(publicPost).sort(sortByDateDesc),
+    portfolio: content.portfolio.filter((item) => item.status === "published").map(publicPortfolioItem).sort(sortByDateDesc),
+    properties: content.properties.filter((item) => item.status === "published").map(publicProperty).sort(sortByDateDesc),
     testimonials: content.testimonials.filter((item) => item.status === "published")
+  };
+}
+
+function publicPost(post) {
+  const videoThumb = getYouTubeThumbnailUrl(post.videoUrl);
+  return {
+    ...post,
+    coverImage: cleanPublicImage(post.coverImage) || videoThumb || ""
+  };
+}
+
+function publicPortfolioItem(item) {
+  const thumbnail = cleanPublicImage(item.thumbnail) || getYouTubeThumbnailUrl(item.mediaUrl) || "";
+  return {
+    ...item,
+    mediaUrl: item.type === "photo" && item.mediaUrl.startsWith("data:image/") ? "" : item.mediaUrl,
+    thumbnail
+  };
+}
+
+function publicProperty(property) {
+  const coverImage = cleanPublicImage(property.coverImage) || getYouTubeThumbnailUrl(property.mediaUrl) || "";
+  return {
+    ...property,
+    mediaUrl: property.mediaUrl.startsWith("data:image/") ? "" : property.mediaUrl,
+    coverImage
   };
 }
 
@@ -763,6 +811,48 @@ function adminContent(content) {
   };
 }
 
+async function checkLoginRateLimit(request, env) {
+  const record = await readLoginRateRecord(request, env);
+  const now = Date.now();
+  if (record.lockedUntil && record.lockedUntil > now) {
+    return { allowed: false, retryAfterMs: record.lockedUntil - now };
+  }
+  return { allowed: true, retryAfterMs: 0 };
+}
+
+async function recordFailedLogin(request, env) {
+  const key = await loginRateKey(request, env);
+  const now = Date.now();
+  const record = await readLoginRateRecord(request, env);
+  const resetAt = record.resetAt && record.resetAt > now ? record.resetAt : now + LOGIN_WINDOW_SECONDS * 1000;
+  const attempts = resetAt === record.resetAt ? record.attempts + 1 : 1;
+  const lockedUntil = attempts >= LOGIN_MAX_ATTEMPTS ? now + LOGIN_LOCK_SECONDS * 1000 : 0;
+  await env.EBENTEE_CONTENT.put(
+    key,
+    JSON.stringify({ attempts, resetAt, lockedUntil, updatedAt: new Date().toISOString() }),
+    { expirationTtl: Math.max(LOGIN_WINDOW_SECONDS, LOGIN_LOCK_SECONDS) }
+  );
+}
+
+async function clearLoginRateLimit(request, env) {
+  await env.EBENTEE_CONTENT.delete(await loginRateKey(request, env)).catch(() => {});
+}
+
+async function readLoginRateRecord(request, env) {
+  const record = (await env.EBENTEE_CONTENT.get(await loginRateKey(request, env), "json").catch(() => null)) || {};
+  return {
+    attempts: Math.max(0, Number(record.attempts) || 0),
+    resetAt: Math.max(0, Number(record.resetAt) || 0),
+    lockedUntil: Math.max(0, Number(record.lockedUntil) || 0)
+  };
+}
+
+async function loginRateKey(request, env) {
+  const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${sessionSecret(env)}:${ip}`));
+  return `${LOGIN_RATE_PREFIX}:${base64Url(new Uint8Array(digest)).slice(0, 24)}`;
+}
+
 async function verifyPin(pin, content, env) {
   if (!pin) return false;
 
@@ -771,7 +861,7 @@ async function verifyPin(pin, content, env) {
     return timingSafeEqual(hash, content.admin.pin.hash);
   }
 
-  return pin === String(env.ADMIN_PIN || "1234");
+  return Boolean(env.ADMIN_PIN) && pin === String(env.ADMIN_PIN);
 }
 
 async function makePinRecord(pin) {
@@ -827,7 +917,9 @@ async function signValue(value, secret) {
 }
 
 function sessionSecret(env) {
-  return String(env.SESSION_SECRET || env.ADMIN_PIN || "ebentee-local-session-secret");
+  const secret = String(env.SESSION_SECRET || env.ADMIN_PIN || "");
+  if (!secret) throw new Error("Missing SESSION_SECRET or ADMIN_PIN.");
+  return secret;
 }
 
 function getCookie(request, name) {
@@ -840,11 +932,18 @@ function jsonResponse(payload, status = 200, headers = {}) {
   return new Response(JSON.stringify(payload), {
     status,
     headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
+      ...jsonHeaders(),
       ...headers
     }
   });
+}
+
+function jsonHeaders() {
+  return {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff"
+  };
 }
 
 function secureCookie(request) {
@@ -899,6 +998,11 @@ function cleanCover(value) {
   if (text.length > 2_500_000) return "";
   if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://")) return text;
   return "";
+}
+
+function cleanPublicImage(value) {
+  const text = String(value || "").trim();
+  return /^https?:\/\//i.test(text) ? text : "";
 }
 
 function cleanMediaUrl(value, type) {

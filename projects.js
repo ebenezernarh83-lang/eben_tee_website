@@ -138,7 +138,7 @@
       <article class="project-page-card">
         <a href="${store.escapeHtml(store.projectUrl(post))}">
           <span class="project-page-media">
-            <img src="${store.escapeHtml(post.coverImage)}" alt="">
+            <img src="${store.escapeHtml(post.coverImage)}" alt="${store.escapeHtml(post.title)}" loading="lazy" decoding="async">
           </span>
           <span class="project-page-copy">
             <small>${store.categoryLabel(post.category)} · ${store.formatDate(post.publishedAt)}</small>

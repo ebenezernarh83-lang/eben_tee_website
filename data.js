@@ -59,7 +59,7 @@
       "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur, drone pilot, videographer, YouTuber, construction project manager, real estate marketer, property manager, and software/digital entrepreneur. I help people see, invest in, build, manage, and promote opportunities in Ghana with clear visual documentation and professional support.",
     phone: "",
     whatsapp: "",
-    email: "",
+    email: "ebenteeentertainment@gmail.com",
     location: "Accra, Ghana",
     youtube: "https://www.youtube.com/@ebentee",
     facebook: "https://www.facebook.com/ebentee83/",
@@ -780,6 +780,26 @@
       migrated.ownerName = defaultSettings.ownerName;
     }
 
+    if (!migrated.location) {
+      migrated.location = defaultSettings.location;
+    }
+
+    if (!migrated.email) {
+      migrated.email = defaultSettings.email;
+    }
+
+    if (!migrated.youtube) {
+      migrated.youtube = defaultSettings.youtube;
+    }
+
+    if (!migrated.facebook) {
+      migrated.facebook = defaultSettings.facebook;
+    }
+
+    if (!migrated.instagram) {
+      migrated.instagram = defaultSettings.instagram;
+    }
+
     return {
       ...defaultSettings,
       ...migrated,
@@ -823,6 +843,26 @@
       migrated.about = defaultSettings.about;
     }
 
+    if (!migrated.location) {
+      migrated.location = defaultSettings.location;
+    }
+
+    if (!migrated.email) {
+      migrated.email = defaultSettings.email;
+    }
+
+    if (!migrated.youtube) {
+      migrated.youtube = defaultSettings.youtube;
+    }
+
+    if (!migrated.facebook) {
+      migrated.facebook = defaultSettings.facebook;
+    }
+
+    if (!migrated.instagram) {
+      migrated.instagram = defaultSettings.instagram;
+    }
+
     if (!Array.isArray(migrated.services) || migrated.services.length < 6) {
       migrated.services = defaultSettings.services;
     }
@@ -855,7 +895,7 @@
   }
 
   function getAdminPin() {
-    return window.localStorage.getItem(PIN_KEY) || "1234";
+    return window.localStorage.getItem(PIN_KEY) || "";
   }
 
   function setAdminPin(pin) {

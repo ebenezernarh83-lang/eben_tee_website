@@ -16,7 +16,7 @@
   const serviceCards = [
     {
       title: "Drone Services",
-      href: "drone-services.html",
+      href: "/drone-services",
       summary: "Drone photography, videography, land inspections, construction progress updates, churches, events, hotels, resorts, and drone training.",
       cta: "Book a drone shoot"
     },
@@ -355,7 +355,7 @@
         </span>
         <span class="tour-title">${store.escapeHtml(feature.location || "Accra Skyline")}</span>
         <span class="tour-screen">
-          <img src="${store.escapeHtml(feature.coverImage)}" alt="">
+          <img src="${store.escapeHtml(feature.coverImage)}" alt="${store.escapeHtml(feature.title)}" decoding="async">
           <span class="tour-caption">You know how we do am</span>
           <span class="skyline-bars" aria-hidden="true">
             <span></span>
@@ -496,7 +496,7 @@
 
     return `
       <article class="property-card">
-        <img src="${store.escapeHtml(image)}" alt="">
+        <img src="${store.escapeHtml(image)}" alt="${store.escapeHtml(property.title)}" loading="lazy" decoding="async">
         <div class="property-card-copy">
           <span>${store.escapeHtml(property.propertyType)} · ${store.escapeHtml(property.availability)}</span>
           <strong>${store.escapeHtml(property.title)}</strong>
@@ -589,7 +589,7 @@
     const label = store.escapeHtml(item.title);
 
     if (image) {
-      return `<img src="${store.escapeHtml(image)}" alt="${label}">`;
+      return `<img src="${store.escapeHtml(image)}" alt="${label}" loading="lazy" decoding="async">`;
     }
 
     if (item.type === "video" && item.mediaUrl) {
@@ -628,7 +628,7 @@
             (post) => `
               <article class="project-card" data-category="${store.escapeHtml(post.category)}">
                 <a class="card-button" href="${store.escapeHtml(store.projectUrl(post))}" aria-label="Read ${store.escapeHtml(post.title)}">
-                  <img src="${store.escapeHtml(post.coverImage)}" alt="">
+                  <img src="${store.escapeHtml(post.coverImage)}" alt="${store.escapeHtml(post.title)}" loading="lazy" decoding="async">
                   <span class="pill">${store.escapeHtml(post.projectStage || store.categoryLabel(post.category))}</span>
                   <h3>${store.escapeHtml(post.title)}</h3>
                   <p>${store.escapeHtml(post.summary)}</p>
@@ -650,7 +650,7 @@
       <article class="post-card" data-category="${store.escapeHtml(post.category)}">
         <a class="card-button" href="${store.escapeHtml(store.postUrl(post))}" aria-label="Read ${store.escapeHtml(post.title)}">
           <span class="media-frame">
-            <img src="${store.escapeHtml(post.coverImage)}" alt="">
+            <img src="${store.escapeHtml(post.coverImage)}" alt="${store.escapeHtml(post.title)}" loading="lazy" decoding="async">
             ${embed ? '<span class="play-badge">Play</span>' : ""}
           </span>
           <span class="card-content">
@@ -676,7 +676,7 @@
           ${
             embed
               ? `<iframe src="${store.escapeHtml(embed)}" title="${store.escapeHtml(post.title)}" allowfullscreen></iframe>`
-              : `<img src="${store.escapeHtml(post.coverImage)}" alt="">`
+              : `<img src="${store.escapeHtml(post.coverImage)}" alt="${store.escapeHtml(post.title)}">`
           }
         </div>
         <div class="dialog-body">

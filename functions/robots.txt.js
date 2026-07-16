@@ -2,6 +2,7 @@ export function onRequestGet() {
   return new Response(`User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /admin
 Disallow: /api/
 
 Sitemap: https://ebentee.com/sitemap.xml

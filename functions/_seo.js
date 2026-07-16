@@ -28,7 +28,12 @@ const defaultSettings = {
   about:
     "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur, drone pilot, videographer, YouTuber, construction project manager, real estate marketer, property manager, and software/digital entrepreneur. I help people see, invest in, build, manage, and promote opportunities in Ghana with clear visual documentation and professional support.",
   location: "Accra, Ghana",
+  email: "ebenteeentertainment@gmail.com",
   youtube: "https://www.youtube.com/@ebentee",
+  facebook: "https://www.facebook.com/ebentee83/",
+  instagram: "https://www.instagram.com/ebentee_yt/",
+  tiktok: "",
+  x: "",
   services: [
     "Drone photography, videography, inspections, event coverage, and drone training",
     "Media production, YouTube documentaries, editing, and social content for Ghana brands",
@@ -293,7 +298,12 @@ function normalizeSettings(settings) {
     tagline: cleanText(migrated.tagline || defaultSettings.tagline, 160),
     about: cleanText(migrated.about || defaultSettings.about, 1200),
     location: cleanText(migrated.location || defaultSettings.location, 120),
+    email: cleanText(migrated.email || defaultSettings.email, 120),
     youtube: cleanUrl(migrated.youtube || defaultSettings.youtube),
+    facebook: cleanUrl(migrated.facebook || defaultSettings.facebook),
+    instagram: cleanUrl(migrated.instagram || defaultSettings.instagram),
+    tiktok: cleanUrl(migrated.tiktok || defaultSettings.tiktok),
+    x: cleanUrl(migrated.x || defaultSettings.x),
     services: Array.isArray(migrated.services)
       ? migrated.services.map((service) => cleanText(service, 100)).filter(Boolean).slice(0, 12)
       : defaultSettings.services
@@ -327,6 +337,12 @@ function migrateSettings(settings) {
     migrated.services = defaultSettings.services;
   }
 
+  if (!migrated.location) migrated.location = defaultSettings.location;
+  if (!migrated.email) migrated.email = defaultSettings.email;
+  if (!migrated.youtube) migrated.youtube = defaultSettings.youtube;
+  if (!migrated.facebook) migrated.facebook = defaultSettings.facebook;
+  if (!migrated.instagram) migrated.instagram = defaultSettings.instagram;
+
   return migrated;
 }
 
@@ -341,7 +357,7 @@ function normalizePost(post) {
     location: cleanText(post.location || "", 120),
     summary: cleanText(post.summary || "", 320),
     body: cleanText(post.body || "", 8000),
-    coverImage: cleanCover(post.coverImage) || getYouTubeThumbnailUrl(videoUrl),
+    coverImage: cleanShareableCover(post.coverImage) || getYouTubeThumbnailUrl(videoUrl),
     videoUrl,
     tags: Array.isArray(post.tags) ? post.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
     projectStage: cleanText(post.projectStage || "", 80),
@@ -364,7 +380,7 @@ function normalizePortfolioItem(item) {
     serviceCategory: normalizeServiceCategory(item.serviceCategory || item.clientType || ""),
     mapUrl: cleanUrl(item.mapUrl),
     mediaUrl,
-    thumbnail: cleanCover(item.thumbnail) || getYouTubeThumbnailUrl(mediaUrl) || (type === "photo" ? mediaUrl : ""),
+    thumbnail: cleanShareableCover(item.thumbnail) || getYouTubeThumbnailUrl(mediaUrl) || (type === "photo" ? cleanShareableCover(mediaUrl) : ""),
     tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
     featured: Boolean(item.featured),
     publishedAt: cleanText(item.publishedAt || new Date().toISOString().slice(0, 10), 20),
@@ -387,7 +403,7 @@ function normalizeProperty(item) {
     mapUrl: cleanUrl(item.mapUrl),
     verificationNotes: cleanText(item.verificationNotes || "", 320),
     mediaUrl,
-    coverImage: cleanCover(item.coverImage) || getYouTubeThumbnailUrl(mediaUrl),
+    coverImage: cleanShareableCover(item.coverImage) || getYouTubeThumbnailUrl(mediaUrl),
     tags: Array.isArray(item.tags) ? item.tags.map((tag) => cleanText(tag, 40)).filter(Boolean).slice(0, 16) : [],
     featured: Boolean(item.featured),
     publishedAt: cleanText(item.publishedAt || new Date().toISOString().slice(0, 10), 20),
@@ -476,6 +492,11 @@ function cleanCover(value) {
   if (text.length > 2_500_000) return "";
   if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://")) return text;
   return "";
+}
+
+function cleanShareableCover(value) {
+  const text = cleanCover(value);
+  return /^https?:\/\//i.test(text) ? text : "";
 }
 
 function normalizeServiceCategory(value) {

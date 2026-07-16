@@ -105,7 +105,7 @@ function renderPost(post, settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-5">
+    <link rel="stylesheet" href="/styles.css?v=platform-6">
     <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
   <body data-page="public" data-view="post">
@@ -168,7 +168,7 @@ function renderPost(post, settings) {
         ${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}
       </div>
     </footer>
-    <script src="/analytics.js?v=platform-5"></script>
+    <script src="/analytics.js?v=platform-6"></script>
   </body>
 </html>`;
 }
@@ -187,7 +187,7 @@ function renderNotFound(settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-5">
+    <link rel="stylesheet" href="/styles.css?v=platform-6">
   </head>
   <body data-page="public" data-view="post">
     <main class="seo-post-page">
