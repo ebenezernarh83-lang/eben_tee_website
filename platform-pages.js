@@ -1105,7 +1105,7 @@
         page: window.location.pathname,
         attachmentName: file ? file.name : ""
       }).catch(() => {});
-      window.EbenTeeAnalytics?.track("lead_form_submit", { service, eventLabel: "Platform contact form" });
+      window.EbenTeeAnalytics?.track("lead_form_submit", { eventLabel: "Platform contact form" });
       const text = [
         `Hello ${settings.ownerName || "Eben Tee"}, my name is ${String(formData.get("name") || "").trim()}.`,
         `Service needed: ${service}.`,

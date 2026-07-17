@@ -119,14 +119,14 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-10">
+    <link rel="stylesheet" href="/styles.css?v=platform-11">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="property">
     ${renderHeader(settings)}
     <main class="seo-post-page">${body}</main>
     ${renderFooter(settings)}
-    <script src="/analytics.js?v=platform-10"></script>
+    <script src="/analytics.js?v=platform-11"></script>
   </body>
 </html>`;
 }

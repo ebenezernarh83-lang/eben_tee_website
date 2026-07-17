@@ -163,6 +163,12 @@
     });
     $("#analyticsDays").addEventListener("change", loadAnalytics);
     $("#refreshAnalyticsButton").addEventListener("click", loadAnalytics);
+    window.setInterval(() => {
+      const panel = $('[data-panel="analytics"]');
+      if (panel && !panel.classList.contains("is-hidden") && !$("#adminApp").classList.contains("is-hidden")) {
+        loadAnalytics({ silent: true });
+      }
+    }, 60000);
     $("#exportButton").addEventListener("click", exportContent);
     $("#importInput").addEventListener("change", importContent);
     $("#resetButton").addEventListener("click", resetContent);
@@ -1349,18 +1355,20 @@
     });
   }
 
-  async function loadAnalytics() {
-    analyticsLoaded = true;
+  async function loadAnalytics(options = {}) {
+    const silent = Boolean(options && options.silent);
     const days = Number($("#analyticsDays").value) || 30;
-    $("#analyticsMessage").textContent = "Loading analytics...";
+    if (!silent) $("#analyticsMessage").textContent = "Loading live analytics...";
 
     try {
       analytics = await store.loadAnalytics(days);
+      analyticsLoaded = true;
       renderAnalytics();
       $("#analyticsMessage").textContent = analytics.offline
         ? "Analytics is available on the live Cloudflare site."
-        : `Updated ${new Date(analytics.updatedAt).toLocaleString()}.`;
+        : `Live data refreshed ${new Date(analytics.updatedAt).toLocaleString()}.`;
     } catch (error) {
+      analyticsLoaded = false;
       if (error && error.status === 401) {
         $("#analyticsMessage").textContent = "Please log in again.";
         await store.lockAdmin();
@@ -1380,11 +1388,15 @@
       setText("#analyticsTopPage", "None yet");
       renderDailyChart([]);
       renderCountList("#analyticsTopPaths", []);
+      renderCountList("#analyticsSources", []);
       renderCountList("#analyticsReferrers", []);
       renderCountList("#analyticsDevices", []);
       renderCountList("#analyticsEvents", []);
       renderCountList("#analyticsServices", []);
+      renderCountList("#analyticsCountries", []);
+      renderCountList("#analyticsCampaigns", []);
       setText("#analyticsLeadEvents", "0");
+      setText("#analyticsSearchVisits", "0");
       return;
     }
 
@@ -1392,16 +1404,20 @@
     setText("#analyticsUniqueVisitors", analytics.totals.uniqueVisitors);
     setText("#analyticsTodayViews", analytics.totals.todayViews);
     setText("#analyticsTopPage", analytics.topPaths[0] ? analytics.topPaths[0].label : "None yet");
+    setText("#analyticsSearchVisits", analytics.totals.searchVisits || 0);
     setText(
       "#analyticsLeadEvents",
-      (analytics.events || []).filter((item) => String(item.label).includes("lead")).reduce((sum, item) => sum + Number(item.count || 0), 0)
+      (analytics.events || []).filter((item) => String(item.label) === "lead_submit").reduce((sum, item) => sum + Number(item.count || 0), 0)
     );
     renderDailyChart(analytics.daily || []);
     renderCountList("#analyticsTopPaths", analytics.topPaths || []);
+    renderCountList("#analyticsSources", analytics.topSources || []);
     renderCountList("#analyticsReferrers", analytics.topReferrers || []);
     renderCountList("#analyticsDevices", analytics.devices || []);
     renderCountList("#analyticsEvents", analytics.events || []);
     renderCountList("#analyticsServices", analytics.services || []);
+    renderCountList("#analyticsCountries", analytics.countries || [], countryName);
+    renderCountList("#analyticsCampaigns", analytics.campaigns || []);
   }
 
   function renderDailyChart(items) {
@@ -1425,7 +1441,7 @@
       : `<p class="empty-state">No visits recorded yet.</p>`;
   }
 
-  function renderCountList(selector, items) {
+  function renderCountList(selector, items, labelFormatter) {
     const list = $(selector);
     if (!list) return;
 
@@ -1434,13 +1450,21 @@
           .map(
             (item) => `
               <div class="analytics-row">
-                <span>${store.escapeHtml(item.label)}</span>
+                <span>${store.escapeHtml(labelFormatter ? labelFormatter(item.label) : item.label)}</span>
                 <strong>${Number(item.count) || 0}</strong>
               </div>
             `
           )
           .join("")
       : `<p class="empty-state">No data yet.</p>`;
+  }
+
+  function countryName(code) {
+    try {
+      return new Intl.DisplayNames(["en"], { type: "region" }).of(String(code || "").toUpperCase()) || code;
+    } catch (error) {
+      return code;
+    }
   }
 
   function renderShellBrand() {

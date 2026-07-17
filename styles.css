@@ -1037,7 +1037,7 @@ textarea:focus {
 
 .analytics-summary {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -1081,6 +1081,22 @@ textarea:focus {
 
 .analytics-card h3 {
   margin: 0;
+}
+
+.analytics-search-card {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 1.2fr) auto;
+  align-items: center;
+}
+
+.analytics-search-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.analytics-search-card .button {
+  justify-self: end;
+  white-space: nowrap;
 }
 
 .analytics-chart {
@@ -4931,6 +4947,14 @@ body[data-view="ebook"] .ebook-contact .contact-cards {
   .analytics-grid,
   .seo-post-page {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .analytics-search-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .analytics-search-card .button {
+    justify-self: start;
   }
 
   .seo-post-cta {

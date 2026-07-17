@@ -1018,11 +1018,17 @@
         views: 0,
         uniqueVisitors: 0,
         todayViews: 0,
-        todayUniqueVisitors: 0
+        todayUniqueVisitors: 0,
+        searchVisits: 0
       },
       daily: [],
       topPaths: [],
+      topLandingPages: [],
       topReferrers: [],
+      topSources: [],
+      mediums: [],
+      campaigns: [],
+      countries: [],
       devices: [],
       events: [],
       services: [],

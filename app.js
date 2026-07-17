@@ -160,7 +160,7 @@
         page: window.location.pathname,
         attachmentName: file ? file.name : ""
       }).catch(() => {});
-      window.EbenTeeAnalytics?.track("lead_form_submit", { service, eventLabel: "Homepage contact form" });
+      window.EbenTeeAnalytics?.track("lead_form_submit", { eventLabel: "Homepage contact form" });
       const text = [
         `Hello ${settings.ownerName || "Eben Tee"}, my name is ${name}.`,
         service ? `Service needed: ${service}.` : "",

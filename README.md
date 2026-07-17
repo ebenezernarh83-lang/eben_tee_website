@@ -57,7 +57,7 @@ When running with a plain local static server, the site still falls back to `loc
 
 ## SEO and analytics
 
-Published posts get public URLs under `/post/...`; project updates, properties, and portfolio items also get detail URLs under `/project/...`, `/property/...`, and `/portfolio/...`. `/sitemap.xml` lists the homepage, platform pages, ebook page, and all published detail URLs. Public pages send first-party visit and conversion events to `/api/track`; the admin Analytics tab reads private totals from `/api/admin/analytics`.
+Published posts get public URLs under `/post/...`; project updates, properties, and portfolio items also get detail URLs under `/project/...`, `/property/...`, and `/portfolio/...`. `/sitemap.xml` lists the homepage, platform pages, ebook page, and all published detail URLs. Public pages send first-party visit, source, campaign, country, device, and conversion events to `/api/track`; the admin Analytics tab reads private totals from `/api/admin/analytics`. Google ranking positions, search queries, impressions, and clicks remain in Google Search Console and are linked from the Analytics tab.
 
 ## YouTube posts
 

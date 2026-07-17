@@ -428,7 +428,7 @@ async function createLead(request, env) {
   const content = await readContent(env);
   content.leads = [lead, ...(content.leads || [])].slice(0, 1000);
   await writeContent(env, content);
-  await trackConversion(env, request, "lead_submit", lead.service, lead.page || "/contact");
+  await trackConversion(env, request, "lead_submit", lead.service);
 
   return jsonResponse({ ok: true, lead });
 }
@@ -455,18 +455,32 @@ async function trackVisit(request, env) {
     date: todayKey
   });
   const visitor = await visitorHash(request, env);
-  const referrer = cleanReferrer(payload.referrer, request);
+  const referrer = cleanReferrer(payload.landingReferrer || payload.referrer, request);
   const device = deviceType(userAgent);
   const eventType = cleanEventType(payload.eventType || "page_view");
   const eventLabel = cleanText(payload.eventLabel || payload.label || "", 120);
   const service = normalizeServiceCategory(payload.service || "");
+  const source = cleanAnalyticsSource(payload.source, referrer);
+  const medium = cleanAnalyticsMedium(payload.medium, source);
+  const campaign = cleanText(payload.campaign || "", 120);
+  const landingPath = cleanAnalyticsPath(payload.landingPath || path) || path;
+  const country = cleanCountry(request.cf && request.cf.country ? request.cf.country : request.headers.get("CF-IPCountry"));
+  const isPageView = eventType === "page_view";
 
-  record.views += 1;
   record.updatedAt = new Date().toISOString();
-  record.paths[path] = (record.paths[path] || 0) + 1;
-  record.referrers[referrer] = (record.referrers[referrer] || 0) + 1;
-  record.devices[device] = (record.devices[device] || 0) + 1;
   record.events[eventType] = (record.events[eventType] || 0) + 1;
+
+  if (isPageView) {
+    record.views += 1;
+    record.paths[path] = (record.paths[path] || 0) + 1;
+    record.landingPages[landingPath] = (record.landingPages[landingPath] || 0) + 1;
+    record.referrers[referrer] = (record.referrers[referrer] || 0) + 1;
+    record.sources[source] = (record.sources[source] || 0) + 1;
+    record.mediums[medium] = (record.mediums[medium] || 0) + 1;
+    record.devices[device] = (record.devices[device] || 0) + 1;
+    if (campaign) record.campaigns[campaign] = (record.campaigns[campaign] || 0) + 1;
+    if (country) record.countries[country] = (record.countries[country] || 0) + 1;
+  }
 
   if (eventLabel) {
     record.eventLabels[eventLabel] = (record.eventLabels[eventLabel] || 0) + 1;
@@ -476,7 +490,7 @@ async function trackVisit(request, env) {
     record.services[service] = (record.services[service] || 0) + 1;
   }
 
-  if (visitor && !record.visitors.includes(visitor)) {
+  if (isPageView && visitor && !record.visitors.includes(visitor)) {
     record.visitors.push(visitor);
   }
 
@@ -488,7 +502,7 @@ async function trackVisit(request, env) {
   return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
 }
 
-async function trackConversion(env, request, eventType, service, path) {
+async function trackConversion(env, request, eventType, service) {
   const todayKey = today();
   const key = analyticsKey(todayKey);
   const record = normalizeAnalyticsRecord((await env.EBENTEE_CONTENT.get(key, "json").catch(() => null)) || {
@@ -498,9 +512,6 @@ async function trackConversion(env, request, eventType, service, path) {
   record.events[eventType] = (record.events[eventType] || 0) + 1;
   if (service) {
     record.services[service] = (record.services[service] || 0) + 1;
-  }
-  if (path) {
-    record.paths[path] = (record.paths[path] || 0) + 1;
   }
   record.updatedAt = new Date().toISOString();
   await env.EBENTEE_CONTENT.put(key, JSON.stringify(record));
@@ -515,7 +526,12 @@ async function getAnalytics(request, env) {
   );
   const visitors = new Set();
   const paths = {};
+  const landingPages = {};
   const referrers = {};
+  const sources = {};
+  const mediums = {};
+  const campaigns = {};
+  const countries = {};
   const devices = {};
   const events = {};
   const eventLabels = {};
@@ -524,7 +540,14 @@ async function getAnalytics(request, env) {
   records.forEach((record) => {
     record.visitors.forEach((visitor) => visitors.add(visitor));
     mergeCounts(paths, record.paths);
+    mergeCounts(landingPages, record.landingPages);
     mergeCounts(referrers, record.referrers);
+    const recordSources = completeCountMap(record.sources, sourcesFromReferrers(record.referrers), record.views);
+    const recordMediums = completeCountMap(record.mediums, mediumsFromSources(recordSources), record.views);
+    mergeCounts(sources, recordSources);
+    mergeCounts(mediums, recordMediums);
+    mergeCounts(campaigns, record.campaigns);
+    mergeCounts(countries, record.countries);
     mergeCounts(devices, record.devices);
     mergeCounts(events, record.events);
     mergeCounts(eventLabels, record.eventLabels);
@@ -533,6 +556,7 @@ async function getAnalytics(request, env) {
 
   const todayRecord = records[records.length - 1] || normalizeAnalyticsRecord({ date: today() });
   const views = records.reduce((total, record) => total + record.views, 0);
+  const searchVisits = Number(mediums.organic) || 0;
 
   return jsonResponse({
     days,
@@ -540,7 +564,8 @@ async function getAnalytics(request, env) {
       views,
       uniqueVisitors: visitors.size,
       todayViews: todayRecord.views,
-      todayUniqueVisitors: todayRecord.visitors.length
+      todayUniqueVisitors: todayRecord.visitors.length,
+      searchVisits
     },
     daily: records.map((record) => ({
       date: record.date,
@@ -548,7 +573,12 @@ async function getAnalytics(request, env) {
       uniqueVisitors: record.visitors.length
     })),
     topPaths: topCounts(paths, 10),
+    topLandingPages: topCounts(landingPages, 8),
     topReferrers: topCounts(referrers, 8),
+    topSources: topCounts(sources, 8),
+    mediums: topCounts(mediums, 8),
+    campaigns: topCounts(campaigns, 8),
+    countries: topCounts(countries, 10),
     devices: topCounts(devices, 5),
     events: topCounts(events, 10),
     eventLabels: topCounts(eventLabels, 10),
@@ -1095,7 +1125,12 @@ function normalizeAnalyticsRecord(record) {
     views: Math.max(0, Number(record.views) || 0),
     visitors: Array.isArray(record.visitors) ? record.visitors.map((visitor) => cleanText(visitor, 96)).filter(Boolean) : [],
     paths: cleanCountMap(record.paths),
+    landingPages: cleanCountMap(record.landingPages),
     referrers: cleanCountMap(record.referrers),
+    sources: cleanCountMap(record.sources),
+    mediums: cleanCountMap(record.mediums),
+    campaigns: cleanCountMap(record.campaigns),
+    countries: cleanCountMap(record.countries),
     devices: cleanCountMap(record.devices),
     events: cleanCountMap(record.events),
     eventLabels: cleanCountMap(record.eventLabels),
@@ -1200,6 +1235,81 @@ function cleanReferrer(value, request) {
   } catch (error) {
     return "Direct";
   }
+}
+
+function cleanAnalyticsSource(value, referrer) {
+  const explicit = cleanText(value || "", 120);
+  if (explicit) return explicit;
+  if (!referrer || referrer === "Direct" || referrer === "Internal") return referrer || "Direct";
+
+  const host = String(referrer).toLowerCase();
+  if (host.includes("google.")) return "Google Search";
+  if (host.includes("bing.com")) return "Bing Search";
+  if (host.includes("duckduckgo.com")) return "DuckDuckGo Search";
+  if (host.includes("yahoo.")) return "Yahoo Search";
+  if (host.includes("youtube.com") || host.includes("youtu.be")) return "YouTube";
+  if (host.includes("facebook.com") || host.includes("fb.com")) return "Facebook";
+  if (host.includes("instagram.com")) return "Instagram";
+  if (host.includes("tiktok.com")) return "TikTok";
+  if (host.includes("twitter.com") || host === "x.com") return "X / Twitter";
+  if (host.includes("linkedin.com")) return "LinkedIn";
+  return referrer;
+}
+
+function cleanAnalyticsMedium(value, source) {
+  const explicit = cleanText(value || "", 80).toLowerCase();
+  if (explicit) return explicit;
+  if (/search/i.test(source)) return "organic";
+  if (/facebook|instagram|youtube|tiktok|twitter|linkedin/i.test(source)) return "social";
+  if (source === "Direct") return "none";
+  if (source === "Internal") return "internal";
+  return "referral";
+}
+
+function sourcesFromReferrers(referrers) {
+  const sources = {};
+  Object.entries(referrers || {}).forEach(([referrer, count]) => {
+    const source = cleanAnalyticsSource("", referrer);
+    sources[source] = (sources[source] || 0) + (Number(count) || 0);
+  });
+  return sources;
+}
+
+function mediumsFromSources(sources) {
+  const mediums = {};
+  Object.entries(sources || {}).forEach(([source, count]) => {
+    const medium = cleanAnalyticsMedium("", source);
+    mediums[medium] = (mediums[medium] || 0) + (Number(count) || 0);
+  });
+  return mediums;
+}
+
+function completeCountMap(primary, fallback, targetTotal) {
+  const completed = { ...(primary || {}) };
+  let missing = Math.max(0, (Number(targetTotal) || 0) - countMapTotal(completed));
+  if (!missing) return completed;
+
+  Object.entries(fallback || {})
+    .sort((left, right) => (Number(right[1]) || 0) - (Number(left[1]) || 0))
+    .forEach(([label, count]) => {
+      if (!missing) return;
+      const addition = Math.min(missing, Math.max(0, (Number(count) || 0) - (Number(completed[label]) || 0)));
+      if (!addition) return;
+      completed[label] = (Number(completed[label]) || 0) + addition;
+      missing -= addition;
+    });
+
+  if (missing) completed.Unknown = (Number(completed.Unknown) || 0) + missing;
+  return completed;
+}
+
+function countMapTotal(value) {
+  return Object.values(value || {}).reduce((total, count) => total + (Number(count) || 0), 0);
+}
+
+function cleanCountry(value) {
+  const code = cleanText(value || "", 2).toUpperCase();
+  return /^[A-Z]{2}$/.test(code) && code !== "XX" ? code : "";
 }
 
 async function visitorHash(request, env) {

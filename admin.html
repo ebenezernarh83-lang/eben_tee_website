@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="styles.css?v=platform-10">
+    <link rel="stylesheet" href="styles.css?v=platform-11">
   </head>
   <body data-page="admin">
     <a class="skip-link" href="#adminMain">Skip to admin</a>
@@ -542,6 +542,7 @@
               <span><strong id="analyticsTodayViews">0</strong> today</span>
               <span><strong id="analyticsTopPage">None yet</strong> top page</span>
               <span><strong id="analyticsLeadEvents">0</strong> lead actions</span>
+              <span><strong id="analyticsSearchVisits">0</strong> search visits</span>
             </div>
 
             <div class="analytics-grid">
@@ -555,6 +556,10 @@
               </div>
               <div class="analytics-card">
                 <h3>Traffic sources</h3>
+                <div class="analytics-list" id="analyticsSources"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Referring websites</h3>
                 <div class="analytics-list" id="analyticsReferrers"></div>
               </div>
               <div class="analytics-card">
@@ -569,9 +574,25 @@
                 <h3>Services requested</h3>
                 <div class="analytics-list" id="analyticsServices"></div>
               </div>
+              <div class="analytics-card">
+                <h3>Visitor countries</h3>
+                <div class="analytics-list" id="analyticsCountries"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Campaigns</h3>
+                <div class="analytics-list" id="analyticsCampaigns"></div>
+              </div>
+              <div class="analytics-card analytics-search-card">
+                <div>
+                  <p class="eyebrow">Search visibility</p>
+                  <h3>Google ranking and search queries</h3>
+                </div>
+                <p>Ranking positions, impressions, clicks, and the phrases people search are reported by Google Search Console.</p>
+                <a class="button small secondary" href="https://search.google.com/search-console?resource_id=sc-domain%3Aebentee.com" target="_blank" rel="noreferrer">Open Search Console</a>
+              </div>
             </div>
 
-            <p class="form-note" id="analyticsMessage" aria-live="polite">Open this tab after visitors start using the site.</p>
+            <p class="form-note" id="analyticsMessage" aria-live="polite">Live visitor data refreshes while this tab is open.</p>
           </div>
         </section>
 
@@ -735,7 +756,7 @@
       </section>
     </main>
 
-    <script src="data.js?v=platform-10"></script>
-    <script src="admin.js?v=platform-10"></script>
+    <script src="data.js?v=platform-11"></script>
+    <script src="admin.js?v=platform-11"></script>
   </body>
 </html>
