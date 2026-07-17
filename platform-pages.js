@@ -309,9 +309,9 @@
         ["Construction", "Progress and supervision updates."],
         ["Stories", "YouTube, documentaries, and development news."]
       ],
-      spotlightTitle: "Upload new work from admin",
-      spotlightText: "Use the Portfolio tab in the admin dashboard to add drone pictures, videos, thumbnails, locations, client types, and descriptions.",
-      spotlightList: ["Photos", "Videos", "YouTube links", "Client type", "Location"],
+      spotlightTitle: "Put your project in the best light",
+      spotlightText: "Turn your property, construction site, destination, event, or business into clear visual content that clients and investors can understand and trust.",
+      spotlightList: ["Aerial photography", "Project videos", "Property tours", "Progress updates", "Brand stories"],
       dynamic: "portfolio"
     },
     blog: {
@@ -943,7 +943,7 @@
         ${
           items.length
             ? items.map(renderPortfolioCard).join("")
-            : `<p class="empty-state">Portfolio media will appear here after upload from the admin dashboard.</p>`
+            : `<p class="empty-state">New client work is being prepared. Contact Eben Tee to discuss your own project coverage.</p>`
         }
       </div>
     `;

@@ -552,7 +552,7 @@
     setText("#portfolioCount", `${portfolio.length} media items`);
 
     if (!items.length || !featured) {
-      shell.innerHTML = `<p class="empty-state">Upload drone photos and videos from the admin Portfolio tab.</p>`;
+      shell.innerHTML = `<p class="empty-state">New client work is being prepared. Contact Eben Tee to discuss your own project coverage.</p>`;
       grid.innerHTML = "";
       return;
     }
