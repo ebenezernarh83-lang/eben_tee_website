@@ -1,6 +1,21 @@
 export const SITE_URL = "https://ebentee.com";
 export const BRAND_LOGO_URL = `${SITE_URL}/assets/eben-tee-logo.png`;
 
+export function secureHtmlHeaders() {
+  return {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": "public, max-age=0, must-revalidate",
+    "Content-Security-Policy":
+      "default-src 'self'; base-uri 'self'; form-action 'self' mailto: https://wa.me; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' data: blob: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://cloudflareinsights.com https://*.cloudflareinsights.com; font-src 'self' data:; upgrade-insecure-requests",
+    "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY"
+  };
+}
+
 const CONTENT_KEY = "site-content-v1";
 const serviceOptions = [
   "Drone Services",

@@ -7,7 +7,8 @@ import {
   isShareableImage,
   plainText,
   readPublicContent,
-  safeJson
+  safeJson,
+  secureHtmlHeaders
 } from "../_seo.js";
 
 export async function onRequestGet({ env, params }) {
@@ -15,10 +16,10 @@ export async function onRequestGet({ env, params }) {
   const item = findItemBySlug(content.portfolio, params.slug, "ghana-drone-portfolio");
 
   if (!item) {
-    return new Response(renderNotFound(content.settings), { status: 404, headers: htmlHeaders() });
+    return new Response(renderNotFound(content.settings), { status: 404, headers: secureHtmlHeaders() });
   }
 
-  return new Response(renderPortfolioItem(item, content.settings, content.testimonials), { headers: htmlHeaders() });
+  return new Response(renderPortfolioItem(item, content.settings, content.testimonials), { headers: secureHtmlHeaders() });
 }
 
 function renderPortfolioItem(item, settings, testimonials) {
@@ -117,14 +118,14 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-6">
+    <link rel="stylesheet" href="/styles.css?v=platform-10">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="portfolio-item">
-    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-logo-512.png" alt=""></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/services">Services</a><a href="/drone-services">Drone</a><a href="/portfolio">Portfolio</a><a href="/contact">Contact</a></div></nav></header>
+    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/services">Services</a><a href="/drone-services">Drone</a><a href="/portfolio">Portfolio</a><a href="/contact">Contact</a></div></nav></header>
     <main class="seo-post-page">${body}</main>
     <footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}</div></footer>
-    <script src="/analytics.js?v=platform-6"></script>
+    <script src="/analytics.js?v=platform-10"></script>
   </body>
 </html>`;
 }
@@ -163,8 +164,4 @@ function getYouTubeId(value) {
     if (match && match[1]) return match[1].replace(/[^a-zA-Z0-9_-]/g, "");
   }
   return "";
-}
-
-function htmlHeaders() {
-  return { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate" };
 }

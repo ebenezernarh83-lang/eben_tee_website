@@ -70,7 +70,7 @@ This project is deployed to Cloudflare Pages as `ebentee`.
 Build the clean public folder:
 
 ```bash
-rm -rf dist && mkdir -p dist && cp *.html *.css *.js *.png *.ico *.svg *.webmanifest dist/ && cp -R assets dist/
+rm -rf dist && mkdir -p dist && cp *.html *.css *.js *.png *.ico *.svg *.webmanifest _headers dist/ && cp -R assets dist/
 ```
 
 Deploy:

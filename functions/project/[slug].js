@@ -8,7 +8,8 @@ import {
   isShareableImage,
   plainText,
   readPublicContent,
-  safeJson
+  safeJson,
+  secureHtmlHeaders
 } from "../_seo.js";
 
 export async function onRequestGet({ env, params }) {
@@ -17,10 +18,10 @@ export async function onRequestGet({ env, params }) {
   const post = findPostBySlug(projectPosts, params.slug);
 
   if (!post) {
-    return new Response(renderNotFound(content.settings), { status: 404, headers: htmlHeaders() });
+    return new Response(renderNotFound(content.settings), { status: 404, headers: secureHtmlHeaders() });
   }
 
-  return new Response(renderProject(post, content.settings), { headers: htmlHeaders() });
+  return new Response(renderProject(post, content.settings), { headers: secureHtmlHeaders() });
 }
 
 function renderProject(post, settings) {
@@ -73,11 +74,11 @@ function renderProject(post, settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-6">
+    <link rel="stylesheet" href="/styles.css?v=platform-10">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="project">
-    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-logo-512.png" alt=""></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/projects">Projects</a><a href="/construction">Construction</a><a href="/drone-services">Drone</a><a href="/contact">Contact</a></div></nav></header>
+    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/projects">Projects</a><a href="/construction">Construction</a><a href="/drone-services">Drone</a><a href="/contact">Contact</a></div></nav></header>
     <main class="seo-post-page">
       <article class="seo-post-shell">
         <a class="text-link" href="/projects">Back to projects</a>
@@ -102,13 +103,13 @@ function renderProject(post, settings) {
       </aside>
     </main>
     <footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}</div></footer>
-    <script src="/analytics.js?v=platform-6"></script>
+    <script src="/analytics.js?v=platform-10"></script>
   </body>
 </html>`;
 }
 
 function renderNotFound(settings) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Project not found | ${escapeHtml(settings.brandName)}</title><link rel="stylesheet" href="/styles.css?v=platform-6"></head><body data-page="public"><main class="seo-post-page"><article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This project update is not available</h1><a class="button" href="/projects">Open projects</a></article></main></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Project not found | ${escapeHtml(settings.brandName)}</title><link rel="stylesheet" href="/styles.css?v=platform-10"></head><body data-page="public"><main class="seo-post-page"><article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This project update is not available</h1><a class="button" href="/projects">Open projects</a></article></main></body></html>`;
 }
 
 function renderMedia(post) {
@@ -144,8 +145,4 @@ function formatDate(value) {
   const date = value ? new Date(`${value}T12:00:00`) : new Date();
   if (Number.isNaN(date.getTime())) return "No date";
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
-}
-
-function htmlHeaders() {
-  return { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate" };
 }

@@ -7,7 +7,8 @@ import {
   isShareableImage,
   plainText,
   readPublicContent,
-  safeJson
+  safeJson,
+  secureHtmlHeaders
 } from "../_seo.js";
 
 export async function onRequestGet({ env, params }) {
@@ -15,10 +16,10 @@ export async function onRequestGet({ env, params }) {
   const property = findItemBySlug(content.properties, params.slug, "ghana-property");
 
   if (!property) {
-    return new Response(renderNotFound(content.settings), { status: 404, headers: htmlHeaders() });
+    return new Response(renderNotFound(content.settings), { status: 404, headers: secureHtmlHeaders() });
   }
 
-  return new Response(renderProperty(property, content.settings, content.testimonials), { headers: htmlHeaders() });
+  return new Response(renderProperty(property, content.settings, content.testimonials), { headers: secureHtmlHeaders() });
 }
 
 function renderProperty(property, settings, testimonials) {
@@ -118,20 +119,20 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-6">
+    <link rel="stylesheet" href="/styles.css?v=platform-10">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="property">
     ${renderHeader(settings)}
     <main class="seo-post-page">${body}</main>
     ${renderFooter(settings)}
-    <script src="/analytics.js?v=platform-6"></script>
+    <script src="/analytics.js?v=platform-10"></script>
   </body>
 </html>`;
 }
 
 function renderHeader(settings) {
-  return `<header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-logo-512.png" alt=""></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/services">Services</a><a href="/real-estate">Properties</a><a href="/construction">Construction</a><a href="/portfolio">Portfolio</a><a href="/contact">Contact</a></div></nav></header>`;
+  return `<header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/services">Services</a><a href="/real-estate">Properties</a><a href="/construction">Construction</a><a href="/portfolio">Portfolio</a><a href="/contact">Contact</a></div></nav></header>`;
 }
 
 function renderFooter(settings) {
@@ -173,8 +174,4 @@ function getYouTubeEmbedUrl(value) {
     if (match && match[1]) return `https://www.youtube.com/embed/${match[1].replace(/[^a-zA-Z0-9_-]/g, "")}`;
   }
   return "";
-}
-
-function htmlHeaders() {
-  return { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate" };
 }
