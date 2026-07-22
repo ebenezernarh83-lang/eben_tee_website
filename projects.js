@@ -115,7 +115,7 @@
     if (!item) {
       media.innerHTML = `<div class="project-feature-placeholder">ET</div>`;
       title.textContent = "Project visuals by Eben Tee";
-      summary.textContent = "Publish project media in admin to feature it here.";
+      summary.textContent = "Project media is added as work is cleared for publication. Contact Eben Tee to discuss current work or project documentation.";
       return;
     }
 

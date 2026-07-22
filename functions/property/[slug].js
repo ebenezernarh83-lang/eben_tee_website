@@ -119,20 +119,20 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-12">
+    <link rel="stylesheet" href="/styles.css?v=platform-17">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="property">
     ${renderHeader(settings)}
     <main class="seo-post-page">${body}</main>
     ${renderFooter(settings)}
-    <script src="/analytics.js?v=platform-12"></script>
+    <script src="/analytics.js?v=platform-17"></script>
   </body>
 </html>`;
 }
 
 function renderHeader(settings) {
-  return `<header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/services">Services</a><a href="/real-estate">Properties</a><a href="/construction">Construction</a><a href="/portfolio">Portfolio</a><a href="/contact">Contact</a></div></nav></header>`;
+  return `<header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/real-estate">Properties</a><a href="/digital-products">Software</a><a href="/portfolio">Portfolio</a><a class="button small nav-cta" href="/contact">Hire Eben Tee</a></div></nav></header>`;
 }
 
 function renderFooter(settings) {

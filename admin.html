@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="styles.css?v=platform-12">
+    <link rel="stylesheet" href="styles.css?v=platform-17">
   </head>
   <body data-page="admin">
     <a class="skip-link" href="#adminMain">Skip to admin</a>
@@ -56,7 +56,7 @@
             <p class="eyebrow">Admin studio</p>
             <h1>Manage posts, properties, portfolio, reviews, leads, analytics, and settings</h1>
           </div>
-          <div class="admin-stats" aria-label="Admin statistics">
+          <div class="admin-stats" role="group" aria-label="Admin statistics">
             <span><strong id="adminPublishedCount">0</strong> published</span>
             <span><strong id="adminDraftCount">0</strong> drafts</span>
             <span><strong id="adminFeaturedCount">0</strong> featured</span>
@@ -100,7 +100,7 @@
               <div class="form-grid">
                 <label>
                   Category
-                  <select id="postCategory" name="category" required>
+                  <select id="postCategory" name="category">
                     <option value="video">YouTube video</option>
                     <option value="construction-news">Construction news</option>
                     <option value="building-project">Building project</option>
@@ -110,7 +110,7 @@
                 </label>
                 <label>
                   Status
-                  <select id="postStatus" name="status" required>
+                  <select id="postStatus" name="status">
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
                   </select>
@@ -536,7 +536,7 @@
               </div>
             </div>
 
-            <div class="analytics-summary" aria-label="Visit summary">
+            <div class="analytics-summary" role="group" aria-label="Visit summary">
               <span><strong id="analyticsTotalViews">0</strong> visits</span>
               <span><strong id="analyticsUniqueVisitors">0</strong> visitors</span>
               <span><strong id="analyticsTodayViews">0</strong> today</span>
@@ -756,7 +756,7 @@
       </section>
     </main>
 
-    <script src="data.js?v=platform-12"></script>
-    <script src="admin.js?v=platform-12"></script>
+    <script src="data.js?v=platform-17"></script>
+    <script src="admin.js?v=platform-17"></script>
   </body>
 </html>

@@ -11,9 +11,11 @@
   const pageConfigs = {
     about: {
       eyebrow: "About Eben Tee",
-      title: "A modern Ghanaian entrepreneur connecting media, property, construction, technology, and investment.",
+      title: "A Ghana-based engineer and software developer connecting technology, projects, media, property, and investment.",
       intro:
-        "Ebenezer Tetteh, known professionally as Eben Tee, works across drone media, YouTube storytelling, real estate marketing, construction project support, property management, and digital business tools in Ghana.",
+        "Ebenezer Tetteh, known professionally as Eben Tee, combines engineering thinking, software development, construction project support, drone media, real estate marketing, and digital entrepreneurship in Ghana.",
+      heroImage: "/assets/eben-tee-profile.jpg",
+      heroImageAlt: "Ebenezer Tetteh, professionally known as Eben Tee",
       badge: "INSPIRE. EMPOWER. CREATE IMPACT.",
       actions: [
         ["Explore services", "/services"],
@@ -21,31 +23,32 @@
         ["Watch YouTube", "https://www.youtube.com/@ebentee", "secondary"]
       ],
       stats: [
-        ["Ghana focus", "Diaspora and local clients"],
-        ["Core work", "Media, property, construction"],
+        ["Professional focus", "Engineering and software"],
+        ["Field work", "Projects, media, property"],
         ["Brand values", "Faith, purpose, freedom"]
       ],
       highlights: [
         ["What I help people do", "See opportunities clearly, promote properties professionally, follow building progress remotely, and make better decisions in Ghana."],
         ["Who I serve", "Diaspora buyers, property owners, builders, businesses, developers, Airbnb hosts, young digital learners, and people who follow Ghana's growth."],
-        ["How I work", "I combine drone visuals, clear communication, practical project knowledge, and digital systems so clients receive proof, updates, and direction."]
+        ["How I work", "I combine technical problem-solving, digital systems, visual evidence, and practical project knowledge so clients receive clear work and useful results."]
       ],
       processTitle: "Eben Tee platform areas",
       process: [
-        ["Media", "Drone videos, documentaries, YouTube, video editing, and brand stories."],
-        ["Property", "Land marketing, property tours, buyer support, Airbnb, and management."],
-        ["Projects", "Construction supervision, site reports, progress clips, and documentation."],
-        ["Digital", "Websites, software tools, digital products, and business systems."]
+        ["Engineering", "Structured problem-solving, project thinking, technical coordination, and practical reporting."],
+        ["Software", "Responsive websites, business systems, dashboards, trackers, and digital products."],
+        ["Projects", "Construction supervision support, site reports, progress evidence, and documentation."],
+        ["Media and property", "Drone videos, real estate presentation, documentaries, and Ghana opportunity stories."]
       ],
-      spotlightTitle: "Main brand positioning",
+      spotlightTitle: "See. Build. Grow.",
       spotlightText: "Eben Tee helps people see, invest in, build, manage, and promote opportunities in Ghana.",
-      spotlightList: ["Ghana market knowledge", "Drone and visual proof", "Diaspora-friendly updates", "Real estate and construction experience", "Technology-driven service"]
+      spotlightList: ["Engineering mindset", "Software and digital systems", "Ghana market knowledge", "Drone and visual proof", "Project communication"],
+      dynamic: "profile"
     },
     services: {
       eyebrow: "Eben Tee services",
-      title: "One premium Ghana platform for drone media, property, construction, management, and digital growth.",
+      title: "Engineering, software, construction, media, and property services from one connected Ghana platform.",
       intro:
-        "Choose the service you need, then send a quick enquiry. Eben Tee can support one-off drone shoots, full property marketing, construction progress updates, Airbnb management, media projects, and digital business systems.",
+        "Choose the capability you need, then send a focused enquiry. Eben Tee supports digital systems, project documentation, drone shoots, property marketing, construction updates, media production, and property management.",
       badge: "Premium Ghana services",
       actions: [
         ["Book a service", "/contact"],
@@ -58,12 +61,12 @@
         ["Output", "Clear visuals and practical support"]
       ],
       highlights: [
-        ["Drone Services", "Drone photography, videography, real estate aerial videos, construction progress, site inspections, churches, events, hotels, resorts, and drone training."],
-        ["Media and Content Creation", "YouTube documentaries, Ghana development stories, church and event coverage, real estate promos, editing, channel setup, social content, and brand documentaries."],
-        ["Real Estate and Land Marketing", "Land sales promotion, house and apartment tours, buyer inspections, developer marketing, property sourcing, and investment opportunity presentation."],
+        ["Software Engineering and Digital Systems", "Responsive websites, business systems, dashboards, trackers, APIs, and practical digital tools for Ghanaian businesses."],
         ["Construction and Project Management", "Site supervision, weekly photos and videos, material and labour tracking, cost monitoring, and diaspora progress reports."],
-        ["Property and Airbnb Management", "Guest communication, check-in support, maintenance coordination, booking monitoring, furnished apartment promotion, and income reporting."],
-        ["Digital Products and Software", "Websites, business systems, MoMo agent tools, construction trackers, property trackers, and digital products for Ghanaian businesses."]
+        ["Drone Services", "Drone photography, videography, real estate aerial videos, construction progress, site inspections, events, hotels, resorts, and drone training."],
+        ["Media and Content Creation", "YouTube documentaries, Ghana development stories, event coverage, real estate promos, editing, channel support, and brand documentaries."],
+        ["Real Estate and Land Marketing", "Land promotion, house and apartment tours, buyer inspections, developer marketing, property sourcing, and investment presentation."],
+        ["Property and Airbnb Management", "Guest communication, check-in support, maintenance coordination, booking monitoring, furnished apartment promotion, and income reporting."]
       ],
       processTitle: "How to start",
       process: [
@@ -174,9 +177,9 @@
         ["Monitor", "Capture site photos, videos, progress notes, labour/material details, and issues."],
         ["Report", "Send clear updates for decision making and record keeping."]
       ],
-      spotlightTitle: "Phase 2 client portal",
-      spotlightText: "The website is prepared for a future client portal where diaspora construction clients can log in to see photos, videos, expenses, and reports.",
-      spotlightList: ["Progress updates", "Expense reports", "Photo archive", "Video archive", "Customer dashboard"],
+      spotlightTitle: "Structured remote project reporting",
+      spotlightText: "Construction updates can bring site photos, videos, expenses, progress notes, and decisions into one clear reporting workflow for local and diaspora clients.",
+      spotlightList: ["Progress updates", "Expense records", "Photo archive", "Video evidence", "Decision notes"],
       dynamic: "projects"
     },
     "property-management": {
@@ -241,33 +244,33 @@
         ["Edit", "Shape the video for YouTube, short-form, or business promotion."],
         ["Publish", "Prepare title, thumbnail, description, and sharing assets."]
       ],
-      spotlightTitle: "Next Level GH direction",
-      spotlightText: "The media side can grow into a Ghana-focused channel for opportunities, investment, places, projects, tourism, and digital learning.",
+      spotlightTitle: "Ghana stories with useful context",
+      spotlightText: "The media work connects opportunities, investment, places, projects, tourism, and digital learning through clear Ghana-focused storytelling.",
       spotlightList: ["Ghana development", "Infrastructure", "Real estate", "Tourism", "Digital skills"],
       dynamic: "media"
     },
     "digital-products": {
-      eyebrow: "Digital products and software",
-      title: "Websites, business systems, MoMo agent tools, trackers, and digital products for Ghanaian businesses.",
+      eyebrow: "Software engineering and digital systems",
+      title: "Responsive websites, serverless platforms, business systems, trackers, and digital products built around real work.",
       intro:
-        "Eben Tee also builds and promotes digital tools that help small businesses, construction clients, property owners, and young people work smarter online.",
-      badge: "Digital entrepreneur",
+        "Eben Tee develops practical digital experiences that help businesses publish, capture enquiries, manage information, monitor activity, and turn manual workflows into clearer systems.",
+      badge: "Engineer and software developer",
       actions: [
-        ["Request a system", "/contact"],
-        ["Buy ebook", "/book", "secondary"],
-        ["Discuss software", "/contact", "secondary"]
+        ["Discuss a software project", "/contact"],
+        ["View live case study", "#softwareCaseStudy", "secondary"],
+        ["Buy ebook", "/book", "secondary"]
       ],
       stats: [
-        ["Tools", "Websites and trackers"],
-        ["Products", "Ebooks and training"],
-        ["Audience", "Ghanaian businesses and learners"]
+        ["Frontend", "Responsive web interfaces"],
+        ["Backend", "Serverless APIs and data"],
+        ["Delivery", "SEO, analytics, deployment"]
       ],
       highlights: [
-        ["Website development", "Modern websites for brands, properties, services, ebooks, and business platforms."],
-        ["Business management systems", "Simple tools for tracking customers, jobs, sales, expenses, and reports."],
-        ["MoMo agent management software", "Tools for transaction tracking, cash flow, agent operations, and daily records."],
-        ["Construction and property trackers", "Project progress, expenses, materials, property income, and task records."],
-        ["Digital products", "Ebooks, guides, online income education, drone learning, and practical digital skills."]
+        ["Responsive frontend development", "Accessible, mobile-ready websites and web applications with clear information architecture and JavaScript interactions."],
+        ["Serverless applications and APIs", "Content, leads, analytics, authentication, and business data connected through practical backend services."],
+        ["Business systems and dashboards", "Tools for tracking customers, jobs, sales, expenses, reports, MoMo operations, properties, and projects."],
+        ["Content and publishing platforms", "Content-managed posts, media, properties, project updates, testimonials, and search-friendly detail pages."],
+        ["Digital products", "Ebooks, guides, checkout pages, training experiences, and online business tools."]
       ],
       processTitle: "Digital project flow",
       process: [
@@ -276,9 +279,10 @@
         ["Build", "Create the website, tracker, dashboard, or product page."],
         ["Launch", "Publish, test, train, and improve based on real use."]
       ],
-      spotlightTitle: "Available digital product",
-      spotlightText: "The African Online Income Blueprint is available through the ebook page and Selar checkout.",
-      spotlightList: ["Online income guide", "90-day plan", "Skill building", "Digital services", "Ethical opportunities"]
+      spotlightTitle: "Built around real business work",
+      spotlightText: "The strongest software starts with the real workflow: who uses it, what they need to record, and which decision the system should make easier.",
+      spotlightList: ["Problem definition", "Responsive interfaces", "Data workflows", "Analytics", "Production deployment"],
+      dynamic: "software"
     },
     portfolio: {
       eyebrow: "Featured work and portfolio",
@@ -336,12 +340,12 @@
         ["Construction updates", "Building progress, site documentation, material tracking, and diaspora project lessons."],
         ["Digital business", "Online income, software, websites, drones, media, and practical technology ideas."]
       ],
-      processTitle: "Use the admin blog",
+      processTitle: "How to use Eben Tee insights",
       process: [
-        ["Create post", "Add title, category, summary, body, cover, and tags."],
-        ["Attach video", "Paste a YouTube link to use the video thumbnail automatically."],
-        ["Publish", "Set status to published when ready."],
-        ["Rank over time", "Keep posts useful, specific, and connected to real Ghana searches."]
+        ["Discover", "Browse current Ghana development, property, construction, media, and digital-business topics."],
+        ["Understand", "Use the photos, videos, location context, and practical notes to understand what is changing."],
+        ["Follow", "Open related videos and project pages for deeper visual evidence and continued updates."],
+        ["Enquire", "Contact Eben Tee when an update connects with a property, project, media, or software need."]
       ],
       spotlightTitle: "Search-friendly content direction",
       spotlightText: "Posts should answer real searches like drone services in Ghana, land inspection for diaspora buyers, construction supervision in Ghana, or Airbnb management in Accra.",
@@ -350,9 +354,9 @@
     },
     contact: {
       eyebrow: "Contact / Book a Service",
-      title: "Book a drone shoot, request a site visit, list property, start a project, or ask for a quote.",
+      title: "Discuss a software system, engineering collaboration, site visit, drone shoot, property need, or media project.",
       intro:
-        "Tell Eben Tee what you need, where it is located, and how quickly you want support. The form can start WhatsApp or email so the conversation continues fast.",
+        "Tell Eben Tee what problem you need to solve, where the work is located, your timeline, and the result you want. The enquiry is saved securely for a direct follow-up.",
       badge: "Fast enquiry",
       actions: [
         ["Chat on WhatsApp", "#contactFormPanel"],
@@ -360,8 +364,8 @@
         ["Request quote", "#contactFormPanel", "secondary"]
       ],
       stats: [
-        ["Services", "Drone, property, building"],
-        ["Response", "WhatsApp-first"],
+        ["Services", "Software, projects, media"],
+        ["Response", "Direct enquiry"],
         ["Clients", "Local and diaspora"]
       ],
       highlights: [
@@ -378,7 +382,7 @@
         ["Message and photos", "Add the important details and share images after WhatsApp opens."]
       ],
       spotlightTitle: "Ready to talk?",
-      spotlightText: "Use the form below to prepare a clear message. If WhatsApp is connected in the admin settings, it will open with your enquiry.",
+      spotlightText: "Use the form below to send a clear project message with your preferred service, location, contact details, and timeline.",
       spotlightList: ["Book now", "Request quote", "Site visit", "Property enquiry", "Drone shoot"],
       dynamic: "contact"
     },
@@ -387,7 +391,7 @@
       title: "Book a drone shoot, site visit, property inspection, or digital project with clear next steps.",
       intro:
         "Use the booking page to prepare the details Eben Tee needs before quoting: service, location, date, deliverables, project stage, and contact details.",
-      badge: "Booking foundation",
+      badge: "Direct booking",
       actions: [
         ["Start booking", "#contactFormPanel"],
         ["Chat on WhatsApp", "#contactFormPanel", "secondary"],
@@ -396,7 +400,7 @@
       stats: [
         ["Booking types", "Drone, property, site visits"],
         ["Flow", "Enquiry, quote, schedule"],
-        ["Next phase", "Payments and calendars"]
+        ["Confirmation", "Direct scope and scheduling"]
       ],
       highlights: [
         ["Drone shoot booking", "Share location, date, purpose, shot list, and desired output for real estate, construction, events, or business promotion."],
@@ -411,9 +415,9 @@
         ["Receive quote", "You get a practical quote and next step."],
         ["Schedule work", "The job is planned and tracked for delivery."]
       ],
-      spotlightTitle: "Prepared for payments",
-      spotlightText: "This page is ready for future payment links, booking calendars, drone training registration, and client dashboards.",
-      spotlightList: ["Quote request", "Payment link ready", "Calendar ready", "Client portal ready"],
+      spotlightTitle: "A clear brief creates a better quote",
+      spotlightText: "Share the location, timing, access, deliverables, and intended use so the scope and quotation reflect the real job.",
+      spotlightList: ["Clear scope", "Practical quote", "Agreed schedule", "Defined deliverables"],
       dynamic: "contact"
     },
     brochures: {
@@ -430,7 +434,7 @@
       stats: [
         ["Packages", "Drone, property, construction"],
         ["Audience", "Diaspora and Ghana clients"],
-        ["Next phase", "PDF downloads"]
+        ["Format", "Tailored project scopes"]
       ],
       highlights: [
         ["Drone media package", "Aerial photos, edited video, social clips, project walkthrough, and YouTube-ready output."],
@@ -450,10 +454,10 @@
       spotlightList: ["Drone media", "Property marketing", "Construction updates", "Digital services"]
     },
     "client-portal": {
-      eyebrow: "Client service desk",
+      eyebrow: "Private client reporting",
       title: "Clear reporting for diaspora clients building, investing, or managing property in Ghana.",
       intro:
-        "Eben Tee currently provides project communication through direct reports, photos, videos, documents, email, and WhatsApp while a secure private dashboard is prepared.",
+        "Eben Tee provides project communication through private reports, photos, videos, documents, email, and WhatsApp, with the reporting format agreed for each engagement.",
       badge: "Diaspora client support",
       actions: [
         ["Request project updates", "/booking"],
@@ -466,10 +470,10 @@
         ["Best for", "Diaspora clients"]
       ],
       highlights: [
-        ["Progress timeline", "A private view of construction stage updates, photos, and video walkthroughs."],
+        ["Progress timeline", "Construction stage updates supported by dated photos, notes, and video walkthroughs."],
         ["Expense and material notes", "Simple records of materials, labour activity, and key site observations."],
-        ["Report archive", "Weekly or monthly updates stored in one place for owners abroad."],
-        ["Customer dashboard", "Future login for active projects, property management, and digital service clients."]
+        ["Report archive", "Weekly or monthly reports organized for owners and decision makers abroad."],
+        ["Decision follow-up", "Questions, observations, and agreed next actions carried into the following report."]
       ],
       processTitle: "Current client reporting flow",
       process: [
@@ -478,52 +482,70 @@
         ["Client update", "Send a clear summary through the client's preferred private channel."],
         ["Follow-up", "Record questions, decisions, issues, and the next scheduled update."]
       ],
-      spotlightTitle: "Private client access is being built carefully",
-      spotlightText: "Until secure authentication and protected storage are complete, sensitive client records stay out of the public website and are shared directly.",
-      spotlightList: ["Private reporting", "Progress records", "Client communication", "Secure access planned"]
+      spotlightTitle: "Project information stays private",
+      spotlightText: "Sensitive client records are kept away from public pages and shared only through the private communication channel agreed for the work.",
+      spotlightList: ["Private reporting", "Progress records", "Client communication", "Controlled sharing"]
     },
     "business-profile": {
-      eyebrow: "Google Business Profile checklist",
-      title: "Make Eben Tee easier to find for Ghana drone, real estate, construction, and property services.",
+      eyebrow: "Eben Tee professional profile",
+      title: "One Ghana-based professional connecting engineering, software, projects, property, and visual media.",
       intro:
-        "Use this checklist to set up and maintain the public business presence that supports Google Search and Maps discovery.",
-      badge: "Local search foundation",
+        "Eben Tee helps clients and organizations understand opportunities, build practical digital systems, document field work, and communicate progress clearly.",
+      badge: "Ghana-based, internationally minded",
       actions: [
-        ["Open contact page", "/contact"],
-        ["View SEO updates", "/blog", "secondary"],
-        ["Book service", "/booking", "secondary"]
+        ["Hire Eben Tee", "/contact"],
+        ["View software work", "/digital-products", "secondary"],
+        ["Open portfolio", "/portfolio", "secondary"]
       ],
       stats: [
-        ["Goal", "Search and Maps trust"],
-        ["Focus", "Services and location"],
-        ["Ongoing", "Photos, posts, reviews"]
+        ["Base", "Ghana"],
+        ["Focus", "Technology and projects"],
+        ["Audience", "Local and diaspora clients"]
       ],
       highlights: [
-        ["Business identity", "Use Eben Tee, the official logo, accurate phone, WhatsApp, website, and Accra/Ghana service area."],
-        ["Service categories", "Add drone photography, videography, real estate marketing, construction support, property management, and web services where available."],
-        ["Photos and videos", "Upload real drone work, project visuals, property tours, and branded images regularly."],
-        ["Reviews", "Ask real clients to review the service after drone shoots, property support, site updates, or Airbnb management."]
+        ["Engineering and software", "Responsive websites, business systems, serverless services, dashboards, trackers, and practical digital products."],
+        ["Construction and projects", "Site documentation, structured progress reporting, coordination support, and clear evidence for decision makers."],
+        ["Drone and media", "Aerial photography, videography, editing, property tours, project coverage, and Ghana development storytelling."],
+        ["Property services", "Property media, buyer context, listing support, inspections, and management coordination for local and diaspora clients."]
       ],
-      processTitle: "Monthly local SEO routine",
+      processTitle: "How Eben Tee works",
       process: [
-        ["Post update", "Share a new project, property, video, or service note."],
-        ["Add media", "Upload fresh photos or video thumbnails."],
-        ["Request reviews", "Ask satisfied clients for honest feedback."],
-        ["Check accuracy", "Confirm phone, website, hours, and service areas."]
+        ["Understand", "Clarify the problem, audience, location, timeline, and desired outcome."],
+        ["Plan", "Define the practical scope, information, media, technology, and communication needed."],
+        ["Deliver", "Build, document, coordinate, or produce the agreed work with clear checkpoints."],
+        ["Report", "Share the result, evidence, decisions, and next action in a useful format."]
       ],
-      spotlightTitle: "Google decides when changes appear",
-      spotlightText: "The website can be optimized, but Google Search and favicon updates depend on crawling, indexing, and Search Console follow-up.",
-      spotlightList: ["Submit sitemap", "Inspect URLs", "Use stable favicon", "Publish useful content"]
+      spotlightTitle: "Technical thinking with visible proof",
+      spotlightText: "Clients can review live software, published project updates, property media, drone work, and service workflows before starting a conversation.",
+      spotlightList: ["Live digital platform", "Field documentation", "Visual portfolio", "Direct enquiry"]
     }
   };
 
+  const documentTitles = {
+    about: "About Eben Tee",
+    services: "Professional Services",
+    "drone-services": "Drone Services in Ghana",
+    "real-estate": "Real Estate and Properties in Ghana",
+    construction: "Construction and Site Supervision",
+    "property-management": "Property and Airbnb Management",
+    media: "Media and YouTube",
+    "digital-products": "Software Engineering and Digital Systems",
+    portfolio: "Portfolio",
+    blog: "Blog and Ghana Updates",
+    contact: "Contact and Hire Eben Tee",
+    booking: "Book a Service",
+    brochures: "Service Brochures",
+    "client-portal": "Private Client Reporting",
+    "business-profile": "Professional Profile"
+  };
+
   const serviceLinks = [
-    ["Drone Services", "/drone-services"],
-    ["Real Estate and Properties", "/real-estate"],
+    ["Software Engineering", "/digital-products"],
     ["Construction Supervision", "/construction"],
-    ["Property / Airbnb Management", "/property-management"],
+    ["Drone Services", "/drone-services"],
     ["Media / YouTube", "/media"],
-    ["Digital Products", "/digital-products"]
+    ["Real Estate and Properties", "/real-estate"],
+    ["Property / Airbnb Management", "/property-management"]
   ];
 
   const proofBlocks = {
@@ -553,14 +575,14 @@
       ["Multi-platform output", "One shoot can produce YouTube video, TikTok/Reels clips, Facebook posts, and website proof."]
     ],
     "digital-products": [
-      ["Practical systems", "Websites and trackers focus on the daily work Ghanaian businesses actually need to record."],
-      ["Digital product path", "Ebooks, templates, training pages, and simple checkout links can be added as offers grow."],
-      ["Business automation", "MoMo, property, expense, construction, and client trackers can become Phase 2 tools."]
+      ["Practical systems", "Websites and applications focus on the daily work people actually need to complete and understand."],
+      ["Connected workflow", "Frontend, content, data, leads, analytics, and publishing work together instead of becoming isolated tools."],
+      ["Production delivery", "SEO, accessibility, responsive behavior, deployment, and ongoing content operations are considered as part of the system."]
     ],
     services: [
       ["Combined service packages", "Drone footage, property listing, site visit, and digital reporting can work together."],
-      ["WhatsApp-first enquiry", "Every service has a clear call-to-action for quick client conversation."],
-      ["Professional proof", "Portfolio, testimonials, maps, project pages, and blog updates support trust."]
+      ["Direct enquiry", "Every service has a clear route for a focused client conversation."],
+      ["Professional proof", "Portfolio media, maps, project pages, and published updates support trust."]
     ]
   };
 
@@ -640,6 +662,9 @@
       node.href = settings.phone ? `tel:${settings.phone}` : "/contact";
       node.classList.toggle("is-hidden-contact", !settings.phone);
     });
+
+    const hasDirectContact = Boolean(String(settings.whatsapp || "").replace(/\D/g, "") || settings.phone);
+    $$(".floating-cta").forEach((node) => node.classList.toggle("is-hidden-contact", !hasDirectContact));
   }
 
   function renderPage() {
@@ -648,7 +673,7 @@
     const main = $("#platformPageMain");
     if (!main) return;
 
-    document.title = `${config.title.split(".")[0]} | ${settings.brandName || "Eben Tee"}`;
+    document.title = `${documentTitles[page] || config.eyebrow} | ${settings.brandName || "Eben Tee"}`;
     main.innerHTML = `
       <section class="platform-page-hero">
         <div class="platform-page-copy">
@@ -661,8 +686,8 @@
           </div>
           <div class="hero-actions">${renderActions(config.actions)}</div>
         </div>
-        <aside class="platform-page-card">
-          <img src="/assets/eben-tee-logo-512.png" alt="Eben Tee logo">
+        <aside class="platform-page-card${config.heroImage ? " is-profile" : ""}">
+          <img src="${store.escapeHtml(config.heroImage || "/assets/eben-tee-logo-512.png")}" alt="${store.escapeHtml(config.heroImageAlt || "Eben Tee logo")}">
           <div>
             <span>${store.escapeHtml(settings.ownerName || "Ebenezer Tetteh")}</span>
             <strong>${store.escapeHtml(config.spotlightTitle)}</strong>
@@ -766,7 +791,9 @@
       .filter((item) => {
         const category = String(item.serviceCategory || item.role || "").toLowerCase();
         const title = String(config.eyebrow || "").toLowerCase();
-        return category && title.split(/\W+/).some((word) => word.length > 4 && category.includes(word));
+        const name = String(item.name || "").trim();
+        const genericName = /^(diaspora building client|real estate seller|ghana development viewer|short-stay owner)$/i.test(name);
+        return !genericName && category && title.split(/\W+/).some((word) => word.length > 4 && category.includes(word));
       })
       .slice(0, 2);
 
@@ -774,7 +801,7 @@
       <section class="platform-proof-section">
         <div>
           <p class="eyebrow">Proof and trust</p>
-          <h2>Professional details clients expect before they book.</h2>
+          <h2>Clear scope, practical delivery, and professional communication.</h2>
         </div>
         <div class="platform-proof-grid">
           ${blocks
@@ -833,6 +860,16 @@
       return;
     }
 
+    if (type === "software") {
+      renderSoftwarePanel(panel);
+      return;
+    }
+
+    if (type === "profile") {
+      renderProfilePanel(panel);
+      return;
+    }
+
     panel.innerHTML = `
       <div class="section-heading">
         <div>
@@ -853,6 +890,58 @@
             `
           )
           .join("")}
+      </div>
+    `;
+  }
+
+  function renderSoftwarePanel(panel) {
+    panel.innerHTML = `
+      <div class="software-case-study">
+        <div class="software-case-intro">
+          <p class="eyebrow">Live platform case study</p>
+          <h2>Eben Tee business and content platform</h2>
+          <p>A production platform that connects public services, visual content, properties, project updates, enquiries, analytics, and administration in one responsive experience.</p>
+          <div class="hero-actions">
+            <a class="button" href="/">View live platform</a>
+            <a class="button secondary" href="/contact">Discuss a similar system</a>
+          </div>
+        </div>
+        <div class="software-case-details">
+          <article><span>01</span><strong>Responsive frontend</strong><p>Accessible navigation, responsive layouts, filters, media galleries, forms, dialogs, and content-rich service pages built with HTML, CSS, and JavaScript.</p></article>
+          <article><span>02</span><strong>Serverless content platform</strong><p>Secure administration, persistent content, public APIs, lead capture, media handling, clean detail routes, and structured publishing workflows.</p></article>
+          <article><span>03</span><strong>Business operations</strong><p>Properties, projects, portfolio media, posts, testimonials, enquiries, source attribution, and first-party analytics managed from one system.</p></article>
+          <article><span>04</span><strong>Production delivery</strong><p>Search metadata, structured data, sitemap generation, security headers, cache-aware assets, responsive behavior, and Cloudflare deployment.</p></article>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderProfilePanel(panel) {
+    panel.innerHTML = `
+      <div class="professional-profile-panel">
+        <div class="professional-profile-intro">
+          <p class="eyebrow">Professional evidence</p>
+          <h2>What employers, partners, and clients can review here</h2>
+          <p>This profile is grounded in visible work. Explore the live software platform, published project and property pages, visual media, and the service workflows used to turn enquiries into clear deliverables.</p>
+          <div class="hero-actions">
+            <a class="button" href="/digital-products">Review software work</a>
+            <a class="button secondary" href="/portfolio">View field portfolio</a>
+          </div>
+        </div>
+        <div class="professional-evidence-grid">
+          <article><span>01</span><strong>Software delivery</strong><p>Responsive HTML, CSS, and JavaScript interfaces connected to serverless APIs, content operations, analytics, and production deployment.</p></article>
+          <article><span>02</span><strong>Engineering approach</strong><p>Problem definition, structured planning, practical systems, clear documentation, testing, and evidence-led decision support.</p></article>
+          <article><span>03</span><strong>Project communication</strong><p>Construction progress records, site visuals, property context, reporting, and communication for Ghana-based and diaspora stakeholders.</p></article>
+          <article><span>04</span><strong>Media capability</strong><p>Drone operations, videography, editing, YouTube storytelling, property tours, and visual documentation of Ghana's development.</p></article>
+        </div>
+      </div>
+      <div class="professional-engagements">
+        <div>
+          <p class="eyebrow">Employment and collaboration</p>
+          <h2>Discuss an engineering, software, project, media, or business role.</h2>
+        </div>
+        <p>Share the organization, role or project, location, expected outcome, timeline, and the best way to respond. The conversation starts with the work that needs to be done.</p>
+        <a class="button" href="/contact">Start a professional conversation</a>
       </div>
     `;
   }
@@ -943,7 +1032,7 @@
         ${
           items.length
             ? items.map(renderPortfolioCard).join("")
-            : `<p class="empty-state">New client work is being prepared. Contact Eben Tee to discuss your own project coverage.</p>`
+            : `<p class="empty-state">Portfolio updates are added as work is cleared for publication. Contact Eben Tee to discuss your project coverage.</p>`
         }
       </div>
     `;
@@ -974,7 +1063,7 @@
           <h2>Posts, Ghana news, project updates, and service notes</h2>
         </div>
       </div>
-      <div class="post-grid" id="blogPosts">
+      <div class="post-grid" id="blogPostsGrid">
         ${posts.length ? posts.map(renderPostCard).join("") : `<p class="empty-state">No posts published yet.</p>`}
       </div>
     `;
@@ -1142,6 +1231,7 @@
     if (dynamic === "properties") return "propertyListings";
     if (dynamic === "media") return "videoStories";
     if (dynamic === "blog") return "blogPosts";
+    if (dynamic === "software") return "softwareCaseStudy";
     return "pageDetails";
   }
 })();

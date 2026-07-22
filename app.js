@@ -15,15 +15,27 @@
 
   const serviceCards = [
     {
+      title: "Software Engineering and Digital Systems",
+      href: "/digital-products",
+      summary: "Responsive websites, business systems, trackers, dashboards, APIs, and practical digital tools.",
+      cta: "Explore software work"
+    },
+    {
+      title: "Construction and Project Management",
+      href: "/construction",
+      summary: "Site supervision, weekly visual updates, labour and material tracking, cost monitoring, and diaspora progress reports.",
+      cta: "Request site visit"
+    },
+    {
       title: "Drone Services",
       href: "/drone-services",
-      summary: "Drone photography, videography, land inspections, construction progress updates, churches, events, hotels, resorts, and drone training.",
+      summary: "Drone photography, videography, land inspections, construction progress updates, events, tourism, and promotion.",
       cta: "Book a drone shoot"
     },
     {
       title: "Media and Content Creation",
       href: "/media",
-      summary: "YouTube documentaries, Ghana development videos, church and event coverage, real estate promos, editing, channel setup, and brand storytelling.",
+      summary: "YouTube documentaries, Ghana development videos, event coverage, editing, channel support, and brand storytelling.",
       cta: "Start media project"
     },
     {
@@ -33,22 +45,10 @@
       cta: "Find property"
     },
     {
-      title: "Construction and Project Management",
-      href: "/construction",
-      summary: "Site supervision, weekly visual updates, labour and material tracking, cost monitoring, and diaspora progress reports.",
-      cta: "Request site visit"
-    },
-    {
       title: "Property and Airbnb Management",
       href: "/property-management",
       summary: "Guest communication, check-in support, maintenance coordination, booking monitoring, and short-stay promotion.",
-      cta: "Manage my Airbnb"
-    },
-    {
-      title: "Digital Products and Software",
-      href: "/digital-products",
-      summary: "Websites, business systems, MoMo agent software, construction trackers, property tools, and digital products.",
-      cta: "Build a system"
+      cta: "Manage my property"
     }
   ];
 
@@ -245,7 +245,7 @@
   }
 
   function renderSettings() {
-    document.title = `${settings.brandName} | Ghana Real Estate, Drone, Construction, and Digital Services`;
+    document.title = `${settings.brandName} | Engineer, Software Developer, and Ghana Project Professional`;
 
     $$("[data-setting]").forEach((node) => {
       const key = node.dataset.setting;
@@ -282,6 +282,9 @@
       node.href = settings.phone ? `tel:${settings.phone}` : "#contact";
       node.classList.toggle("is-hidden-contact", !settings.phone);
     });
+
+    const hasDirectContact = Boolean(String(settings.whatsapp || "").replace(/\D/g, "") || settings.phone);
+    $$(".floating-cta").forEach((node) => node.classList.toggle("is-hidden-contact", !hasDirectContact));
 
     $$("[data-brand-initials]").forEach((node) => {
       node.textContent = getInitials(settings.brandName);
@@ -358,13 +361,13 @@
     hero.innerHTML = `
       <a class="tour-device" href="${store.escapeHtml(store.postUrl(feature))}" aria-label="Read featured update">
         <span class="tour-topline">
-          <span>Live project</span>
-          <strong>4K Tour</strong>
+          <span>Featured field work</span>
+          <strong>Project view</strong>
         </span>
         <span class="tour-title">${store.escapeHtml(feature.location || "Accra Skyline")}</span>
         <span class="tour-screen">
           <img src="${store.escapeHtml(feature.coverImage)}" alt="${store.escapeHtml(feature.title)}" decoding="async">
-          <span class="tour-caption">You know how we do am</span>
+          <span class="tour-caption">Clear proof. Better decisions.</span>
           <span class="skyline-bars" aria-hidden="true">
             <span></span>
             <span></span>
@@ -372,9 +375,9 @@
           </span>
         </span>
         <span class="tour-metrics" aria-hidden="true">
-          <span><strong>${posts.length * 30}+</strong><small>Videos</small></span>
-          <span><strong>4K</strong><small>Quality</small></span>
-          <span><strong>GH</strong><small>Stories</small></span>
+          <span><strong>${posts.length}</strong><small>Updates</small></span>
+          <span><strong>${portfolio.length}</strong><small>Portfolio</small></span>
+          <span><strong>${properties.length}</strong><small>Properties</small></span>
         </span>
       </a>
       <div class="tour-note">
@@ -552,7 +555,7 @@
     setText("#portfolioCount", `${portfolio.length} media items`);
 
     if (!items.length || !featured) {
-      shell.innerHTML = `<p class="empty-state">New client work is being prepared. Contact Eben Tee to discuss your own project coverage.</p>`;
+      shell.innerHTML = `<p class="empty-state">Portfolio updates are added as work is cleared for publication. Contact Eben Tee to discuss your project coverage.</p>`;
       grid.innerHTML = "";
       return;
     }

@@ -25,7 +25,7 @@ export async function onRequestGet({ env, params }) {
 }
 
 function renderProject(post, settings) {
-  const title = `${post.title} | ${settings.brandName}`;
+  const title = `${post.title} | Project Update | ${settings.brandName}`;
   const description = plainText(post.summary || post.body || settings.tagline, 300);
   const canonical = absoluteProjectUrl(post);
   const socialImage = isShareableImage(post.coverImage) ? post.coverImage : BRAND_LOGO_URL;
@@ -74,11 +74,11 @@ function renderProject(post, settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-12">
+    <link rel="stylesheet" href="/styles.css?v=platform-17">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="project">
-    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/projects">Projects</a><a href="/construction">Construction</a><a href="/drone-services">Drone</a><a href="/contact">Contact</a></div></nav></header>
+    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/construction">Construction</a><a href="/digital-products">Software</a><a href="/portfolio">Portfolio</a><a class="button small nav-cta" href="/contact">Hire Eben Tee</a></div></nav></header>
     <main class="seo-post-page">
       <article class="seo-post-shell">
         <a class="text-link" href="/projects">Back to projects</a>
@@ -103,13 +103,13 @@ function renderProject(post, settings) {
       </aside>
     </main>
     <footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}</div></footer>
-    <script src="/analytics.js?v=platform-12"></script>
+    <script src="/analytics.js?v=platform-17"></script>
   </body>
 </html>`;
 }
 
 function renderNotFound(settings) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Project not found | ${escapeHtml(settings.brandName)}</title><link rel="stylesheet" href="/styles.css?v=platform-12"></head><body data-page="public"><main class="seo-post-page"><article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This project update is not available</h1><a class="button" href="/projects">Open projects</a></article></main></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Project not found | ${escapeHtml(settings.brandName)}</title><link rel="stylesheet" href="/styles.css?v=platform-17"></head><body data-page="public"><main class="seo-post-page"><article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This project update is not available</h1><a class="button" href="/projects">Open projects</a></article></main></body></html>`;
 }
 
 function renderMedia(post) {

@@ -41,7 +41,7 @@ const defaultSettings = {
   ownerName: "Ebenezer Tetteh",
   tagline: "INSPIRE. EMPOWER. CREATE IMPACT.",
   about:
-    "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur, drone pilot, videographer, YouTuber, construction project manager, real estate marketer, property manager, and software/digital entrepreneur. I help people see, invest in, build, manage, and promote opportunities in Ghana with clear visual documentation and professional support.",
+    "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based engineer, software developer, entrepreneur, drone pilot, videographer, construction project manager, real estate marketer, and property manager. I combine technical thinking, digital systems, visual documentation, and practical project support to help people build, invest, communicate, and make better decisions in Ghana.",
   location: "Accra, Ghana",
   email: "ebenteeentertainment@gmail.com",
   youtube: "https://www.youtube.com/@ebentee",
@@ -50,12 +50,12 @@ const defaultSettings = {
   tiktok: "",
   x: "",
   services: [
+    "Software engineering, responsive websites, business systems, dashboards, APIs, and digital products",
+    "Construction supervision, progress reporting, materials tracking, and diaspora updates",
     "Drone photography, videography, inspections, event coverage, and drone training",
     "Media production, YouTube documentaries, editing, and social content for Ghana brands",
     "Land, house, apartment, and real estate marketing for buyers and developers",
-    "Construction supervision, progress reporting, materials tracking, and diaspora updates",
-    "Airbnb, short-stay, furnished apartment, and property management support",
-    "Websites, business systems, MoMo agent software, and digital products for Ghanaian businesses"
+    "Airbnb, short-stay, furnished apartment, and property management support"
   ]
 };
 
@@ -343,7 +343,8 @@ function migrateSettings(settings) {
   if (
     !migrated.about ||
     String(migrated.about).startsWith("Eben Tee documents Ghana's beauty") ||
-    String(migrated.about).startsWith("Eben Tee is built around visual stories")
+    String(migrated.about).startsWith("Eben Tee is built around visual stories") ||
+    String(migrated.about).startsWith("I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based entrepreneur")
   ) {
     migrated.about = defaultSettings.about;
   }
