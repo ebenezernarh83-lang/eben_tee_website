@@ -119,14 +119,14 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-17">
+    <link rel="stylesheet" href="/styles.css?v=platform-18">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="property">
     ${renderHeader(settings)}
     <main class="seo-post-page">${body}</main>
     ${renderFooter(settings)}
-    <script src="/analytics.js?v=platform-17"></script>
+    <script src="/analytics.js?v=platform-18"></script>
   </body>
 </html>`;
 }
@@ -136,7 +136,7 @@ function renderHeader(settings) {
 }
 
 function renderFooter(settings) {
-  return `<footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}</div></footer>`;
+  return `<footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}${settings.github ? `<a href="${escapeHtml(settings.github)}" target="_blank" rel="noreferrer">GitHub</a>` : ""}</div></footer>`;
 }
 
 function renderMedia(property) {

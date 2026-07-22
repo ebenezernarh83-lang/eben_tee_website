@@ -64,6 +64,7 @@
     youtube: "https://www.youtube.com/@ebentee",
     facebook: "https://www.facebook.com/ebentee83/",
     instagram: "https://www.instagram.com/ebentee_yt/",
+    github: "https://github.com/ebenezernarh83-lang",
     tiktok: "",
     x: "",
     services: [
@@ -800,6 +801,10 @@
       migrated.instagram = defaultSettings.instagram;
     }
 
+    if (!migrated.github) {
+      migrated.github = defaultSettings.github;
+    }
+
     return {
       ...defaultSettings,
       ...migrated,
@@ -862,6 +867,10 @@
 
     if (!migrated.instagram) {
       migrated.instagram = defaultSettings.instagram;
+    }
+
+    if (!migrated.github) {
+      migrated.github = defaultSettings.github;
     }
 
     if (!Array.isArray(migrated.services) || migrated.services.length < 6) {

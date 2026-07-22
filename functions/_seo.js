@@ -47,6 +47,7 @@ const defaultSettings = {
   youtube: "https://www.youtube.com/@ebentee",
   facebook: "https://www.facebook.com/ebentee83/",
   instagram: "https://www.instagram.com/ebentee_yt/",
+  github: "https://github.com/ebenezernarh83-lang",
   tiktok: "",
   x: "",
   services: [
@@ -317,6 +318,7 @@ function normalizeSettings(settings) {
     youtube: cleanUrl(migrated.youtube || defaultSettings.youtube),
     facebook: cleanUrl(migrated.facebook || defaultSettings.facebook),
     instagram: cleanUrl(migrated.instagram || defaultSettings.instagram),
+    github: cleanUrl(migrated.github || defaultSettings.github),
     tiktok: cleanUrl(migrated.tiktok || defaultSettings.tiktok),
     x: cleanUrl(migrated.x || defaultSettings.x),
     services: Array.isArray(migrated.services)
@@ -358,6 +360,7 @@ function migrateSettings(settings) {
   if (!migrated.youtube) migrated.youtube = defaultSettings.youtube;
   if (!migrated.facebook) migrated.facebook = defaultSettings.facebook;
   if (!migrated.instagram) migrated.instagram = defaultSettings.instagram;
+  if (!migrated.github) migrated.github = defaultSettings.github;
 
   return migrated;
 }

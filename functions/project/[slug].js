@@ -74,7 +74,7 @@ function renderProject(post, settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-17">
+    <link rel="stylesheet" href="/styles.css?v=platform-18">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="project">
@@ -102,14 +102,14 @@ function renderProject(post, settings) {
         <a class="button" href="/contact?service=construction">Request a site visit</a>
       </aside>
     </main>
-    <footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}</div></footer>
-    <script src="/analytics.js?v=platform-17"></script>
+    <footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}${settings.github ? `<a href="${escapeHtml(settings.github)}" target="_blank" rel="noreferrer">GitHub</a>` : ""}</div></footer>
+    <script src="/analytics.js?v=platform-18"></script>
   </body>
 </html>`;
 }
 
 function renderNotFound(settings) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Project not found | ${escapeHtml(settings.brandName)}</title><link rel="stylesheet" href="/styles.css?v=platform-17"></head><body data-page="public"><main class="seo-post-page"><article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This project update is not available</h1><a class="button" href="/projects">Open projects</a></article></main></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Project not found | ${escapeHtml(settings.brandName)}</title><link rel="stylesheet" href="/styles.css?v=platform-18"></head><body data-page="public"><main class="seo-post-page"><article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This project update is not available</h1><a class="button" href="/projects">Open projects</a></article></main></body></html>`;
 }
 
 function renderMedia(post) {

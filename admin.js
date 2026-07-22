@@ -840,6 +840,7 @@
       youtube: String(formData.get("youtube") || ""),
       facebook: String(formData.get("facebook") || ""),
       instagram: String(formData.get("instagram") || ""),
+      github: String(formData.get("github") || ""),
       tiktok: String(formData.get("tiktok") || ""),
       x: String(formData.get("x") || ""),
       services: String(formData.get("services") || "")
@@ -867,6 +868,7 @@
     $("#settingYoutube").value = settings.youtube;
     $("#settingFacebook").value = settings.facebook;
     $("#settingInstagram").value = settings.instagram;
+    $("#settingGithub").value = settings.github || "";
     $("#settingTiktok").value = settings.tiktok;
     $("#settingX").value = settings.x || "";
     $("#settingServices").value = settings.services.join("\n");

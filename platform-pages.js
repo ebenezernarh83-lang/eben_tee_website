@@ -633,6 +633,7 @@
         ["YouTube", settings.youtube],
         ["Facebook", settings.facebook],
         ["Instagram", settings.instagram],
+        ["GitHub", settings.github],
         ["TikTok", settings.tiktok],
         ["X", settings.x]
       ].filter(([, href]) => href);
@@ -904,6 +905,7 @@
           <div class="hero-actions">
             <a class="button" href="/">View live platform</a>
             <a class="button secondary" href="/contact">Discuss a similar system</a>
+            <a class="button secondary" href="${store.escapeHtml(settings.github || "https://github.com/ebenezernarh83-lang")}" target="_blank" rel="noreferrer">Review GitHub</a>
           </div>
         </div>
         <div class="software-case-details">
@@ -926,6 +928,7 @@
           <div class="hero-actions">
             <a class="button" href="/digital-products">Review software work</a>
             <a class="button secondary" href="/portfolio">View field portfolio</a>
+            <a class="button secondary" href="${store.escapeHtml(settings.github || "https://github.com/ebenezernarh83-lang")}" target="_blank" rel="noreferrer">View GitHub</a>
           </div>
         </div>
         <div class="professional-evidence-grid">

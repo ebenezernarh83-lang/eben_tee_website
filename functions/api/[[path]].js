@@ -33,6 +33,7 @@ const defaultSettings = {
   youtube: "https://www.youtube.com/@ebentee",
   facebook: "https://www.facebook.com/ebentee83/",
   instagram: "https://www.instagram.com/ebentee_yt/",
+  github: "https://github.com/ebenezernarh83-lang",
   tiktok: "",
   x: "",
   services: [
@@ -645,6 +646,7 @@ function sanitizeSettings(settings) {
     youtube: cleanUrl(migrated.youtube),
     facebook: cleanUrl(migrated.facebook),
     instagram: cleanUrl(migrated.instagram),
+    github: cleanUrl(migrated.github || defaultSettings.github),
     tiktok: cleanUrl(migrated.tiktok),
     x: cleanUrl(migrated.x),
     services: Array.isArray(migrated.services)

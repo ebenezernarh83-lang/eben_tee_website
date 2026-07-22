@@ -322,6 +322,7 @@
         ["YouTube", settings.youtube],
         ["Facebook", settings.facebook],
         ["Instagram", settings.instagram],
+        ["GitHub", settings.github],
         ["TikTok", settings.tiktok],
         ["X", settings.x]
       ].filter(([, href]) => href);
