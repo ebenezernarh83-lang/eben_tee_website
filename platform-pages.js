@@ -517,7 +517,8 @@
       ],
       spotlightTitle: "Technical thinking with visible proof",
       spotlightText: "Clients can review live software, published project updates, property media, drone work, and service workflows before starting a conversation.",
-      spotlightList: ["Live digital platform", "Field documentation", "Visual portfolio", "Direct enquiry"]
+      spotlightList: ["Live digital platform", "Field documentation", "Visual portfolio", "Direct enquiry"],
+      dynamic: "career"
     }
   };
 
@@ -578,6 +579,11 @@
       ["Practical systems", "Websites and applications focus on the daily work people actually need to complete and understand."],
       ["Connected workflow", "Frontend, content, data, leads, analytics, and publishing work together instead of becoming isolated tools."],
       ["Production delivery", "SEO, accessibility, responsive behavior, deployment, and ongoing content operations are considered as part of the system."]
+    ],
+    "business-profile": [
+      ["Visible work", "Software, field media, project updates, property content, and public code links can be reviewed before an interview or enquiry."],
+      ["Connected capability", "Engineering thinking, software delivery, project communication, and visual documentation work together around practical outcomes."],
+      ["Direct conversation", "Employers, partners, and clients can move from the profile to a focused opportunity or project discussion."]
     ],
     services: [
       ["Combined service packages", "Drone footage, property listing, site visit, and digital reporting can work together."],
@@ -871,6 +877,11 @@
       return;
     }
 
+    if (type === "career") {
+      renderCareerPanel(panel);
+      return;
+    }
+
     panel.innerHTML = `
       <div class="section-heading">
         <div>
@@ -945,6 +956,37 @@
         </div>
         <p>Share the organization, role or project, location, expected outcome, timeline, and the best way to respond. The conversation starts with the work that needs to be done.</p>
         <a class="button" href="/contact">Start a professional conversation</a>
+      </div>
+    `;
+  }
+
+  function renderCareerPanel(panel) {
+    const githubUrl = settings.github || "https://github.com/ebenezernarh83-lang";
+    panel.innerHTML = `
+      <div class="professional-profile-panel">
+        <div class="professional-profile-intro">
+          <p class="eyebrow">Professional capability statement</p>
+          <h2>What Eben Tee can contribute to a team, client, or project</h2>
+          <p>A multidisciplinary working profile built around practical problem-solving, usable digital systems, clear project evidence, and communication that helps people make decisions.</p>
+          <div class="hero-actions">
+            <a class="button" href="/contact">Discuss an opportunity</a>
+            <a class="button secondary" href="${store.escapeHtml(githubUrl)}" target="_blank" rel="noreferrer">Review GitHub</a>
+          </div>
+        </div>
+        <div class="professional-evidence-grid">
+          <article><span>01</span><strong>Engineering and problem-solving</strong><p>Structured requirements, technical coordination, practical planning, documentation, testing, and evidence-led decisions.</p></article>
+          <article><span>02</span><strong>Software and digital systems</strong><p>Responsive HTML, CSS, and JavaScript interfaces, serverless APIs, content platforms, analytics, SEO, and production delivery.</p></article>
+          <article><span>03</span><strong>Projects and field communication</strong><p>Construction progress records, site visuals, reporting workflows, property context, and clear updates for local and diaspora stakeholders.</p></article>
+          <article><span>04</span><strong>Media and market communication</strong><p>Drone operations, videography, editing, YouTube publishing, property tours, and visual stories about Ghana's development.</p></article>
+        </div>
+      </div>
+      <div class="professional-engagements">
+        <div>
+          <p class="eyebrow">Evidence available now</p>
+          <h2>Review the work before starting the conversation.</h2>
+        </div>
+        <p>The live website demonstrates software delivery. GitHub provides public code evidence. The portfolio and YouTube channel show field documentation, visual communication, and Ghana project coverage.</p>
+        <a class="button" href="/portfolio">View selected work</a>
       </div>
     `;
   }

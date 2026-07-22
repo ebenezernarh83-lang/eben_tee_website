@@ -118,14 +118,14 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-18">
+    <link rel="stylesheet" href="/styles.css?v=platform-20">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="portfolio-item">
     <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/services">Services</a><a href="/digital-products">Software</a><a href="/portfolio">Portfolio</a><a class="button small nav-cta" href="/contact">Hire Eben Tee</a></div></nav></header>
     <main class="seo-post-page">${body}</main>
     <footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}${settings.github ? `<a href="${escapeHtml(settings.github)}" target="_blank" rel="noreferrer">GitHub</a>` : ""}</div></footer>
-    <script src="/analytics.js?v=platform-18"></script>
+    <script src="/analytics.js?v=platform-20"></script>
   </body>
 </html>`;
 }
