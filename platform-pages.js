@@ -696,7 +696,7 @@
         <aside class="platform-page-card${config.heroImage ? " is-profile" : ""}">
           <img src="${store.escapeHtml(config.heroImage || "/assets/eben-tee-logo-512.png")}" alt="${store.escapeHtml(config.heroImageAlt || "Eben Tee logo")}">
           <div>
-            <span>${store.escapeHtml(settings.ownerName || "Ebenezer Tetteh")}</span>
+            <span>Name: ${store.escapeHtml(settings.brandName || "Eben Tee")}</span>
             <strong>${store.escapeHtml(config.spotlightTitle)}</strong>
             <p>${store.escapeHtml(config.spotlightText)}</p>
           </div>
