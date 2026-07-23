@@ -85,3 +85,11 @@ Required production secrets:
 ADMIN_PIN
 SESSION_SECRET
 ```
+
+## Update with VS Code
+
+1. Edit a website file and save it with `Command+S`.
+2. Open Source Control with `Control+Shift+G`.
+3. Review the changed files and stage only the files you intend to publish.
+4. Enter a short commit message and select **Commit**.
+5. Select **Sync Changes** or **Push** to send the commits to GitHub.
