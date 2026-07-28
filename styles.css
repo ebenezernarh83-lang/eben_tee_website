@@ -8056,6 +8056,10 @@ body[data-view="platform"] .platform-process-card:hover {
   body[data-page="public"]:not([data-view]) .hero-proof {
     display: none !important;
   }
+
+  body[data-page="public"]:not([data-view]) .feature-panel .tour-note {
+    display: none !important;
+  }
 }
 
 @media (max-width: 980px) {
