@@ -1185,7 +1185,7 @@
           <h3>${store.escapeHtml(item.title)}</h3>
           <p>${store.escapeHtml(item.summary || item.location || "Client portfolio media")}</p>
           <div class="tag-row compact">
-            <span>${item.status}</span>
+            <span>${item.status === "published" ? "Published" : "Unlisted"}</span>
             ${item.featured ? "<span>featured</span>" : ""}
           </div>
         </div>
@@ -1248,7 +1248,7 @@
         <div class="manager-actions">
           <button type="button" data-gallery-action="edit" data-id="${store.escapeHtml(item.id)}">Edit</button>
           <button type="button" data-gallery-action="publish" data-id="${store.escapeHtml(item.id)}">${
-            item.status === "published" ? "Draft" : "Publish"
+            item.status === "published" ? "Unlist" : "Publish"
           }</button>
           <button class="danger-link" type="button" data-gallery-action="delete" data-id="${store.escapeHtml(item.id)}">Delete</button>
         </div>

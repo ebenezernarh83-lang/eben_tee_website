@@ -1,3 +1,5 @@
+import "../../gallery-defaults.js";
+
 const CONTENT_KEY = "site-content-v1";
 const ANALYTICS_PREFIX = "analytics-v1";
 const LOGIN_RATE_PREFIX = "login-rate-v1";
@@ -10,6 +12,8 @@ const LOGIN_LOCK_SECONDS = 30 * 60;
 const RECOVERY_WINDOW_SECONDS = 60 * 60;
 const RECOVERY_MAX_ATTEMPTS = 5;
 const RECOVERY_LOCK_SECONDS = 60 * 60;
+const GALLERY_SEED_VERSION = 1;
+const sampleGallery = Array.isArray(globalThis.EbenTeeGalleryDefaults) ? globalThis.EbenTeeGalleryDefaults : [];
 
 const categories = new Set(["video", "construction-news", "building-project", "service-update", "personal"]);
 const leadStatuses = new Set(["new", "contacted", "quoted", "won", "lost", "follow-up"]);
@@ -658,18 +662,28 @@ async function readContent(env) {
   const stored = await env.EBENTEE_CONTENT.get(CONTENT_KEY, "json");
 
   if (stored && Array.isArray(stored.posts)) {
-    return sanitizeContent(stored);
+    const sanitized = sanitizeContent(stored);
+    if (Number(sanitized.admin.gallerySeedVersion || 0) < GALLERY_SEED_VERSION) {
+      const migrated = sanitizeContent({
+        ...sanitized,
+        gallery: mergeGallerySeed(sanitized.gallery),
+        admin: { ...sanitized.admin, gallerySeedVersion: GALLERY_SEED_VERSION }
+      });
+      await writeContent(env, migrated);
+      return migrated;
+    }
+    return sanitized;
   }
 
   const seeded = sanitizeContent({
     settings: defaultSettings,
     posts: samplePosts,
     portfolio: samplePortfolio,
-    gallery: [],
+    gallery: sampleGallery,
     properties: sampleProperties,
     testimonials: sampleTestimonials,
     leads: [],
-    admin: {}
+    admin: { gallerySeedVersion: GALLERY_SEED_VERSION }
   });
   await writeContent(env, seeded);
   return seeded;
@@ -707,6 +721,18 @@ function sanitizeContent(content) {
     leads,
     admin
   };
+}
+
+// Import the original public collection once, while preserving any images
+// already added through Admin and avoiding duplicate IDs or image paths.
+function mergeGallerySeed(currentGallery) {
+  const current = Array.isArray(currentGallery) ? currentGallery.map(sanitizeGalleryItem) : [];
+  const ids = new Set(current.map((item) => item.id));
+  const images = new Set(current.map((item) => item.image).filter(Boolean));
+  const additions = sampleGallery
+    .map(sanitizeGalleryItem)
+    .filter((item) => !ids.has(item.id) && !images.has(item.image));
+  return [...current, ...additions];
 }
 
 function sanitizeSettings(settings) {
@@ -1223,15 +1249,22 @@ function cleanCover(value) {
   const text = String(value || "").trim();
   if (!text) return "";
   if (text.length > 750_000) return "";
-  if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://")) return text;
+  if (text.startsWith("data:image/") || text.startsWith("https://") || text.startsWith("http://") || isLocalImagePath(text)) {
+    return text;
+  }
   return "";
 }
 
 function cleanPublicImage(value) {
   const text = String(value || "").trim();
   if (/^https?:\/\//i.test(text)) return text;
+  if (isLocalImagePath(text)) return text;
   if (text.startsWith("data:image/") && text.length <= 750_000) return text;
   return "";
+}
+
+function isLocalImagePath(value) {
+  return /^\/(?:assets|media-files)\/[a-zA-Z0-9/_.%-]+$/.test(value) && !value.includes("..");
 }
 
 function cleanMediaUrl(value, type) {

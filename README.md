@@ -54,7 +54,7 @@ Use the Cloudflare production admin PIN for the live site. Change it in `admin.h
 
 On Cloudflare, posts and settings are saved online through Pages Functions into KV storage. The public site reads published posts from `/api/content`; the admin page reads and saves all posts through `/api/admin/content`.
 
-Use the **Gallery** tab in the admin to upload additional public gallery images. Published images appear before the curated gallery collection and support the Drone views, Property, Construction, and Ghana places filters.
+Use the **Gallery** tab in the admin to manage the complete public gallery. The original 23 images are imported automatically, so their pictures, titles, descriptions, labels, filters, layouts, and visibility can all be edited. **Unlist** hides an image without deleting it; **Publish** restores it.
 
 When running with a plain local static server, the site still falls back to `localStorage` so you can preview the design without Cloudflare.
 

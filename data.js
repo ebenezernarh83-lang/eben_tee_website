@@ -4,12 +4,15 @@
   const STORAGE_KEY = "build-journal-posts-v1";
   const PORTFOLIO_KEY = "build-journal-portfolio-v1";
   const GALLERY_KEY = "build-journal-gallery-v1";
+  const GALLERY_SEED_VERSION_KEY = "build-journal-gallery-seed-version";
   const PROPERTIES_KEY = "build-journal-properties-v1";
   const TESTIMONIALS_KEY = "build-journal-testimonials-v1";
   const LEADS_KEY = "build-journal-leads-v1";
   const SETTINGS_KEY = "build-journal-settings-v1";
   const SESSION_KEY = "build-journal-admin-unlocked";
   const PIN_KEY = "build-journal-admin-pin";
+  const GALLERY_SEED_VERSION = 1;
+  const defaultGallery = Array.isArray(window.EbenTeeGalleryDefaults) ? window.EbenTeeGalleryDefaults : [];
 
   const categories = [
     { slug: "video", label: "YouTube video" },
@@ -746,7 +749,21 @@
 
   function loadGallery() {
     const stored = readJson(GALLERY_KEY, null);
-    return Array.isArray(stored) ? stored.map(normalizeGalleryItem).sort(sortByDateDesc) : [];
+    const current = Array.isArray(stored) ? stored.map(normalizeGalleryItem) : [];
+    const seedVersion = Number(window.localStorage.getItem(GALLERY_SEED_VERSION_KEY) || 0);
+
+    if (seedVersion < GALLERY_SEED_VERSION && defaultGallery.length) {
+      const ids = new Set(current.map((item) => item.id));
+      const images = new Set(current.map((item) => item.image).filter(Boolean));
+      const additions = defaultGallery
+        .map(normalizeGalleryItem)
+        .filter((item) => !ids.has(item.id) && !images.has(item.image));
+      const migrated = saveGallery([...current, ...additions]);
+      window.localStorage.setItem(GALLERY_SEED_VERSION_KEY, String(GALLERY_SEED_VERSION));
+      return migrated;
+    }
+
+    return current.sort(sortByDateDesc);
   }
 
   function saveGallery(items) {

@@ -145,7 +145,7 @@ test("published admin gallery images are returned to the public gallery", async 
     request: request("/api/admin/content", {
       method: "PUT",
       cookie,
-      body: { ...current, gallery: [galleryItem] }
+      body: { ...current, gallery: [galleryItem, ...current.gallery] }
     }),
     env
   });
@@ -157,7 +157,77 @@ test("published admin gallery images are returned to the public gallery", async 
   });
   const publicContent = await publicResponse.json();
 
-  assert.equal(publicContent.gallery.length, 1);
-  assert.equal(publicContent.gallery[0].title, galleryItem.title);
-  assert.deepEqual(publicContent.gallery[0].categories, ["drone", "places"]);
+  const savedItem = publicContent.gallery.find((item) => item.id === galleryItem.id);
+  assert.equal(publicContent.gallery.length, 24);
+  assert.equal(savedItem.title, galleryItem.title);
+  assert.deepEqual(savedItem.categories, ["drone", "places"]);
+});
+
+test("the original gallery is imported once and remains fully editable", async () => {
+  const env = createEnv();
+  const login = await onRequest({
+    request: request("/api/login", { method: "POST", body: { pin: "123456" } }),
+    env
+  });
+  const cookie = sessionCookie(login);
+
+  const firstAdminResponse = await onRequest({
+    request: request("/api/admin/content", { cookie }),
+    env
+  });
+  const firstAdmin = await firstAdminResponse.json();
+  assert.equal(firstAdmin.gallery.length, 23);
+
+  const original = firstAdmin.gallery[0];
+  const edited = {
+    ...original,
+    status: "draft",
+    title: "Edited and unlisted gallery image"
+  };
+  const saveEditResponse = await onRequest({
+    request: request("/api/admin/content", {
+      method: "PUT",
+      cookie,
+      body: {
+        ...firstAdmin,
+        gallery: firstAdmin.gallery.map((item) => (item.id === original.id ? edited : item))
+      }
+    }),
+    env
+  });
+  assert.equal(saveEditResponse.status, 200);
+
+  const editedAdmin = await saveEditResponse.json();
+  const savedEdit = editedAdmin.gallery.find((item) => item.id === original.id);
+  assert.equal(savedEdit.title, edited.title);
+  assert.equal(savedEdit.status, "draft");
+
+  const publicResponse = await onRequest({
+    request: request("/api/content"),
+    env
+  });
+  const publicContent = await publicResponse.json();
+  assert.equal(publicContent.gallery.length, 22);
+  assert.equal(publicContent.gallery.some((item) => item.id === original.id), false);
+
+  const deleteResponse = await onRequest({
+    request: request("/api/admin/content", {
+      method: "PUT",
+      cookie,
+      body: {
+        ...editedAdmin,
+        gallery: editedAdmin.gallery.filter((item) => item.id !== original.id)
+      }
+    }),
+    env
+  });
+  assert.equal(deleteResponse.status, 200);
+
+  const afterDeleteResponse = await onRequest({
+    request: request("/api/admin/content", { cookie }),
+    env
+  });
+  const afterDelete = await afterDeleteResponse.json();
+  assert.equal(afterDelete.gallery.length, 22);
+  assert.equal(afterDelete.gallery.some((item) => item.id === original.id), false);
 });
