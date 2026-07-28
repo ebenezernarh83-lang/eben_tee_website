@@ -38,14 +38,35 @@
         <div class="login-box">
           <p class="eyebrow">Admin access</p>
           <h1>Manage the Eben Tee platform</h1>
-          <p>Enter your private admin PIN to publish posts, properties, portfolio media, testimonials, leads, and site settings.</p>
+          <p id="loginIntro">Enter your private admin PIN to publish posts, properties, portfolio media, testimonials, leads, and site settings.</p>
+          <!-- Normal sign-in form -->
           <form id="loginForm">
             <label>
               Admin PIN
-              <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" required>
+              <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="current-password" required>
             </label>
             <button class="button" type="submit">Unlock admin</button>
+            <button class="login-help-button" id="showRecoveryButton" type="button">Forgot your PIN?</button>
             <p class="form-note" id="loginMessage" aria-live="polite"></p>
+          </form>
+
+          <!-- Recovery form: the private recovery code is verified only by the server. -->
+          <form class="is-hidden" id="recoveryForm">
+            <label>
+              Private recovery code
+              <input id="recoveryCodeInput" type="password" autocomplete="off" required>
+            </label>
+            <label>
+              New 6-digit PIN
+              <input id="recoveryPinInput" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required>
+            </label>
+            <label>
+              Confirm new PIN
+              <input id="recoveryPinConfirmInput" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" required>
+            </label>
+            <button class="button" type="submit">Reset PIN and unlock</button>
+            <button class="login-help-button" id="cancelRecoveryButton" type="button">Back to sign in</button>
+            <p class="form-note" id="recoveryMessage" aria-live="polite"></p>
           </form>
         </div>
       </section>
@@ -721,11 +742,11 @@
             <div class="form-grid">
               <label>
                 New admin PIN
-                <input id="settingPin" name="pin" type="password" inputmode="numeric" placeholder="Leave blank to keep current PIN">
+                <input id="settingPin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password" placeholder="Leave blank to keep current PIN">
               </label>
               <label>
                 Confirm new PIN
-                <input id="settingPinConfirm" name="pinConfirm" type="password" inputmode="numeric">
+                <input id="settingPinConfirm" name="pinConfirm" type="password" inputmode="numeric" pattern="[0-9]{6,12}" autocomplete="new-password">
               </label>
             </div>
 
@@ -762,7 +783,7 @@
       </section>
     </main>
 
-    <script src="data.js?v=platform-20"></script>
-    <script src="admin.js?v=platform-20"></script>
+    <script src="data.js?v=admin-recovery-1"></script>
+    <script src="admin.js?v=admin-recovery-1"></script>
   </body>
 </html>

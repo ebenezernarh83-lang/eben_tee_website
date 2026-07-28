@@ -1131,6 +1131,15 @@
     }
   }
 
+  async function resetAdminPin(recoveryCode, pin) {
+    const payload = await requestJson("/api/admin/recover", {
+      method: "POST",
+      body: JSON.stringify({ recoveryCode, pin })
+    });
+    window.sessionStorage.setItem(SESSION_KEY, "true");
+    return payload;
+  }
+
   async function lockAdmin() {
     await requestJson("/api/logout", { method: "POST" }).catch(() => {});
     window.sessionStorage.removeItem(SESSION_KEY);
@@ -1195,6 +1204,7 @@
     getAdminPin,
     setAdminPin,
     unlockAdmin,
+    resetAdminPin,
     lockAdmin,
     isAdminUnlocked
   };

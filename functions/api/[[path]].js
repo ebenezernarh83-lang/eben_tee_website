@@ -1,11 +1,16 @@
 const CONTENT_KEY = "site-content-v1";
 const ANALYTICS_PREFIX = "analytics-v1";
 const LOGIN_RATE_PREFIX = "login-rate-v1";
+const RECOVERY_RATE_PREFIX = "recovery-rate-v1";
 const SESSION_COOKIE = "ebentee_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const LOGIN_WINDOW_SECONDS = 15 * 60;
 const LOGIN_MAX_ATTEMPTS = 8;
 const LOGIN_LOCK_SECONDS = 30 * 60;
+const RECOVERY_WINDOW_SECONDS = 60 * 60;
+const RECOVERY_MAX_ATTEMPTS = 5;
+const RECOVERY_LOCK_SECONDS = 60 * 60;
+const PIN_HASH_ITERATIONS = 210000;
 
 const categories = new Set(["video", "construction-news", "building-project", "service-update", "personal"]);
 const leadStatuses = new Set(["new", "contacted", "quoted", "won", "lost", "follow-up"]);
@@ -311,6 +316,11 @@ export async function onRequest(context) {
       return login(request, env);
     }
 
+    if (path === "admin/recover" && request.method === "POST") {
+      if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
+      return recoverAdmin(request, env);
+    }
+
     if (path === "logout" && request.method === "POST") {
       if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
       return jsonResponse(
@@ -365,10 +375,11 @@ async function login(request, env) {
 
   if (!content.admin.pin) {
     content.admin.pin = await makePinRecord(pin);
+    content.admin.sessionVersion = adminSessionVersion(content);
     await writeContent(env, content);
   }
 
-  const token = await createSessionToken(env);
+  const token = await createSessionToken(env, adminSessionVersion(content));
   return jsonResponse(
     { ok: true },
     200,
@@ -395,14 +406,69 @@ async function saveAdminContent(request, env) {
 
   const pin = String(payload.pin || "").trim();
   if (pin) {
-    if (pin.length < 4 || pin.length > 64) {
-      return jsonResponse({ error: "Use a PIN between 4 and 64 characters." }, 400);
+    if (!isValidNewPin(pin)) {
+      return jsonResponse({ error: "Use a PIN containing 6 to 12 digits." }, 400);
     }
     next.admin.pin = await makePinRecord(pin);
+    next.admin.sessionVersion = adminSessionVersion(current) + 1;
   }
 
   await writeContent(env, next);
-  return jsonResponse(adminContent(next));
+  const headers = pin
+    ? {
+        "Set-Cookie": `${SESSION_COOKIE}=${await createSessionToken(
+          env,
+          adminSessionVersion(next)
+        )}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_TTL_SECONDS}${secureCookie(request)}`
+      }
+    : {};
+  return jsonResponse(adminContent(next), 200, headers);
+}
+
+// A recovery code is stored only as an encrypted Cloudflare secret, never in public site files.
+async function recoverAdmin(request, env) {
+  if (!env.ADMIN_RECOVERY_KEY) {
+    return jsonResponse({ error: "PIN recovery is not configured." }, 503);
+  }
+
+  const rateLimit = await checkRecoveryRateLimit(request, env);
+  if (!rateLimit.allowed) {
+    return jsonResponse({ error: "Too many recovery attempts. Try again later." }, 429, {
+      "Retry-After": String(Math.ceil((rateLimit.retryAfterMs || 0) / 1000))
+    });
+  }
+
+  const payload = await request.json().catch(() => ({}));
+  const recoveryCode = String(payload.recoveryCode || "").trim();
+  const pin = String(payload.pin || "").trim();
+
+  if (!isValidNewPin(pin)) {
+    return jsonResponse({ error: "Use a PIN containing 6 to 12 digits." }, 400);
+  }
+
+  const suppliedDigest = await digestText(recoveryCode);
+  const expectedDigest = await digestText(String(env.ADMIN_RECOVERY_KEY));
+  if (!recoveryCode || !timingSafeEqual(suppliedDigest, expectedDigest)) {
+    await recordFailedRecovery(request, env);
+    return jsonResponse({ error: "Recovery code did not match." }, 401);
+  }
+
+  await clearRecoveryRateLimit(request, env);
+  const content = await readContent(env);
+  content.admin.pin = await makePinRecord(pin);
+  content.admin.sessionVersion = adminSessionVersion(content) + 1;
+  await writeContent(env, content);
+
+  const token = await createSessionToken(env, adminSessionVersion(content));
+  return jsonResponse(
+    { ok: true },
+    200,
+    {
+      "Set-Cookie": `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_TTL_SECONDS}${secureCookie(
+        request
+      )}`
+    }
+  );
 }
 
 async function createLead(request, env) {
@@ -881,16 +947,65 @@ async function readLoginRateRecord(request, env) {
 }
 
 async function loginRateKey(request, env) {
+  return rateLimitKey(request, env, LOGIN_RATE_PREFIX);
+}
+
+async function checkRecoveryRateLimit(request, env) {
+  const record = await readRecoveryRateRecord(request, env);
+  const now = Date.now();
+  if (record.lockedUntil && record.lockedUntil > now) {
+    return { allowed: false, retryAfterMs: record.lockedUntil - now };
+  }
+  return { allowed: true, retryAfterMs: 0 };
+}
+
+async function recordFailedRecovery(request, env) {
+  const key = await recoveryRateKey(request, env);
+  const now = Date.now();
+  const record = await readRecoveryRateRecord(request, env);
+  const resetAt =
+    record.resetAt && record.resetAt > now ? record.resetAt : now + RECOVERY_WINDOW_SECONDS * 1000;
+  const attempts = resetAt === record.resetAt ? record.attempts + 1 : 1;
+  const lockedUntil = attempts >= RECOVERY_MAX_ATTEMPTS ? now + RECOVERY_LOCK_SECONDS * 1000 : 0;
+  await env.EBENTEE_CONTENT.put(
+    key,
+    JSON.stringify({ attempts, resetAt, lockedUntil, updatedAt: new Date().toISOString() }),
+    { expirationTtl: Math.max(RECOVERY_WINDOW_SECONDS, RECOVERY_LOCK_SECONDS) }
+  );
+}
+
+async function clearRecoveryRateLimit(request, env) {
+  await env.EBENTEE_CONTENT.delete(await recoveryRateKey(request, env)).catch(() => {});
+}
+
+async function readRecoveryRateRecord(request, env) {
+  const record = (await env.EBENTEE_CONTENT.get(await recoveryRateKey(request, env), "json").catch(() => null)) || {};
+  return {
+    attempts: Math.max(0, Number(record.attempts) || 0),
+    resetAt: Math.max(0, Number(record.resetAt) || 0),
+    lockedUntil: Math.max(0, Number(record.lockedUntil) || 0)
+  };
+}
+
+async function recoveryRateKey(request, env) {
+  return rateLimitKey(request, env, RECOVERY_RATE_PREFIX);
+}
+
+async function rateLimitKey(request, env, prefix) {
   const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${sessionSecret(env)}:${ip}`));
-  return `${LOGIN_RATE_PREFIX}:${base64Url(new Uint8Array(digest)).slice(0, 24)}`;
+  return `${prefix}:${base64Url(new Uint8Array(digest)).slice(0, 24)}`;
 }
 
 async function verifyPin(pin, content, env) {
   if (!pin) return false;
 
   if (content.admin && content.admin.pin && content.admin.pin.salt && content.admin.pin.hash) {
-    const hash = await hashPin(pin, content.admin.pin.salt);
+    const record = content.admin.pin;
+    const hash =
+      record.algorithm === "PBKDF2-SHA-256"
+        ? await hashPin(pin, record.salt, record.iterations)
+        : await hashLegacyPin(pin, record.salt);
     return timingSafeEqual(hash, content.admin.pin.hash);
   }
 
@@ -899,20 +1014,55 @@ async function verifyPin(pin, content, env) {
 
 async function makePinRecord(pin) {
   const salt = base64Url(crypto.getRandomValues(new Uint8Array(16)));
-  return { salt, hash: await hashPin(pin, salt), updatedAt: new Date().toISOString() };
+  return {
+    algorithm: "PBKDF2-SHA-256",
+    iterations: PIN_HASH_ITERATIONS,
+    salt,
+    hash: await hashPin(pin, salt, PIN_HASH_ITERATIONS),
+    updatedAt: new Date().toISOString()
+  };
 }
 
-async function hashPin(pin, salt) {
+async function hashLegacyPin(pin, salt) {
   const bytes = new TextEncoder().encode(`${salt}:${pin}`);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return base64Url(new Uint8Array(digest));
 }
 
-async function createSessionToken(env) {
+async function hashPin(pin, salt, iterations = PIN_HASH_ITERATIONS) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      salt: new TextEncoder().encode(salt),
+      iterations: Math.max(100000, Number(iterations) || PIN_HASH_ITERATIONS)
+    },
+    key,
+    256
+  );
+  return base64Url(new Uint8Array(bits));
+}
+
+async function digestText(value) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return base64Url(new Uint8Array(digest));
+}
+
+function isValidNewPin(pin) {
+  return /^\d{6,12}$/.test(pin);
+}
+
+function adminSessionVersion(content) {
+  return Math.max(1, Number(content && content.admin && content.admin.sessionVersion) || 1);
+}
+
+async function createSessionToken(env, sessionVersion = 1) {
   const payload = base64Url(
     new TextEncoder().encode(
       JSON.stringify({
         exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
+        sessionVersion,
         nonce: crypto.randomUUID()
       })
     )
@@ -931,7 +1081,9 @@ async function isAuthenticated(request, env) {
 
   try {
     const parsed = JSON.parse(new TextDecoder().decode(base64UrlDecode(payload)));
-    return Number(parsed.exp) > Math.floor(Date.now() / 1000);
+    if (Number(parsed.exp) <= Math.floor(Date.now() / 1000)) return false;
+    const content = await readContent(env);
+    return Number(parsed.sessionVersion) === adminSessionVersion(content);
   } catch (error) {
     return false;
   }

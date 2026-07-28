@@ -31,7 +31,10 @@
 
   function bindLogin() {
     const form = $("#loginForm");
+    const recoveryForm = $("#recoveryForm");
     const logout = $("#logoutButton");
+    const showRecovery = $("#showRecoveryButton");
+    const cancelRecovery = $("#cancelRecoveryButton");
 
     if (form) {
       form.addEventListener("submit", async (event) => {
@@ -47,6 +50,43 @@
       });
     }
 
+    if (showRecovery) {
+      showRecovery.addEventListener("click", () => toggleRecoveryForm(true));
+    }
+
+    if (cancelRecovery) {
+      cancelRecovery.addEventListener("click", () => toggleRecoveryForm(false));
+    }
+
+    if (recoveryForm) {
+      recoveryForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const recoveryCode = $("#recoveryCodeInput").value.trim();
+        const pin = $("#recoveryPinInput").value.trim();
+        const pinConfirm = $("#recoveryPinConfirmInput").value.trim();
+
+        if (!/^\d{6,12}$/.test(pin)) {
+          $("#recoveryMessage").textContent = "Use a PIN containing 6 to 12 digits.";
+          return;
+        }
+
+        if (pin !== pinConfirm) {
+          $("#recoveryMessage").textContent = "PIN confirmation did not match.";
+          return;
+        }
+
+        $("#recoveryMessage").textContent = "Resetting securely...";
+        try {
+          await store.resetAdminPin(recoveryCode, pin);
+          recoveryForm.reset();
+          $("#recoveryMessage").textContent = "";
+          await showAdmin();
+        } catch (error) {
+          $("#recoveryMessage").textContent = error.message || "PIN reset failed.";
+        }
+      });
+    }
+
     if (logout) {
       logout.addEventListener("click", async () => {
         await store.lockAdmin();
@@ -55,7 +95,20 @@
     }
   }
 
+  function toggleRecoveryForm(showRecovery) {
+    $("#loginForm").classList.toggle("is-hidden", showRecovery);
+    $("#recoveryForm").classList.toggle("is-hidden", !showRecovery);
+    $("#loginIntro").textContent = showRecovery
+      ? "Enter your private recovery code and choose a new PIN."
+      : "Enter your private admin PIN to publish posts, properties, portfolio media, testimonials, leads, and site settings.";
+    $("#loginMessage").textContent = "";
+    $("#recoveryMessage").textContent = "";
+    const nextInput = showRecovery ? $("#recoveryCodeInput") : $("#pinInput");
+    window.setTimeout(() => nextInput && nextInput.focus(), 0);
+  }
+
   function showLogin() {
+    toggleRecoveryForm(false);
     $("#loginPanel").classList.remove("is-hidden");
     $("#adminApp").classList.add("is-hidden");
   }
@@ -816,8 +869,8 @@
     const pinConfirm = String(formData.get("pinConfirm") || "").trim();
 
     if (pin || pinConfirm) {
-      if (pin.length < 4) {
-        $("#settingsMessage").textContent = "Use at least 4 digits for the PIN.";
+      if (!/^\d{6,12}$/.test(pin)) {
+        $("#settingsMessage").textContent = "Use a PIN containing 6 to 12 digits.";
         return;
       }
 
