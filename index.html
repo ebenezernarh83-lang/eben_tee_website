@@ -22,7 +22,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="styles.css?v=platform-20">
+    <link rel="stylesheet" href="styles.css?v=platform-21">
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -128,9 +128,25 @@
       <section class="hero-band">
         <div class="hero-grid">
           <div class="hero-copy">
-            <p class="hero-badge"><span></span> Engineer, software developer, drone pilot, project professional</p>
-            <h1>Engineering ideas, building digital systems, and documenting Ghana's progress.</h1>
-            <p class="lead">I am Ebenezer Tetteh, known as Eben Tee. I connect engineering thinking, software, construction knowledge, drone media, and local Ghana insight to help people build, invest, communicate, and make better decisions.</p>
+            <p class="hero-badge"><span></span> Engineering, software, visual media</p>
+            <h1 class="kinetic-heading" data-kinetic-heading>
+              <span class="kinetic-line"><span>Engineering ideas.</span></span>
+              <span class="kinetic-line"><span>Digital systems.</span></span>
+              <span class="kinetic-line is-accent"><span>Ghana in motion.</span></span>
+            </h1>
+            <p class="lead">Engineering, software, drone media, and Ghana project insight for people who want to build, invest, and make better decisions.</p>
+            <div class="hero-signal" aria-label="Eben Tee client outcomes">
+              <span class="hero-signal-label"><i aria-hidden="true"></i> Live focus</span>
+              <span class="hero-signal-window" aria-hidden="true">
+                <span class="hero-signal-track">
+                  <strong>Build smarter.</strong>
+                  <strong>See progress clearly.</strong>
+                  <strong>Invest with confidence.</strong>
+                  <strong>Build smarter.</strong>
+                </span>
+              </span>
+              <span class="sr-only">Build smarter. See progress clearly. Invest with confidence.</span>
+            </div>
             <div class="hero-proof" role="group" aria-label="Professional focus">
               <span>Engineering</span>
               <span>Software</span>
@@ -141,11 +157,14 @@
               <a class="button secondary" href="/portfolio">View portfolio</a>
               <a class="button secondary" href="/contact">Hire Eben Tee</a>
             </div>
-            <div class="hero-update-carousel" id="heroUpdates" role="region" aria-label="Latest updates"></div>
           </div>
 
           <article class="feature-panel" id="heroFeature" aria-live="polite"></article>
         </div>
+      </section>
+
+      <section class="hero-updates-band" aria-label="Latest updates from Eben Tee">
+        <div class="hero-update-carousel" id="heroUpdates" role="region" aria-label="Latest updates"></div>
       </section>
 
       <section class="platform-intro" id="about" aria-labelledby="platformIntroHeading">
@@ -350,6 +369,7 @@
 
     <script src="data.js?v=platform-20"></script>
     <script src="app.js?v=platform-20"></script>
+    <script src="motion.js?v=platform-21"></script>
     <script src="analytics.js?v=platform-20"></script>
   </body>
 </html>
