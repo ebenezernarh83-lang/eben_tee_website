@@ -12,6 +12,7 @@
   let propertySearch = "";
   let propertyType = "all";
   let propertyStatus = "all";
+  let galleryFilter = "all";
 
   const serviceCards = [
     {
@@ -65,6 +66,7 @@
 
     bindNavigation();
     bindFilters();
+    bindGalleryFilters();
     bindPropertyFilters();
     bindContactForm();
     bindNewsletterForm();
@@ -108,6 +110,24 @@
         renderPostGrid();
       });
     }
+  }
+
+  function bindGalleryFilters() {
+    const filters = $("#galleryFilters");
+    if (!filters) return;
+
+    filters.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-gallery-filter]");
+      if (!button) return;
+
+      galleryFilter = button.dataset.galleryFilter || "all";
+      $$("[data-gallery-filter]", filters).forEach((filter) => {
+        const isActive = filter === button;
+        filter.classList.toggle("is-active", isActive);
+        filter.setAttribute("aria-pressed", String(isActive));
+      });
+      renderPortfolio();
+    });
   }
 
   function bindPropertyFilters() {
@@ -551,12 +571,18 @@
     const grid = $("#portfolioGrid");
     if (!shell || !grid) return;
 
-    const items = portfolio.slice(0, 8);
+    const filtered = portfolio.filter(matchesGalleryFilter);
+    const items = filtered.slice(0, 8);
     const featured = items.find((item) => item.featured) || items[0];
-    setText("#portfolioCount", `${portfolio.length} media items`);
+    setText(
+      "#portfolioCount",
+      galleryFilter === "all"
+        ? `${portfolio.length} published works`
+        : `${filtered.length} ${galleryFilter === "photo" ? "drone photos" : "matching works"}`
+    );
 
     if (!items.length || !featured) {
-      shell.innerHTML = `<p class="empty-state">Portfolio updates are added as work is cleared for publication. Contact Eben Tee to discuss your project coverage.</p>`;
+      shell.innerHTML = `<p class="empty-state">No work is published in this gallery category yet. New photos and projects will appear here as they are added.</p>`;
       grid.innerHTML = "";
       return;
     }
@@ -578,6 +604,30 @@
       .slice(0, 6)
       .map(renderPortfolioCard)
       .join("");
+  }
+
+  function matchesGalleryFilter(item) {
+    if (galleryFilter === "all") return true;
+    if (galleryFilter === "photo") return item.type === "photo";
+
+    const searchable = [
+      item.title,
+      item.summary,
+      item.location,
+      item.clientType,
+      item.serviceCategory,
+      ...(item.tags || [])
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    const galleryTerms = {
+      construction: ["construction", "infrastructure", "road", "highway", "project", "motorway"],
+      property: ["property", "real estate", "land", "estate", "house", "apartment"],
+      places: ["tourism", "resort", "lifestyle", "place", "travel", "hotel", "ghana visual"]
+    };
+
+    return (galleryTerms[galleryFilter] || []).some((term) => searchable.includes(term));
   }
 
   function renderPortfolioCard(item) {
