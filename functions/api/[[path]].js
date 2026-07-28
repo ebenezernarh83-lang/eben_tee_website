@@ -10,7 +10,6 @@ const LOGIN_LOCK_SECONDS = 30 * 60;
 const RECOVERY_WINDOW_SECONDS = 60 * 60;
 const RECOVERY_MAX_ATTEMPTS = 5;
 const RECOVERY_LOCK_SECONDS = 60 * 60;
-const PIN_HASH_ITERATIONS = 210000;
 
 const categories = new Set(["video", "construction-news", "building-project", "service-update", "personal"]);
 const leadStatuses = new Set(["new", "contacted", "quoted", "won", "lost", "follow-up"]);
@@ -374,7 +373,7 @@ async function login(request, env) {
   await clearLoginRateLimit(request, env);
 
   if (!content.admin.pin) {
-    content.admin.pin = await makePinRecord(pin);
+    content.admin.pin = await makePinRecord(pin, env);
     content.admin.sessionVersion = adminSessionVersion(content);
     await writeContent(env, content);
   }
@@ -409,7 +408,7 @@ async function saveAdminContent(request, env) {
     if (!isValidNewPin(pin)) {
       return jsonResponse({ error: "Use a PIN containing 6 to 12 digits." }, 400);
     }
-    next.admin.pin = await makePinRecord(pin);
+    next.admin.pin = await makePinRecord(pin, env);
     next.admin.sessionVersion = adminSessionVersion(current) + 1;
   }
 
@@ -455,7 +454,7 @@ async function recoverAdmin(request, env) {
 
   await clearRecoveryRateLimit(request, env);
   const content = await readContent(env);
-  content.admin.pin = await makePinRecord(pin);
+  content.admin.pin = await makePinRecord(pin, env);
   content.admin.sessionVersion = adminSessionVersion(content) + 1;
   await writeContent(env, content);
 
@@ -1003,8 +1002,8 @@ async function verifyPin(pin, content, env) {
   if (content.admin && content.admin.pin && content.admin.pin.salt && content.admin.pin.hash) {
     const record = content.admin.pin;
     const hash =
-      record.algorithm === "PBKDF2-SHA-256"
-        ? await hashPin(pin, record.salt, record.iterations)
+      record.algorithm === "HMAC-SHA-256"
+        ? await hashPin(pin, record.salt, env)
         : await hashLegacyPin(pin, record.salt);
     return timingSafeEqual(hash, content.admin.pin.hash);
   }
@@ -1012,13 +1011,12 @@ async function verifyPin(pin, content, env) {
   return Boolean(env.ADMIN_PIN) && pin === String(env.ADMIN_PIN);
 }
 
-async function makePinRecord(pin) {
+async function makePinRecord(pin, env) {
   const salt = base64Url(crypto.getRandomValues(new Uint8Array(16)));
   return {
-    algorithm: "PBKDF2-SHA-256",
-    iterations: PIN_HASH_ITERATIONS,
+    algorithm: "HMAC-SHA-256",
     salt,
-    hash: await hashPin(pin, salt, PIN_HASH_ITERATIONS),
+    hash: await hashPin(pin, salt, env),
     updatedAt: new Date().toISOString()
   };
 }
@@ -1029,19 +1027,22 @@ async function hashLegacyPin(pin, salt) {
   return base64Url(new Uint8Array(digest));
 }
 
-async function hashPin(pin, salt, iterations = PIN_HASH_ITERATIONS) {
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      hash: "SHA-256",
-      salt: new TextEncoder().encode(salt),
-      iterations: Math.max(100000, Number(iterations) || PIN_HASH_ITERATIONS)
-    },
-    key,
-    256
+// Keying the PIN hash with the private session secret prevents offline PIN guessing
+// if someone ever obtains a copy of the KV content.
+async function hashPin(pin, salt, env) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(sessionSecret(env)),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
   );
-  return base64Url(new Uint8Array(bits));
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`${salt}:${pin}`)
+  );
+  return base64Url(new Uint8Array(signature));
 }
 
 async function digestText(value) {

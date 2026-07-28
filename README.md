@@ -88,9 +88,9 @@ ADMIN_RECOVERY_KEY
 ```
 
 `ADMIN_PIN` is used only for the first login. After that, the active PIN is stored
-as a one-way hash in KV. `ADMIN_RECOVERY_KEY` powers the **Forgot your PIN?**
-form on the admin page. Keep the recovery code outside the repository and never
-place it in HTML or JavaScript.
+as a one-way, server-keyed hash in KV. `ADMIN_RECOVERY_KEY` powers the **Forgot
+your PIN?** form on the admin page. Keep the recovery code outside the repository
+and never place it in HTML or JavaScript.
 
 ## Update with VS Code
 
