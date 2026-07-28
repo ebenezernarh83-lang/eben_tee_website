@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Search and sharing metadata for the contact page. -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Contact Eben Tee about software engineering, digital systems, engineering collaboration, construction projects, drone services, property work, or media production in Ghana.">
@@ -20,11 +21,16 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="styles.css?v=platform-23">
+    <link rel="stylesheet" href="styles.css?v=platform-24">
   </head>
   <body data-page="public" data-view="platform" data-platform-page="contact">
+    <!-- Accessibility: moves keyboard focus directly to the main page content. -->
     <a class="skip-link" href="#platformPageMain">Skip to content</a>
-    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong data-setting="brandName">Eben Tee</strong><small data-setting="tagline">INSPIRE. EMPOWER. CREATE IMPACT.</small></span></a><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mainNav"><span>Menu</span></button><div class="nav-links" id="mainNav"><a href="/about">About</a><a href="/services">Services</a><a href="/real-estate">Properties</a><a href="/construction">Construction</a><a href="/media">Media</a><a href="/digital-products">Software</a><a href="/portfolio">Portfolio</a><a class="button small nav-cta" href="/contact" aria-current="page">Hire Eben Tee</a></div></nav></header>
+
+    <!-- Shared site header and primary navigation. -->
+    <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong data-setting="brandName">Eben Tee</strong><small data-setting="tagline">INSPIRE. EMPOWER. CREATE IMPACT.</small></span></a><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mainNav"><span>Menu</span></button><div class="nav-links" id="mainNav"><a href="/about">About</a><a href="/services">Services</a><a href="/real-estate">Properties</a><a href="/construction">Construction</a><a href="/media">Media</a><a href="/digital-products">Software</a><a href="/gallery">Gallery</a><a class="button small nav-cta" href="/contact" aria-current="page">Hire Eben Tee</a></div></nav></header>
+
+    <!-- Dynamic page area: platform-pages.js builds the guidance and enquiry form here. -->
     <main id="platformPageMain" class="platform-page">
       <section class="platform-page-hero">
         <div class="platform-page-copy">
@@ -35,10 +41,16 @@
         </div>
       </section>
     </main>
+
+    <!-- Quick contact shortcuts populated from the saved phone and WhatsApp settings. -->
     <div class="floating-cta" role="group" aria-label="Quick contact actions"><a href="#contactFormPanel" data-whatsapp-link>WhatsApp</a><a href="#contactFormPanel" data-call-link>Call</a></div>
+
+    <!-- Compact footer with brand identity and social links. -->
     <footer class="site-footer"><div><strong data-setting="brandName">Eben Tee</strong><p data-setting="tagline">INSPIRE. EMPOWER. CREATE IMPACT.</p></div><nav class="social-links" id="socialLinks" aria-label="Social links"></nav></footer>
+
+    <!-- Scripts: shared data, page rendering, motion effects, and first-party analytics. -->
     <script src="data.js?v=platform-20"></script>
-    <script src="platform-pages.js?v=platform-20"></script>
+    <script src="platform-pages.js?v=platform-21"></script>
     <script src="motion.js?v=platform-21"></script>
     <script src="analytics.js?v=platform-20"></script>
   </body>

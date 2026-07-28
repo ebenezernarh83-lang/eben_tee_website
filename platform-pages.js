@@ -8,6 +8,7 @@
   let properties = [];
   let testimonials = [];
 
+  // Each public service page uses this configuration to build consistent content.
   const pageConfigs = {
     about: {
       eyebrow: "About Eben Tee",
@@ -87,7 +88,7 @@
       badge: "Drone media and inspection",
       actions: [
         ["Book a drone shoot", "/contact"],
-        ["View portfolio", "/portfolio", "secondary"],
+        ["View gallery", "/gallery", "secondary"],
         ["Watch videos", "/media", "secondary"]
       ],
       stats: [
@@ -495,7 +496,7 @@
       actions: [
         ["Hire Eben Tee", "/contact"],
         ["View software work", "/digital-products", "secondary"],
-        ["Open portfolio", "/portfolio", "secondary"]
+        ["Open gallery", "/gallery", "secondary"]
       ],
       stats: [
         ["Base", "Ghana"],
@@ -595,6 +596,7 @@
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
+  // Load shared content, then render the requested page and connect global actions.
   document.addEventListener("DOMContentLoaded", async () => {
     const content = await store.loadPublicContent();
     settings = content.settings || store.defaultSettings;
@@ -609,6 +611,7 @@
     bindGlobalClicks();
   });
 
+  // Mobile navigation behavior shared by every platform page.
   function bindNavigation() {
     const toggle = $(".nav-toggle");
     const nav = $("#mainNav");
@@ -628,6 +631,7 @@
     });
   }
 
+  // Apply saved brand, social, phone, email, and WhatsApp settings.
   function renderSettings() {
     $$("[data-setting]").forEach((node) => {
       node.textContent = settings[node.dataset.setting] || "";
@@ -682,6 +686,7 @@
 
     document.title = `${documentTitles[page] || config.eyebrow} | ${settings.brandName || "Eben Tee"}`;
     main.innerHTML = `
+      <!-- Page hero: title, positioning, primary actions, and branded visual. -->
       <section class="platform-page-hero">
         <div class="platform-page-copy">
           <p class="hero-badge"><span></span> ${store.escapeHtml(config.eyebrow)}</p>
@@ -703,10 +708,12 @@
         </aside>
       </section>
 
+      <!-- Quick facts: three useful details visitors can scan immediately. -->
       <section class="platform-page-stats" aria-label="Page highlights">
         ${config.stats.map(([label, value]) => `<span><strong>${store.escapeHtml(label)}</strong><small>${store.escapeHtml(value)}</small></span>`).join("")}
       </section>
 
+      <!-- Overview: the main services or capabilities for this page. -->
       <section class="platform-page-section">
         <div class="section-heading">
           <div>
@@ -719,6 +726,7 @@
         </div>
       </section>
 
+      <!-- Process: explains how the service moves from enquiry to delivery. -->
       <section class="platform-page-section platform-process-section">
         <div>
           <p class="eyebrow">Process</p>
@@ -729,6 +737,7 @@
         </div>
       </section>
 
+      <!-- Advantage: summarizes the practical value of working with Eben Tee. -->
       <section class="platform-spotlight">
         <div>
           <p class="eyebrow">Eben Tee advantage</p>
@@ -742,10 +751,12 @@
 
       ${renderProofSection(page, config)}
 
+      <!-- Dynamic content: properties, portfolio work, posts, projects, or a contact form. -->
       <section class="platform-page-section" id="${dynamicAnchor(config.dynamic)}">
         <div id="dynamicPanel"></div>
       </section>
 
+      <!-- Final call to action shared across the service pages. -->
       <section class="platform-contact-strip" id="contactStrip">
         <div>
           <p class="eyebrow">Work with Eben Tee</p>
@@ -805,6 +816,7 @@
       .slice(0, 2);
 
     return `
+      <!-- Proof and trust: delivery standards and verified reviews when available. -->
       <section class="platform-proof-section">
         <div>
           <p class="eyebrow">Proof and trust</p>
@@ -938,7 +950,7 @@
           <p>This profile is grounded in visible work. Explore the live software platform, published project and property pages, visual media, and the service workflows used to turn enquiries into clear deliverables.</p>
           <div class="hero-actions">
             <a class="button" href="/digital-products">Review software work</a>
-            <a class="button secondary" href="/portfolio">View field portfolio</a>
+            <a class="button secondary" href="/gallery">View field gallery</a>
             <a class="button secondary" href="${store.escapeHtml(settings.github || "https://github.com/ebenezernarh83-lang")}" target="_blank" rel="noreferrer">View GitHub</a>
           </div>
         </div>
@@ -986,7 +998,7 @@
           <h2>Review the work before starting the conversation.</h2>
         </div>
         <p>The live website demonstrates software delivery. GitHub provides public code evidence. The portfolio and YouTube channel show field documentation, visual communication, and Ghana project coverage.</p>
-        <a class="button" href="/portfolio">View selected work</a>
+        <a class="button" href="/gallery">View selected work</a>
       </div>
     `;
   }
@@ -1186,9 +1198,11 @@
     `;
   }
 
+  // Contact panel and enquiry form used by both Contact and Booking pages.
   function renderContactPanel(panel) {
     panel.innerHTML = `
       <div class="contact-grid platform-contact-panel" id="contactFormPanel">
+        <!-- Direct contact details loaded from the admin site settings. -->
         <div>
           <p class="eyebrow">Send enquiry</p>
           <h2>Tell Eben Tee what you need</h2>
@@ -1199,6 +1213,7 @@
             <span class="contact-card"><span>Location</span><strong>${store.escapeHtml(settings.location || "Accra, Ghana")}</strong></span>
           </div>
         </div>
+        <!-- Structured enquiry form saved as a lead before WhatsApp or email opens. -->
         <form class="contact-form" id="pageContactForm">
           <label>Full name <input name="name" type="text" autocomplete="name" required></label>
           <label>Email <input name="email" type="email" autocomplete="email"></label>
@@ -1224,7 +1239,7 @@
       </div>
     `;
 
-      $("#pageContactForm").addEventListener("submit", async (event) => {
+    $("#pageContactForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
       const file = event.currentTarget.querySelector('input[type="file"]')?.files?.[0];

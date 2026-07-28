@@ -22,6 +22,7 @@ export async function onRequestGet({ env }) {
     { loc: `${SITE_URL}/property-management`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/media`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/digital-products`, lastmod: content.updatedAt, priority: "0.85" },
+    { loc: `${SITE_URL}/gallery`, lastmod: content.updatedAt, priority: "0.9" },
     { loc: `${SITE_URL}/portfolio`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/blog`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/contact`, lastmod: content.updatedAt, priority: "0.9" },

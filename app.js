@@ -14,6 +14,7 @@
   let propertyStatus = "all";
   let galleryFilter = "all";
 
+  // Homepage service cards share one data source so their wording stays consistent.
   const serviceCards = [
     {
       title: "Software Engineering and Digital Systems",
@@ -56,6 +57,7 @@
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
+  // Load published content first, then connect interactions and render the homepage.
   document.addEventListener("DOMContentLoaded", async () => {
     const content = await store.loadPublicContent();
     posts = content.posts;
@@ -74,6 +76,7 @@
     renderAll();
   });
 
+  // Navigation and filter controls.
   function bindNavigation() {
     const toggle = $(".nav-toggle");
     const nav = $("#mainNav");
@@ -157,6 +160,7 @@
     }
   }
 
+  // Contact, newsletter, and media-dialog interactions.
   function bindContactForm() {
     const form = $("#contactForm");
     if (!form) return;
@@ -264,6 +268,7 @@
     renderTestimonials();
   }
 
+  // Apply editable brand, contact, and social settings across the page.
   function renderSettings() {
     document.title = `${settings.brandName} | Engineer, Software Developer, and Ghana Project Professional`;
 
@@ -374,6 +379,7 @@
       .join("");
   }
 
+  // Hero and latest-update carousel.
   function renderHero() {
     const feature = posts.find((post) => post.featured) || posts[0];
     const hero = $("#heroFeature");
@@ -566,6 +572,7 @@
       : `<p class="empty-state">Client reviews will appear here.</p>`;
   }
 
+  // Portfolio gallery, filters, media previews, and card rendering.
   function renderPortfolio() {
     const shell = $("#portfolioShowcase");
     const grid = $("#portfolioGrid");
@@ -680,6 +687,7 @@
       : `<p class="empty-state">No updates in this section yet.</p>`;
   }
 
+  // Post, project, property, and supporting content cards.
   function renderProjectGrid(items) {
     const container = $("#projectGrid");
     if (!container) return;
@@ -758,6 +766,7 @@
     }
   }
 
+  // Shared modal content for posts, videos, and drone photographs.
   function openMediaDialog(item) {
     const dialog = $("#postDialog");
     const content = $("#dialogContent");

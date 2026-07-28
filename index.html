@@ -22,7 +22,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="styles.css?v=platform-23">
+    <link rel="stylesheet" href="styles.css?v=platform-24">
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -87,7 +87,7 @@
           {
             "@type": "ListItem",
             "position": 3,
-            "url": "https://ebentee.com/portfolio",
+            "url": "https://ebentee.com/gallery",
             "name": "Drone, property, and Ghana project portfolio"
           }
         ]
@@ -95,8 +95,10 @@
     </script>
   </head>
   <body data-page="public">
+    <!-- Accessibility: lets keyboard users skip the navigation and enter the page content. -->
     <a class="skip-link" href="#main">Skip to content</a>
 
+    <!-- Site header: logo, primary navigation, and the main hiring action. -->
     <header class="site-header">
       <nav class="nav-shell" aria-label="Main navigation">
         <a class="brand" href="/" aria-label="Home">
@@ -118,13 +120,14 @@
           <a href="/construction">Construction</a>
           <a href="/media">Media</a>
           <a href="/digital-products">Software</a>
-          <a href="/portfolio">Portfolio</a>
+          <a href="/gallery">Gallery</a>
           <a class="button small nav-cta" href="/contact">Hire Eben Tee</a>
         </div>
       </nav>
     </header>
 
     <main id="main">
+      <!-- Hero: introduces the brand, primary offer, and featured live project. -->
       <section class="hero-band">
         <div class="hero-grid">
           <div class="hero-copy">
@@ -154,7 +157,7 @@
             </div>
             <div class="hero-actions" role="group" aria-label="Primary actions">
               <a class="button" href="/digital-products">Explore software work</a>
-              <a class="button secondary" href="/portfolio">View portfolio</a>
+              <a class="button secondary" href="/gallery">View gallery</a>
               <a class="button secondary" href="/contact">Hire Eben Tee</a>
             </div>
           </div>
@@ -163,10 +166,12 @@
         </div>
       </section>
 
+      <!-- Latest updates: a continuously moving carousel populated from published posts. -->
       <section class="hero-updates-band" aria-label="Latest updates from Eben Tee">
         <div class="hero-update-carousel" id="heroUpdates" role="region" aria-label="Latest updates"></div>
       </section>
 
+      <!-- About: short professional introduction and profile image. -->
       <section class="platform-intro" id="about" aria-labelledby="platformIntroHeading">
         <div class="platform-intro-copy">
           <p class="eyebrow">About Eben Tee</p>
@@ -183,6 +188,7 @@
         </div>
       </section>
 
+      <!-- Client routes: helps visitors choose a service based on the result they need. -->
       <section class="authority-band" aria-labelledby="authorityHeading">
         <div class="authority-copy">
           <p class="eyebrow">Start with your goal</p>
@@ -212,6 +218,7 @@
         </div>
       </section>
 
+      <!-- Services: six core business areas; app.js refreshes these cards from one service list. -->
       <section class="content-section services-platform" id="services" aria-labelledby="servicesHeading">
         <div class="section-heading">
           <div>
@@ -230,6 +237,7 @@
         </div>
       </section>
 
+      <!-- Engineering proof: explains the technology and business systems behind this website. -->
       <section class="engineering-band" id="engineering" aria-labelledby="engineeringHeading">
         <div class="section-heading engineering-heading">
           <div>
@@ -257,6 +265,7 @@
         </div>
       </section>
 
+      <!-- Gallery: app.js loads published portfolio media and applies the category filters. -->
       <section class="portfolio-band visual-gallery-band" id="portfolio" aria-labelledby="portfolioHeading">
         <div class="section-heading">
           <div>
@@ -266,7 +275,7 @@
           </div>
           <div class="gallery-summary">
             <strong id="portfolioCount">Selected work</strong>
-            <a class="text-link" href="/portfolio">Open full gallery</a>
+            <a class="text-link" href="/gallery">Open full gallery</a>
           </div>
         </div>
         <div class="gallery-filters" id="galleryFilters" role="group" aria-label="Filter gallery">
@@ -278,14 +287,14 @@
         </div>
         <div class="portfolio-layout">
           <div id="portfolioShowcase">
-            <a class="portfolio-feature" href="/portfolio">
+            <a class="portfolio-feature" href="/gallery">
               <span class="portfolio-feature-media"><img src="https://img.youtube.com/vi/12V8geRkPlk/hqdefault.jpg" alt="Ghana highway project drone video" loading="lazy"></span>
               <span class="portfolio-feature-copy"><span class="pill">Project documentation</span><strong>Ghana's massive highway project</strong><small>Aerial infrastructure storytelling showing scale, roads, communities, and changing development corridors.</small><span>Ghana</span></span>
             </a>
           </div>
           <div class="portfolio-grid" id="portfolioGrid">
-            <a class="portfolio-card" href="/portfolio"><span class="portfolio-card-media"><img src="https://img.youtube.com/vi/zl6poa0trhk/hqdefault.jpg" alt="East Legon Hills aerial property tour" loading="lazy"><span class="play-badge">Play</span></span><span class="portfolio-card-copy"><small>Property intelligence</small><strong>East Legon Hills property tour</strong><span>Greater Accra</span></span></a>
-            <a class="portfolio-card" href="/portfolio"><span class="portfolio-card-media"><img src="https://img.youtube.com/vi/7-zq4fa4ZE8/hqdefault.jpg" alt="Kumasi Nsawam Accra highway update" loading="lazy"><span class="play-badge">Play</span></span><span class="portfolio-card-copy"><small>Construction update</small><strong>Kumasi-Nsawam-Accra highway story</strong><span>Ghana</span></span></a>
+            <a class="portfolio-card" href="/gallery"><span class="portfolio-card-media"><img src="https://img.youtube.com/vi/zl6poa0trhk/hqdefault.jpg" alt="East Legon Hills aerial property tour" loading="lazy"><span class="play-badge">Play</span></span><span class="portfolio-card-copy"><small>Property intelligence</small><strong>East Legon Hills property tour</strong><span>Greater Accra</span></span></a>
+            <a class="portfolio-card" href="/gallery"><span class="portfolio-card-media"><img src="https://img.youtube.com/vi/7-zq4fa4ZE8/hqdefault.jpg" alt="Kumasi Nsawam Accra highway update" loading="lazy"><span class="play-badge">Play</span></span><span class="portfolio-card-copy"><small>Construction update</small><strong>Kumasi-Nsawam-Accra highway story</strong><span>Ghana</span></span></a>
           </div>
         </div>
         <div class="gallery-cta">
@@ -300,6 +309,7 @@
         </div>
       </section>
 
+      <!-- Trust points: concise reasons a potential client may choose Eben Tee. -->
       <section class="why-band" aria-labelledby="whyHeading">
         <div>
           <p class="eyebrow">Why work with Eben Tee?</p>
@@ -315,6 +325,7 @@
         </div>
       </section>
 
+      <!-- Contact: captures a structured enquiry and prepares direct follow-up details. -->
       <section class="contact-band" id="contact" aria-labelledby="contactHeading">
         <div class="contact-grid">
           <div>
@@ -365,11 +376,13 @@
       </section>
     </main>
 
+    <!-- Quick contact: persistent WhatsApp and phone shortcuts populated from site settings. -->
     <div class="floating-cta" role="group" aria-label="Quick contact actions">
       <a href="#contact" data-whatsapp-link>WhatsApp</a>
       <a href="#contact" data-call-link>Call</a>
     </div>
 
+    <!-- Footer: secondary navigation, brand message, and social links. -->
     <footer class="site-footer">
       <div>
         <strong data-setting="brandName">Eben Tee</strong>
@@ -379,20 +392,22 @@
         <a href="/about">About</a>
         <a href="/business-profile">Profile</a>
         <a href="/digital-products">Software</a>
-        <a href="/portfolio">Portfolio</a>
+        <a href="/gallery">Gallery</a>
         <a href="/book">Ebook</a>
         <a href="/contact">Contact</a>
       </nav>
       <nav class="social-links" id="socialLinks" aria-label="Social links"></nav>
     </footer>
 
+    <!-- Shared media dialog: opens a selected post, photo, or video without leaving the page. -->
     <dialog class="post-dialog" id="postDialog" aria-labelledby="dialogTitle">
       <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close post">X</button>
       <div id="dialogContent"></div>
     </dialog>
 
+    <!-- Scripts: content storage, homepage behavior, motion effects, and first-party analytics. -->
     <script src="data.js?v=platform-20"></script>
-    <script src="app.js?v=platform-21"></script>
+    <script src="app.js?v=platform-22"></script>
     <script src="motion.js?v=platform-21"></script>
     <script src="analytics.js?v=platform-20"></script>
   </body>
