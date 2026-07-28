@@ -4,6 +4,7 @@
   const store = window.BuildHubData;
   let posts = [];
   let portfolio = [];
+  let gallery = [];
   let properties = [];
   let testimonials = [];
   let leads = [];
@@ -12,6 +13,7 @@
   let analyticsLoaded = false;
   let coverData = "";
   let portfolioUploadData = "";
+  let galleryUploadData = "";
   let propertyUploadData = "";
   let adminEventsBound = false;
 
@@ -118,6 +120,7 @@
       const content = await store.loadAdminContent();
       posts = content.posts;
       portfolio = content.portfolio || [];
+      gallery = content.gallery || [];
       properties = content.properties || [];
       testimonials = content.testimonials || [];
       leads = content.leads || [];
@@ -134,6 +137,7 @@
     bindAdminEvents();
     resetPostForm();
     resetPortfolioForm();
+    resetGalleryForm();
     resetPropertyForm();
     resetTestimonialForm();
     fillSettingsForm();
@@ -150,11 +154,13 @@
 
     $("#postForm").addEventListener("submit", savePost);
     $("#portfolioForm").addEventListener("submit", savePortfolioItem);
+    $("#galleryForm").addEventListener("submit", saveGalleryItem);
     $("#propertyForm").addEventListener("submit", saveProperty);
     $("#testimonialForm").addEventListener("submit", saveTestimonial);
     $("#settingsForm").addEventListener("submit", saveSettings);
     $("#newPostButton").addEventListener("click", resetPostForm);
     $("#newPortfolioButton").addEventListener("click", resetPortfolioForm);
+    $("#newGalleryButton").addEventListener("click", resetGalleryForm);
     $("#newPropertyButton").addEventListener("click", resetPropertyForm);
     $("#newTestimonialButton").addEventListener("click", resetTestimonialForm);
     $("#clearCoverButton").addEventListener("click", () => {
@@ -169,6 +175,12 @@
       $("#portfolioFile").value = "";
       renderPortfolioPreview();
     });
+    $("#clearGalleryImageButton").addEventListener("click", () => {
+      galleryUploadData = "";
+      $("#galleryFile").value = "";
+      $("#galleryImageUrl").value = "";
+      renderGalleryPreview();
+    });
     $("#clearPropertyMediaButton").addEventListener("click", () => {
       propertyUploadData = "";
       $("#propertyFile").value = "";
@@ -177,6 +189,7 @@
 
     $("#coverInput").addEventListener("change", handleCoverUpload);
     $("#portfolioFile").addEventListener("change", handlePortfolioUpload);
+    $("#galleryFile").addEventListener("change", handleGalleryUpload);
     $("#propertyFile").addEventListener("change", handlePropertyUpload);
     $("#postTitle").addEventListener("input", renderEditorPreview);
     $("#postSummary").addEventListener("input", renderEditorPreview);
@@ -186,6 +199,10 @@
     $("#portfolioSummary").addEventListener("input", renderPortfolioPreview);
     $("#portfolioType").addEventListener("change", renderPortfolioPreview);
     $("#portfolioMediaUrl").addEventListener("input", renderPortfolioPreview);
+    $("#galleryTitle").addEventListener("input", renderGalleryPreview);
+    $("#galleryDescription").addEventListener("input", renderGalleryPreview);
+    $("#galleryLabel").addEventListener("input", renderGalleryPreview);
+    $("#galleryImageUrl").addEventListener("input", renderGalleryPreview);
     $("#propertyTitle").addEventListener("input", renderPropertyPreview);
     $("#propertySummary").addEventListener("input", renderPropertyPreview);
     $("#propertyMediaUrl").addEventListener("input", renderPropertyPreview);
@@ -199,6 +216,9 @@
     $("#portfolioSearch").addEventListener("input", renderPortfolioList);
     $("#portfolioStatusFilter").addEventListener("change", renderPortfolioList);
     $("#portfolioList").addEventListener("click", handlePortfolioAction);
+    $("#gallerySearch").addEventListener("input", renderGalleryList);
+    $("#galleryStatusFilter").addEventListener("change", renderGalleryList);
+    $("#galleryList").addEventListener("click", handleGalleryAction);
     $("#propertyAdminSearch").addEventListener("input", renderPropertyList);
     $("#propertyAdminStatusFilter").addEventListener("change", renderPropertyList);
     $("#propertyList").addEventListener("click", handlePropertyAction);
@@ -243,9 +263,19 @@
 
   async function persistContent(message, pin = "") {
     try {
-      const result = await store.saveAdminContent({ posts, portfolio, properties, testimonials, leads, settings, pin });
+      const result = await store.saveAdminContent({
+        posts,
+        portfolio,
+        gallery,
+        properties,
+        testimonials,
+        leads,
+        settings,
+        pin
+      });
       posts = result.posts;
       portfolio = result.portfolio || [];
+      gallery = result.gallery || [];
       properties = result.properties || [];
       testimonials = result.testimonials || [];
       leads = result.leads || [];
@@ -254,6 +284,7 @@
       if (result.offline) {
         setMessage("#postMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#portfolioMessage", "Saved locally. Deploy Functions to save online.");
+        setMessage("#galleryMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#propertyMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#testimonialMessage", "Saved locally. Deploy Functions to save online.");
         setMessage("#leadMessage", "Saved locally. Deploy Functions to save online.");
@@ -262,6 +293,7 @@
       } else if (message) {
         setMessage("#postMessage", message);
         setMessage("#portfolioMessage", message);
+        setMessage("#galleryMessage", message);
         setMessage("#propertyMessage", message);
         setMessage("#testimonialMessage", message);
         setMessage("#leadMessage", message);
@@ -273,6 +305,7 @@
       const messageText = error && error.status === 401 ? "Please log in again." : "Could not save online. Try again.";
       setMessage("#postMessage", messageText);
       setMessage("#portfolioMessage", messageText);
+      setMessage("#galleryMessage", messageText);
       setMessage("#propertyMessage", messageText);
       setMessage("#testimonialMessage", messageText);
       setMessage("#leadMessage", messageText);
@@ -606,6 +639,131 @@
     renderPortfolioPreview();
   }
 
+  // Gallery entries are separate from portfolio media so this form maps directly
+  // to the filtered image grid on gallery.html.
+  async function saveGalleryItem(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const id = String(formData.get("id") || "").trim();
+    const existing = gallery.find((item) => item.id === id);
+    const image =
+      galleryUploadData ||
+      String(formData.get("imageUrl") || "").trim() ||
+      (existing && existing.image) ||
+      "";
+
+    if (!image) {
+      $("#galleryMessage").textContent = "Upload an image or paste an image link.";
+      return;
+    }
+
+    const nextItem = store.normalizeGalleryItem({
+      ...(existing || {}),
+      id: existing ? existing.id : store.makeId().replace(/^post-/, "gallery-"),
+      status: String(formData.get("status") || "published"),
+      title: String(formData.get("title") || ""),
+      description: String(formData.get("description") || ""),
+      label: String(formData.get("label") || ""),
+      image,
+      categories: formData.getAll("categories"),
+      size: String(formData.get("size") || "standard"),
+      publishedAt: String(formData.get("publishedAt") || store.today())
+    });
+
+    gallery = existing
+      ? gallery.map((item) => (item.id === existing.id ? nextItem : item))
+      : [nextItem, ...gallery];
+
+    $("#galleryMessage").textContent = "Saving...";
+    if (!(await persistContent("Gallery image saved online."))) return;
+    editGalleryItem(nextItem.id);
+    renderAdmin();
+  }
+
+  async function handleGalleryUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    $("#galleryMessage").textContent = "Preparing image...";
+    try {
+      galleryUploadData = await resizeCoverImage(file);
+      $("#galleryImageUrl").value = "";
+      $("#galleryMessage").textContent = "Image ready.";
+      renderGalleryPreview();
+    } catch (error) {
+      $("#galleryMessage").textContent = "Could not prepare this image. Try a smaller JPG, PNG, or WebP.";
+      event.target.value = "";
+    }
+  }
+
+  async function handleGalleryAction(event) {
+    const button = event.target.closest("[data-gallery-action]");
+    if (!button) return;
+
+    const id = button.dataset.id;
+    const action = button.dataset.galleryAction;
+    if (action === "edit") editGalleryItem(id);
+    if (action === "delete") await deleteGalleryItem(id);
+    if (action === "publish") await toggleGalleryStatus(id);
+  }
+
+  function editGalleryItem(id) {
+    const item = gallery.find((entry) => entry.id === id);
+    if (!item) return;
+
+    galleryUploadData = "";
+    $("#galleryEditorTitle").textContent = "Edit gallery image";
+    $("#galleryId").value = item.id;
+    $("#galleryTitle").value = item.title;
+    $("#galleryStatus").value = item.status;
+    $("#galleryDate").value = item.publishedAt;
+    $("#galleryLabel").value = item.label;
+    $("#gallerySize").value = item.size;
+    $("#galleryDescription").value = item.description;
+    $("#galleryImageUrl").value = item.image.startsWith("data:") ? "" : item.image;
+    $$('input[name="categories"]', $("#galleryForm")).forEach((checkbox) => {
+      checkbox.checked = item.categories.includes(checkbox.value);
+    });
+    $("#galleryFile").value = "";
+    $("#galleryMessage").textContent = "";
+    renderGalleryPreview();
+  }
+
+  async function deleteGalleryItem(id) {
+    const item = gallery.find((entry) => entry.id === id);
+    if (!item) return;
+
+    const confirmed = window.confirm(`Delete "${item.title}" from the gallery?`);
+    if (!confirmed) return;
+
+    gallery = gallery.filter((entry) => entry.id !== id);
+    if (!(await persistContent("Gallery image deleted online."))) return;
+    resetGalleryForm();
+    renderAdmin();
+  }
+
+  async function toggleGalleryStatus(id) {
+    gallery = gallery.map((item) =>
+      item.id === id ? { ...item, status: item.status === "published" ? "draft" : "published" } : item
+    );
+    if (!(await persistContent("Gallery status updated online."))) return;
+    renderAdmin();
+  }
+
+  function resetGalleryForm() {
+    galleryUploadData = "";
+    $("#galleryEditorTitle").textContent = "New gallery image";
+    $("#galleryForm").reset();
+    $("#galleryId").value = "";
+    $("#galleryDate").value = store.today();
+    $("#galleryStatus").value = "published";
+    $("#gallerySize").value = "standard";
+    const droneCategory = $('input[name="categories"][value="drone"]', $("#galleryForm"));
+    if (droneCategory) droneCategory.checked = true;
+    $("#galleryMessage").textContent = "";
+    renderGalleryPreview();
+  }
+
   async function saveProperty(event) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -931,12 +1089,14 @@
     renderStats();
     renderPostList();
     renderPortfolioList();
+    renderGalleryList();
     renderPropertyList();
     renderTestimonialList();
     renderLeadList();
     renderContentPlan();
     renderEditorPreview();
     renderPortfolioPreview();
+    renderGalleryPreview();
     renderPropertyPreview();
     renderTestimonialPreview();
     renderAnalytics();
@@ -947,6 +1107,7 @@
     $("#adminDraftCount").textContent = posts.filter((post) => post.status === "draft").length;
     $("#adminFeaturedCount").textContent = posts.filter((post) => post.featured).length;
     $("#adminMediaCount").textContent = portfolio.length;
+    $("#adminGalleryCount").textContent = gallery.length;
     $("#adminPropertyCount").textContent = properties.length;
     $("#adminTestimonialCount").textContent = testimonials.length;
     $("#adminLeadCount").textContent = leads.length;
@@ -1051,6 +1212,59 @@
     }
 
     return `<span class="manager-media-placeholder">ET</span>`;
+  }
+
+  function renderGalleryList() {
+    const list = $("#galleryList");
+    if (!list) return;
+
+    const search = $("#gallerySearch").value.trim().toLowerCase();
+    const status = $("#galleryStatusFilter").value;
+    const filtered = gallery.filter((item) => {
+      const matchesStatus = status === "all" || item.status === status;
+      const haystack = [item.title, item.description, item.label, item.categories.join(" ")].join(" ").toLowerCase();
+      return matchesStatus && (!search || haystack.includes(search));
+    });
+
+    list.innerHTML = filtered.length
+      ? filtered.map(renderGalleryManagerItem).join("")
+      : `<p class="empty-state">No admin gallery images yet. Add your first image using the form.</p>`;
+  }
+
+  function renderGalleryManagerItem(item) {
+    return `
+      <article class="manager-item" data-category="gallery">
+        ${item.image ? `<img src="${store.escapeHtml(item.image)}" alt="">` : '<span class="manager-media-placeholder">ET</span>'}
+        <div>
+          <span class="card-meta">${store.escapeHtml(item.label)} · ${store.formatDate(item.publishedAt)}</span>
+          <h3>${store.escapeHtml(item.title)}</h3>
+          <p>${store.escapeHtml(item.description || "Public gallery image")}</p>
+          <div class="tag-row compact">
+            <span>${item.status}</span>
+            <span>${item.size}</span>
+            ${item.categories.map((category) => `<span>${store.escapeHtml(galleryCategoryLabel(category))}</span>`).join("")}
+          </div>
+        </div>
+        <div class="manager-actions">
+          <button type="button" data-gallery-action="edit" data-id="${store.escapeHtml(item.id)}">Edit</button>
+          <button type="button" data-gallery-action="publish" data-id="${store.escapeHtml(item.id)}">${
+            item.status === "published" ? "Draft" : "Publish"
+          }</button>
+          <button class="danger-link" type="button" data-gallery-action="delete" data-id="${store.escapeHtml(item.id)}">Delete</button>
+        </div>
+      </article>
+    `;
+  }
+
+  function galleryCategoryLabel(category) {
+    return (
+      {
+        drone: "Drone views",
+        property: "Property",
+        construction: "Construction",
+        places: "Ghana places"
+      }[category] || category
+    );
   }
 
   function renderPropertyList() {
@@ -1282,6 +1496,27 @@
         <span class="pill">${type === "video" ? "Drone video" : "Drone photo"}</span>
         <h3>${store.escapeHtml(title)}</h3>
         <p>${store.escapeHtml(summary)}</p>
+      </div>
+    `;
+  }
+
+  function renderGalleryPreview() {
+    const preview = $("#galleryPreview");
+    if (!preview) return;
+
+    const id = $("#galleryId").value;
+    const existing = gallery.find((item) => item.id === id);
+    const title = $("#galleryTitle").value || "Gallery image title";
+    const description = $("#galleryDescription").value || "A short description will appear in the image viewer.";
+    const label = $("#galleryLabel").value || "Field work";
+    const image = galleryUploadData || $("#galleryImageUrl").value.trim() || (existing && existing.image) || "";
+
+    preview.innerHTML = `
+      ${image ? `<img src="${store.escapeHtml(image)}" alt="">` : '<span class="manager-media-placeholder">ET</span>'}
+      <div>
+        <span class="pill">${store.escapeHtml(label)}</span>
+        <h3>${store.escapeHtml(title)}</h3>
+        <p>${store.escapeHtml(description)}</p>
       </div>
     `;
   }
@@ -1538,6 +1773,7 @@
       exportedAt: new Date().toISOString(),
       settings,
       portfolio,
+      gallery,
       properties,
       testimonials,
       leads,
@@ -1566,6 +1802,7 @@
 
         posts = payload.posts.map(store.normalizePost);
         portfolio = Array.isArray(payload.portfolio) ? payload.portfolio.map(store.normalizePortfolioItem) : portfolio;
+        gallery = Array.isArray(payload.gallery) ? payload.gallery.map(store.normalizeGalleryItem) : gallery;
         properties = Array.isArray(payload.properties) ? payload.properties.map(store.normalizeProperty) : properties;
         testimonials = Array.isArray(payload.testimonials)
           ? payload.testimonials.map(store.normalizeTestimonial)
@@ -1595,6 +1832,7 @@
 
     posts = store.resetPosts();
     portfolio = store.loadPortfolio();
+    gallery = store.loadGallery();
     properties = store.loadProperties();
     testimonials = store.loadTestimonials();
     leads = store.loadLeads();

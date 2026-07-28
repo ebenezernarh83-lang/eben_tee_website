@@ -3,6 +3,7 @@
 
   const STORAGE_KEY = "build-journal-posts-v1";
   const PORTFOLIO_KEY = "build-journal-portfolio-v1";
+  const GALLERY_KEY = "build-journal-gallery-v1";
   const PROPERTIES_KEY = "build-journal-properties-v1";
   const TESTIMONIALS_KEY = "build-journal-testimonials-v1";
   const LEADS_KEY = "build-journal-leads-v1";
@@ -559,6 +560,25 @@
     };
   }
 
+  function normalizeGalleryItem(item) {
+    const allowedCategories = ["drone", "property", "construction", "places"];
+    const categories = parseTags(item.categories).filter((category) => allowedCategories.includes(category));
+
+    return {
+      id: String(item.id || makeId()).replace(/^post-/, "gallery-"),
+      status: item.status === "draft" ? "draft" : "published",
+      title: String(item.title || "Untitled gallery image").trim(),
+      description: String(item.description || "").trim(),
+      label: String(item.label || "Field work").trim(),
+      image: String(item.image || item.src || "").trim(),
+      categories: categories.length ? categories : ["drone"],
+      size: item.size === "wide" ? "wide" : "standard",
+      publishedAt: item.publishedAt || today(),
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
   function normalizeProperty(item) {
     const title = String(item.title || "Untitled property").trim();
     const mediaUrl = String(item.mediaUrl || "").trim();
@@ -721,6 +741,17 @@
   function savePortfolio(items) {
     const normalized = items.map(normalizePortfolioItem).sort(sortByDateDesc);
     writeJson(PORTFOLIO_KEY, normalized);
+    return normalized;
+  }
+
+  function loadGallery() {
+    const stored = readJson(GALLERY_KEY, null);
+    return Array.isArray(stored) ? stored.map(normalizeGalleryItem).sort(sortByDateDesc) : [];
+  }
+
+  function saveGallery(items) {
+    const normalized = items.map(normalizeGalleryItem).sort(sortByDateDesc);
+    writeJson(GALLERY_KEY, normalized);
     return normalized;
   }
 
@@ -896,6 +927,10 @@
     return items.filter((item) => item.status === "published").sort(sortByDateDesc);
   }
 
+  function getPublishedGallery(items) {
+    return items.filter((item) => item.status === "published").sort(sortByDateDesc);
+  }
+
   function getPublishedProperties(items) {
     return items.filter((item) => item.status === "published").sort(sortByDateDesc);
   }
@@ -945,6 +980,7 @@
     return {
       posts: getPublishedPosts(loadPosts()),
       portfolio: getPublishedPortfolio(loadPortfolio()),
+      gallery: getPublishedGallery(loadGallery()),
       properties: getPublishedProperties(loadProperties()),
       testimonials: getPublishedTestimonials(loadTestimonials()),
       settings: loadSettings(),
@@ -956,6 +992,7 @@
     return {
       posts: loadPosts(),
       portfolio: loadPortfolio(),
+      gallery: loadGallery(),
       properties: loadProperties(),
       testimonials: loadTestimonials(),
       leads: loadLeads(),
@@ -969,6 +1006,9 @@
     const loadedPortfolio = Array.isArray(payload.portfolio)
       ? payload.portfolio.map(normalizePortfolioItem).sort(sortByDateDesc)
       : loadPortfolio();
+    const loadedGallery = Array.isArray(payload.gallery)
+      ? payload.gallery.map(normalizeGalleryItem).sort(sortByDateDesc)
+      : loadGallery();
     const loadedProperties = Array.isArray(payload.properties)
       ? payload.properties.map(normalizeProperty).sort(sortByDateDesc)
       : loadProperties();
@@ -981,6 +1021,7 @@
     return {
       posts: publishedOnly ? getPublishedPosts(loadedPosts) : loadedPosts,
       portfolio: publishedOnly ? getPublishedPortfolio(loadedPortfolio) : loadedPortfolio,
+      gallery: publishedOnly ? getPublishedGallery(loadedGallery) : loadedGallery,
       properties: publishedOnly ? getPublishedProperties(loadedProperties) : loadedProperties,
       testimonials: publishedOnly ? getPublishedTestimonials(loadedTestimonials) : loadedTestimonials,
       leads: publishedOnly ? [] : loadedLeads,
@@ -1055,6 +1096,7 @@
       const normalized = normalizeContentPayload(payload, false);
       writeJson(STORAGE_KEY, normalized.posts);
       writeJson(PORTFOLIO_KEY, normalized.portfolio);
+      writeJson(GALLERY_KEY, normalized.gallery);
       writeJson(PROPERTIES_KEY, normalized.properties);
       writeJson(TESTIMONIALS_KEY, normalized.testimonials);
       writeJson(LEADS_KEY, normalized.leads);
@@ -1070,6 +1112,7 @@
       return {
         posts: savePosts(content.posts || []),
         portfolio: savePortfolio(content.portfolio || []),
+        gallery: saveGallery(content.gallery || []),
         properties: saveProperties(content.properties || []),
         testimonials: saveTestimonials(content.testimonials || []),
         leads: saveLeads(content.leads || []),
@@ -1176,6 +1219,7 @@
     getYouTubeThumbnailUrl,
     createGeneratedCover,
     normalizePortfolioItem,
+    normalizeGalleryItem,
     normalizeProperty,
     normalizeTestimonial,
     normalizeLead,
@@ -1184,6 +1228,8 @@
     savePosts,
     loadPortfolio,
     savePortfolio,
+    loadGallery,
+    saveGallery,
     loadProperties,
     saveProperties,
     loadTestimonials,
@@ -1201,6 +1247,7 @@
     trackEvent,
     getPublishedPosts,
     getPublishedPortfolio,
+    getPublishedGallery,
     getAdminPin,
     setAdminPin,
     unlockAdmin,

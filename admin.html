@@ -75,13 +75,14 @@
         <div class="admin-hero">
           <div>
             <p class="eyebrow">Admin studio</p>
-            <h1>Manage posts, properties, portfolio, reviews, leads, analytics, and settings</h1>
+            <h1>Manage posts, gallery, properties, portfolio, reviews, leads, analytics, and settings</h1>
           </div>
           <div class="admin-stats" role="group" aria-label="Admin statistics">
             <span><strong id="adminPublishedCount">0</strong> published</span>
             <span><strong id="adminDraftCount">0</strong> drafts</span>
             <span><strong id="adminFeaturedCount">0</strong> featured</span>
             <span><strong id="adminMediaCount">0</strong> media</span>
+            <span><strong id="adminGalleryCount">0</strong> gallery</span>
             <span><strong id="adminPropertyCount">0</strong> properties</span>
             <span><strong id="adminTestimonialCount">0</strong> reviews</span>
             <span><strong id="adminLeadCount">0</strong> leads</span>
@@ -91,6 +92,7 @@
         <div class="admin-tabs" role="tablist" aria-label="Admin sections">
           <button class="tab-button is-active" type="button" data-admin-tab="posts">Posts</button>
           <button class="tab-button" type="button" data-admin-tab="portfolio">Portfolio</button>
+          <button class="tab-button" type="button" data-admin-tab="gallery">Gallery</button>
           <button class="tab-button" type="button" data-admin-tab="properties">Properties</button>
           <button class="tab-button" type="button" data-admin-tab="testimonials">Testimonials</button>
           <button class="tab-button" type="button" data-admin-tab="leads">Leads</button>
@@ -320,6 +322,119 @@
                 </label>
               </div>
               <div class="post-manager-list" id="portfolioList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Gallery manager: controls new photos in the public Gallery page. -->
+        <section class="admin-panel is-hidden" data-panel="gallery">
+          <div class="admin-layout">
+            <form class="editor-panel" id="galleryForm">
+              <div class="form-title-row">
+                <div>
+                  <p class="eyebrow">Public gallery</p>
+                  <h2 id="galleryEditorTitle">New gallery image</h2>
+                </div>
+                <button class="button small secondary" type="button" id="newGalleryButton">New</button>
+              </div>
+
+              <input type="hidden" id="galleryId" name="id">
+
+              <label>
+                Image title
+                <input id="galleryTitle" name="title" type="text" maxlength="120" required>
+              </label>
+
+              <div class="form-grid">
+                <label>
+                  Status
+                  <select id="galleryStatus" name="status">
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </label>
+                <label>
+                  Date
+                  <input id="galleryDate" name="publishedAt" type="date" required>
+                </label>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Display label
+                  <input id="galleryLabel" name="label" type="text" maxlength="80" placeholder="Hospitality media">
+                </label>
+                <label>
+                  Card layout
+                  <select id="gallerySize" name="size">
+                    <option value="standard">Standard</option>
+                    <option value="wide">Wide feature</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>
+                Description
+                <textarea id="galleryDescription" name="description" rows="3" maxlength="500"></textarea>
+              </label>
+
+              <fieldset class="gallery-category-fieldset">
+                <legend>Gallery filters</legend>
+                <div class="gallery-category-options">
+                  <label class="check-row">
+                    <input name="categories" type="checkbox" value="drone">
+                    Drone views
+                  </label>
+                  <label class="check-row">
+                    <input name="categories" type="checkbox" value="property">
+                    Property
+                  </label>
+                  <label class="check-row">
+                    <input name="categories" type="checkbox" value="construction">
+                    Construction
+                  </label>
+                  <label class="check-row">
+                    <input name="categories" type="checkbox" value="places">
+                    Ghana places
+                  </label>
+                </div>
+              </fieldset>
+
+              <label>
+                Image link
+                <input id="galleryImageUrl" name="imageUrl" type="url" placeholder="https://...">
+              </label>
+
+              <label class="file-field">
+                Upload gallery image
+                <input id="galleryFile" name="imageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+              </label>
+
+              <div class="preview-card" id="galleryPreview" aria-live="polite"></div>
+
+              <div class="editor-actions">
+                <button class="button" type="submit">Save gallery image</button>
+                <button class="button secondary" type="button" id="clearGalleryImageButton">Clear upload</button>
+              </div>
+              <p class="form-note" id="galleryMessage" aria-live="polite"></p>
+            </form>
+
+            <div class="manager-panel">
+              <div class="manager-toolbar">
+                <label>
+                  Search
+                  <input id="gallerySearch" type="search" placeholder="Find gallery images...">
+                </label>
+                <label>
+                  Filter
+                  <select id="galleryStatusFilter">
+                    <option value="all">All images</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </label>
+              </div>
+              <div class="post-manager-list" id="galleryList"></div>
             </div>
           </div>
         </section>
@@ -783,7 +898,7 @@
       </section>
     </main>
 
-    <script src="data.js?v=admin-recovery-1"></script>
-    <script src="admin.js?v=admin-recovery-1"></script>
+    <script src="data.js?v=gallery-admin-1"></script>
+    <script src="admin.js?v=gallery-admin-1"></script>
   </body>
 </html>

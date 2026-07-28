@@ -194,13 +194,18 @@
   ];
 
   let settings = {};
-  let visibleItems = galleryItems;
+  let allGalleryItems = galleryItems;
+  let visibleItems = allGalleryItems;
   let activeIndex = 0;
 
   // Load saved brand settings, then connect navigation, filters, and the image viewer.
   document.addEventListener("DOMContentLoaded", async () => {
     const content = await store.loadPublicContent();
     settings = content.settings || store.defaultSettings;
+    const managedGalleryItems = (content.gallery || []).map(managedGalleryItem).filter((item) => item.src);
+    allGalleryItems = [...managedGalleryItems, ...galleryItems];
+    visibleItems = allGalleryItems;
+    $("#galleryTotalCount").textContent = String(allGalleryItems.length);
 
     bindNavigation();
     renderSettings();
@@ -208,6 +213,18 @@
     bindLightbox();
     renderGallery();
   });
+
+  // Convert admin-managed records into the same shape as the curated gallery stills.
+  function managedGalleryItem(item) {
+    return {
+      src: item.image || "",
+      title: item.title || "Gallery image",
+      description: item.description || "Eben Tee field work and visual documentation in Ghana.",
+      label: item.label || "Field work",
+      categories: Array.isArray(item.categories) && item.categories.length ? item.categories : ["drone"],
+      size: item.size === "wide" ? "wide" : "standard"
+    };
+  }
 
   // Mobile navigation follows the same open and close behavior as the main site.
   function bindNavigation() {
@@ -274,7 +291,8 @@
     $$(".gallery-page-filter").forEach((button) => {
       button.addEventListener("click", () => {
         const filter = button.dataset.filter;
-        visibleItems = filter === "all" ? galleryItems : galleryItems.filter((item) => item.categories.includes(filter));
+        visibleItems =
+          filter === "all" ? allGalleryItems : allGalleryItems.filter((item) => item.categories.includes(filter));
         $$(".gallery-page-filter").forEach((item) => {
           const active = item === button;
           item.classList.toggle("is-active", active);

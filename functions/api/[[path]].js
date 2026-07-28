@@ -396,6 +396,7 @@ async function saveAdminContent(request, env) {
   const next = sanitizeContent({
     posts: payload.posts,
     portfolio: payload.portfolio,
+    gallery: payload.gallery,
     properties: payload.properties,
     testimonials: payload.testimonials,
     leads: payload.leads,
@@ -664,6 +665,7 @@ async function readContent(env) {
     settings: defaultSettings,
     posts: samplePosts,
     portfolio: samplePortfolio,
+    gallery: [],
     properties: sampleProperties,
     testimonials: sampleTestimonials,
     leads: [],
@@ -683,6 +685,7 @@ function sanitizeContent(content) {
   const portfolio = Array.isArray(content.portfolio)
     ? content.portfolio.map(sanitizePortfolioItem).sort(sortByDateDesc)
     : samplePortfolio.map(sanitizePortfolioItem).sort(sortByDateDesc);
+  const gallery = Array.isArray(content.gallery) ? content.gallery.map(sanitizeGalleryItem).sort(sortByDateDesc) : [];
   const properties = Array.isArray(content.properties)
     ? content.properties.map(sanitizeProperty).sort(sortByDateDesc)
     : sampleProperties.map(sanitizeProperty).sort(sortByDateDesc);
@@ -692,7 +695,18 @@ function sanitizeContent(content) {
   const leads = Array.isArray(content.leads) ? content.leads.map(sanitizeLead).sort(sortLeadDesc) : [];
   const admin = content.admin && typeof content.admin === "object" ? { ...content.admin } : {};
 
-  return { version: 1, updatedAt: new Date().toISOString(), settings, posts, portfolio, properties, testimonials, leads, admin };
+  return {
+    version: 1,
+    updatedAt: new Date().toISOString(),
+    settings,
+    posts,
+    portfolio,
+    gallery,
+    properties,
+    testimonials,
+    leads,
+    admin
+  };
 }
 
 function sanitizeSettings(settings) {
@@ -803,6 +817,27 @@ function sanitizePortfolioItem(item) {
   };
 }
 
+function sanitizeGalleryItem(item) {
+  const allowedCategories = new Set(["drone", "property", "construction", "places"]);
+  const categories = Array.isArray(item.categories)
+    ? item.categories.map((category) => cleanText(category, 30)).filter((category) => allowedCategories.has(category)).slice(0, 4)
+    : [];
+
+  return {
+    id: cleanText(item.id || crypto.randomUUID(), 90).replace(/^post-/, "gallery-"),
+    status: item.status === "draft" ? "draft" : "published",
+    title: cleanText(item.title || "Untitled gallery image", 120),
+    description: cleanText(item.description || "", 500),
+    label: cleanText(item.label || "Field work", 80),
+    image: cleanCover(item.image || item.src),
+    categories: categories.length ? categories : ["drone"],
+    size: item.size === "wide" ? "wide" : "standard",
+    publishedAt: cleanText(item.publishedAt || today(), 20),
+    createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
+    updatedAt: new Date().toISOString()
+  };
+}
+
 function sanitizeProperty(item) {
   const mediaUrl = cleanMediaUrl(item.mediaUrl, "photo");
   return {
@@ -867,6 +902,11 @@ function publicContent(content) {
     settings: content.settings,
     posts: content.posts.filter((post) => post.status === "published").map(publicPost).sort(sortByDateDesc),
     portfolio: content.portfolio.filter((item) => item.status === "published").map(publicPortfolioItem).sort(sortByDateDesc),
+    gallery: content.gallery
+      .filter((item) => item.status === "published" && item.image)
+      .map((item) => ({ ...item, image: cleanPublicImage(item.image) }))
+      .filter((item) => item.image)
+      .sort(sortByDateDesc),
     properties: content.properties.filter((item) => item.status === "published").map(publicProperty).sort(sortByDateDesc),
     testimonials: content.testimonials.filter((item) => item.status === "published")
   };
@@ -903,6 +943,7 @@ function adminContent(content) {
     settings: content.settings,
     posts: content.posts.sort(sortByDateDesc),
     portfolio: content.portfolio.sort(sortByDateDesc),
+    gallery: content.gallery.sort(sortByDateDesc),
     properties: content.properties.sort(sortByDateDesc),
     testimonials: content.testimonials,
     leads: content.leads.sort(sortLeadDesc)
@@ -1207,6 +1248,7 @@ async function persistUploadedMedia(payload, env) {
 
   const posts = Array.isArray(payload.posts) ? payload.posts : [];
   const portfolio = Array.isArray(payload.portfolio) ? payload.portfolio : [];
+  const gallery = Array.isArray(payload.gallery) ? payload.gallery : [];
   const properties = Array.isArray(payload.properties) ? payload.properties : [];
 
   await Promise.all(
@@ -1222,6 +1264,12 @@ async function persistUploadedMedia(payload, env) {
       item.thumbnail = originalMedia && item.thumbnail === originalMedia
         ? item.mediaUrl
         : await storeDataImage(env, item.thumbnail, "portfolio", item.id, "thumbnail");
+    })
+  );
+
+  await Promise.all(
+    gallery.map(async (item) => {
+      item.image = await storeDataImage(env, item.image, "gallery", item.id, "image");
     })
   );
 

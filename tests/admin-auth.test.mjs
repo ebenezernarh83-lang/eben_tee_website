@@ -115,3 +115,49 @@ test("new PINs must contain 6 to 12 digits", async () => {
   assert.equal(response.status, 400);
   assert.deepEqual(await response.json(), { error: "Use a PIN containing 6 to 12 digits." });
 });
+
+test("published admin gallery images are returned to the public gallery", async () => {
+  const env = createEnv();
+  const login = await onRequest({
+    request: request("/api/login", { method: "POST", body: { pin: "123456" } }),
+    env
+  });
+  const cookie = sessionCookie(login);
+
+  const currentResponse = await onRequest({
+    request: request("/api/admin/content", { cookie }),
+    env
+  });
+  const current = await currentResponse.json();
+  const galleryItem = {
+    id: "gallery-test-1",
+    status: "published",
+    title: "Test aerial field work",
+    description: "A gallery integration test.",
+    label: "Drone views",
+    image: "https://images.example.com/drone-test.jpg",
+    categories: ["drone", "places"],
+    size: "wide",
+    publishedAt: "2026-07-28"
+  };
+
+  const saveResponse = await onRequest({
+    request: request("/api/admin/content", {
+      method: "PUT",
+      cookie,
+      body: { ...current, gallery: [galleryItem] }
+    }),
+    env
+  });
+  assert.equal(saveResponse.status, 200);
+
+  const publicResponse = await onRequest({
+    request: request("/api/content"),
+    env
+  });
+  const publicContent = await publicResponse.json();
+
+  assert.equal(publicContent.gallery.length, 1);
+  assert.equal(publicContent.gallery[0].title, galleryItem.title);
+  assert.deepEqual(publicContent.gallery[0].categories, ["drone", "places"]);
+});

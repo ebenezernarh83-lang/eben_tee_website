@@ -7,8 +7,9 @@ A ready-to-use Eben Tee platform for Ghana drone media, real estate, constructio
 - `index.html` is the public homepage.
 - `about.html`, `services.html`, `drone-services.html`, `real-estate.html`, `construction.html`, `property-management.html`, `media.html`, `digital-products.html`, `portfolio.html`, `projects.html`, `blog.html`, `contact.html`, `booking.html`, `brochures.html`, `client-portal.html`, and `business-profile.html` are the public platform pages.
 - `book.html` is the separate ebook sales page.
-- `admin.html` is the admin page for creating and managing posts, properties, portfolio media, testimonials, leads, analytics, and site settings.
-- `data.js` stores fallback posts, properties, portfolio items, testimonials, leads, and settings in the browser.
+- `gallery.html` is the public filtered drone and project photo gallery.
+- `admin.html` is the admin page for creating and managing posts, gallery images, properties, portfolio media, testimonials, leads, analytics, and site settings.
+- `data.js` stores fallback posts, gallery images, properties, portfolio items, testimonials, leads, and settings in the browser.
 - `app.js` renders the public site.
 - `platform-pages.js` renders the shared service/platform pages.
 - `projects.js` renders the dedicated projects page.
@@ -52,6 +53,8 @@ Use the Cloudflare production admin PIN for the live site. Change it in `admin.h
 ## How posting works
 
 On Cloudflare, posts and settings are saved online through Pages Functions into KV storage. The public site reads published posts from `/api/content`; the admin page reads and saves all posts through `/api/admin/content`.
+
+Use the **Gallery** tab in the admin to upload additional public gallery images. Published images appear before the curated gallery collection and support the Drone views, Property, Construction, and Ghana places filters.
 
 When running with a plain local static server, the site still falls back to `localStorage` so you can preview the design without Cloudflare.
 

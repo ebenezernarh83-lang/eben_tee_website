@@ -912,6 +912,25 @@ textarea:focus {
   height: 18px;
 }
 
+.gallery-category-fieldset {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem;
+}
+
+.gallery-category-fieldset legend {
+  padding: 0 0.35rem;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.gallery-category-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
 .preview-card {
   display: grid;
   grid-template-columns: 170px 1fr;
@@ -1759,6 +1778,7 @@ body[data-page="admin"] {
   .service-list,
   .backup-grid,
   .form-grid,
+  .gallery-category-options,
   .manager-toolbar,
   .platform-proof-grid,
   .mini-review-grid,
@@ -3795,6 +3815,7 @@ select {
   .service-list,
   .backup-grid,
   .form-grid,
+  .gallery-category-options,
   .admin-layout,
   .manager-toolbar {
     grid-template-columns: 1fr;
