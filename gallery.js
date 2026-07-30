@@ -132,6 +132,10 @@
       )
       .join("");
 
+    // Never leave the full collection hidden if a mobile reveal observer runs
+    // before the asynchronous gallery data has finished rendering.
+    $("#galleryCollection")?.classList.add("is-visible");
+    $("#galleryCollection")?.setAttribute("aria-busy", "false");
     $("#galleryResultCount").textContent = `${visibleItems.length} ${visibleItems.length === 1 ? "image" : "images"}`;
     $$("[data-gallery-index]", grid).forEach((button) => {
       button.addEventListener("click", () => openLightbox(Number(button.dataset.galleryIndex)));

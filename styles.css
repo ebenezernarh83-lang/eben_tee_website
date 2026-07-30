@@ -8547,6 +8547,13 @@ body[data-view="gallery"] .gallery-page-collection {
   padding: clamp(4.5rem, 8vw, 8rem) 0;
 }
 
+/* The collection can be taller than ten mobile screens, so it must never
+   depend on a percentage-based section reveal to become readable. */
+body[data-view="gallery"] .gallery-page-collection.motion-reveal {
+  opacity: 1;
+  transform: none;
+}
+
 body[data-view="gallery"] .gallery-collection-heading {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

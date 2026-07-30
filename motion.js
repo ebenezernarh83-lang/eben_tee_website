@@ -51,7 +51,7 @@
     return Array.from(
       document.querySelectorAll(
         [
-          "main > section:not(.hero-band)",
+          "main > section:not(.hero-band):not(.gallery-page-collection)",
           ".section-heading",
           ".authority-grid > *",
           ".service-platform-grid > *",
@@ -85,7 +85,9 @@
             revealObserver.unobserve(entry.target);
           });
         },
-        { threshold: 0.12, rootMargin: "0px 0px -7% 0px" }
+        // A low threshold is required for long mobile sections whose visible
+        // portion can never reach a large percentage of their full height.
+        { threshold: 0.01, rootMargin: "0px 0px -4% 0px" }
       );
     }
 
