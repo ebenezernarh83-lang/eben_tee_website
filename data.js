@@ -61,8 +61,8 @@
     tagline: "INSPIRE. EMPOWER. CREATE IMPACT.",
     about:
       "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based engineer, software developer, entrepreneur, drone pilot, videographer, construction project manager, real estate marketer, and property manager. I combine technical thinking, digital systems, visual documentation, and practical project support to help people build, invest, communicate, and make better decisions in Ghana.",
-    phone: "",
-    whatsapp: "",
+    phone: "+233558616942",
+    whatsapp: "+233558616942",
     email: "ebenteeentertainment@gmail.com",
     location: "Accra, Ghana",
     youtube: "https://www.youtube.com/@ebentee",
@@ -551,6 +551,8 @@
       summary: String(item.summary || "").trim(),
       location: String(item.location || "").trim(),
       clientType: String(item.clientType || "").trim(),
+      role: String(item.role || "").trim().slice(0, 160),
+      deliverables: String(item.deliverables || "").trim().slice(0, 600),
       serviceCategory: normalizeServiceCategory(item.serviceCategory || item.clientType || ""),
       mapUrl: normalizeUrl(item.mapUrl),
       mediaUrl,
@@ -600,6 +602,10 @@
       location: String(item.location || "").trim(),
       price: String(item.price || "Enquire").trim(),
       size: String(item.size || "").trim(),
+      priceAmount: item.priceAmount !== null && item.priceAmount !== undefined && item.priceAmount !== "" && Number.isFinite(Number(item.priceAmount)) && Number(item.priceAmount) >= 0 ? Number(item.priceAmount) : null,
+      priceCurrency: item.priceCurrency === "USD" ? "USD" : "GHS",
+      verifiedAt: /^\d{4}-\d{2}-\d{2}$/.test(item.verifiedAt || "") ? item.verifiedAt : "",
+      exactLocation: item.exactLocation === true,
       summary: String(item.summary || "").trim(),
       mapUrl: normalizeUrl(item.mapUrl),
       verificationNotes: String(item.verificationNotes || "").trim(),
@@ -620,7 +626,8 @@
       role: String(item.role || "").trim(),
       serviceCategory: normalizeServiceCategory(item.serviceCategory || item.role || ""),
       relatedTitle: String(item.relatedTitle || "").trim(),
-      status: item.status === "draft" ? "draft" : "published",
+      status: item.status === "draft" || item.consentToPublish !== true ? "draft" : "published",
+      consentToPublish: item.consentToPublish === true,
       quote: String(item.quote || "").trim(),
       rating: Math.max(1, Math.min(5, Number(item.rating) || 5)),
       createdAt: item.createdAt || new Date().toISOString(),
@@ -642,6 +649,8 @@
       page: String(item.page || "").trim().slice(0, 180),
       source: String(item.source || "Website").trim(),
       attachmentName: String(item.attachmentName || "").trim(),
+      attachmentStored: item.attachmentStored === true,
+      revision: Number(item.revision) || 1,
       notes: String(item.notes || "").trim(),
       createdAt: item.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -875,6 +884,12 @@
 
   function migrateSettings(settings) {
     const migrated = { ...(settings || {}) };
+    migrated.phone ||= defaultSettings.phone;
+    migrated.whatsapp ||= defaultSettings.whatsapp;
+    // Settings arrive from the network and become hrefs; only web links are allowed.
+    for (const key of ["youtube", "facebook", "instagram", "github", "tiktok", "x"]) {
+      migrated[key] = normalizeUrl(migrated[key]);
+    }
     const oldTaglines = [
       "Ghana drone videos, real estate tours, construction news, and project stories.",
       "Videos, news, and building project updates."
@@ -1141,18 +1156,84 @@
 
   async function submitLead(lead) {
     const normalized = normalizeLead(lead || {});
+    return requestJson("/api/leads", {
+      method: "POST",
+      body: JSON.stringify({ ...normalized, submissionId: lead.submissionId, attachmentData: lead.attachmentData || "", website: lead.website || "" })
+    });
+  }
 
-    try {
-      const payload = await requestJson("/api/leads", {
-        method: "POST",
-        body: JSON.stringify(normalized)
-      });
-      return normalizeLead(payload.lead || normalized);
-    } catch (error) {
-      if (!shouldUseLocalFallback(error)) throw error;
-      const leads = saveLeads([normalized, ...loadLeads()]);
-      return leads[0];
-    }
+  async function updateLead(lead, action) {
+    return requestJson(`/api/admin/leads/${encodeURIComponent(lead.id)}`, {
+      method: action === "delete" ? "DELETE" : "PATCH",
+      body: JSON.stringify({ revision: lead.revision, status: action })
+    });
+  }
+
+  // Shared by Home, Contact and Booking. A successful save never depends on a popup or email app.
+  function bindEnquiryForm(form, settings) {
+    if (!form) return;
+    const result = document.createElement("div");
+    result.className = "enquiry-result";
+    result.setAttribute("role", "status");
+    result.setAttribute("aria-live", "polite");
+    form.append(result);
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (form.dataset.submitting === "true") return;
+      const values = new FormData(form);
+      const contact = String(values.get("contact") || "").trim();
+      const email = String(values.get("email") || (contact.includes("@") ? contact : "")).trim();
+      const phone = String(values.get("phone") || (!contact.includes("@") ? contact : "")).trim();
+      result.replaceChildren();
+      if (!email && !phone) { result.textContent = "Please add an email address or phone number so Eben Tee can reply."; return; }
+      const file = form.querySelector('input[type="file"]')?.files?.[0];
+      if (file && (file.size > 2500000 || !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type))) {
+        result.textContent = "Choose a JPG, PNG, WebP or GIF photo up to 2.5 MB.";
+        return;
+      }
+      form.dataset.submitting = "true";
+      const button = form.querySelector('[type="submit"]');
+      const originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = "Sending...";
+      try {
+        const attachmentData = file ? await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error("Could not read that photo. Please select it again."));
+          reader.readAsDataURL(file);
+        }) : "";
+        form.dataset.submissionId ||= crypto.randomUUID();
+        const saved = await submitLead({
+          name: String(values.get("name") || "").trim(), email, phone,
+          service: String(values.get("service") || ""), location: String(values.get("location") || ""),
+          message: String(values.get("message") || ""), page: location.pathname,
+          website: String(values.get("website") || ""),
+          submissionId: form.dataset.submissionId,
+          attachmentName: file?.name || "", attachmentData
+        });
+        if (!saved.ok) throw new Error("Your enquiry was not saved. Please try again.");
+        result.textContent = saved.attachmentReceived ? "Thank you. Your enquiry and photo have been received." : "Thank you. Your enquiry has been received.";
+        const number = String(settings.whatsapp || "").replace(/\D/g, "");
+        if (number) {
+          const link = document.createElement("a");
+          link.className = "text-link";
+          link.textContent = "Continue on WhatsApp";
+          link.href = `https://wa.me/${number}?text=${encodeURIComponent(`Hello Eben Tee, I sent an enquiry about ${values.get("service") || "your services"}. Reference: ${saved.id}.`)}`;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          result.append(document.createElement("br"), link);
+        }
+        form.reset();
+        delete form.dataset.submissionId;
+      } catch (error) {
+        result.textContent = error.message || "Your enquiry could not be sent. Please retry, or contact Eben Tee by WhatsApp or phone.";
+      } finally {
+        delete form.dataset.submitting;
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    });
   }
 
   async function trackEvent(eventType, detail = {}) {
@@ -1261,6 +1342,8 @@
     loadAnalytics,
     saveAdminContent,
     submitLead,
+    updateLead,
+    bindEnquiryForm,
     trackEvent,
     getPublishedPosts,
     getPublishedPortfolio,

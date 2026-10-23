@@ -9005,3 +9005,68 @@ body[data-view="gallery"] .gallery-lightbox-caption > strong {
     transition: none;
   }
 }
+/* September reliability refresh: compact contact pages and an unframed photo hero. */
+.contact-page-main { max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px; }
+.contact-page-heading { margin: 0 0 32px; }
+body[data-page="public"] .contact-page-heading h1 { font-size: 44px; line-height: 1.12; margin: 12px 0; letter-spacing: 0; }
+.contact-page-heading p { max-width: 620px; }
+.contact-page-main .contact-grid { display: grid; grid-template-columns: minmax(230px, .8fr) minmax(0, 1.2fr); gap: 56px; align-items: start; }
+.contact-page-main .contact-form { margin: 0; }
+.contact-page-main .contact-cards { display: grid; gap: 12px; }
+.contact-page-main .contact-card { overflow-wrap: anywhere; }
+.contact-privacy { font-size: 13px; line-height: 1.5; }
+.enquiry-result { grid-column: 1 / -1; font-weight: 600; overflow-wrap: anywhere; }
+.enquiry-result:empty { display: none; }
+.enquiry-honeypot { display: none !important; }
+.contact-form button:disabled { opacity: .65; cursor: wait; }
+body[data-page="public"] .contact-form { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+body[data-page="public"] .contact-form label { color: #202924 !important; }
+body[data-page="public"] .contact-form input,
+body[data-page="public"] .contact-form select,
+body[data-page="public"] .contact-form textarea { min-width: 0; max-width: 100%; color: #17201c !important; background: #fff !important; border: 1px solid #bfc9c3; border-radius: 6px; }
+body[data-page="public"] .contact-form input::placeholder,
+body[data-page="public"] .contact-form textarea::placeholder { color: #626e66 !important; }
+.contact-page-main #dynamicPanel { opacity: 1 !important; transform: none !important; }
+.contact-page-main .kinetic-word > span { animation: none !important; opacity: 1 !important; transform: none !important; }
+.contact-page-main .kinetic-word.is-accent > span { color: #17201c !important; }
+.contact-direct-actions { display: none; }
+body[data-platform-page="contact"] .floating-cta,
+body[data-platform-page="booking"] .floating-cta { display: none !important; }
+body[data-page="public"]:not([data-view]) .hero-band.home-intro { position: relative; min-height: 0 !important; background: #161a17 !important; }
+body[data-page="public"]:not([data-view]) .home-intro::before,
+body[data-page="public"]:not([data-view]) .home-intro::after { display: none !important; }
+body[data-page="public"]:not([data-view]) .home-intro .home-hero-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: -1; }
+body[data-page="public"]:not([data-view]) .home-intro { isolation: isolate; }
+body[data-page="public"]:not([data-view]) .home-intro .hero-grid { display: flex !important; position: relative; width: 100% !important; max-width: none !important; margin: 0 !important; min-height: min(740px, 80svh) !important; padding: 72px max(6%, calc((100% - 1180px) / 2)) 86px !important; background: linear-gradient(90deg, rgba(0,0,0,.8), rgba(0,0,0,.25) 70%, rgba(0,0,0,.05)); }
+body[data-page="public"]:not([data-view]) .home-intro .hero-copy { max-width: 640px; align-self: center; }
+body[data-page="public"]:not([data-view]) .home-intro h1 { font-size: 76px !important; line-height: 1.06 !important; letter-spacing: 0 !important; margin: 14px 0 !important; }
+body[data-page="public"]:not([data-view]) .home-intro .hero-offer { font-size: 30px; line-height: 1.28; font-weight: 650; color: white; margin: 0 0 18px; }
+body[data-page="public"]:not([data-view]) .home-intro .lead { font-size: 18px !important; max-width: 510px; color: #f2f4f3 !important; }
+body[data-page="public"]:not([data-view]) .home-intro .eyebrow { color: #f3cc51 !important; letter-spacing: 0; }
+.hero-photo-caption { position: absolute; bottom: 22px; right: 6%; color: white; font-size: 13px; z-index: 1; }
+body[data-page="public"]:not([data-view]) .home-intro .kinetic-word > span { opacity: 1 !important; transform: none !important; animation: none !important; }
+body[data-page="public"]:not([data-view]) #portfolio { width: 100% !important; max-width: none !important; padding-inline: max(6%, calc((100% - 1180px) / 2)) !important; background: #fff !important; color: #17201c !important; }
+body[data-page="public"]:not([data-view]) #portfolio h2 { color: #17201c !important; }
+.property-toolbar { display: flex; flex-wrap: wrap; align-items: end; }
+.property-toolbar > label { flex: 1 1 160px; min-width: 0; }
+.listing-verification { font-size: 13px; }
+.property-detail-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.property-detail-facts div { border-bottom: 1px solid #dce1dd; padding-block: 10px; }
+.property-detail-facts dt { font-size: 13px; font-weight: 600; }
+.property-detail-facts dd { margin: 6px 0 0; overflow-wrap: anywhere; }
+body[data-page="public"]:not([data-view]) #portfolio { padding-block: 48px !important; }
+body[data-page="public"]:not([data-view]) #portfolio h2 { font-size: 38px !important; line-height: 1.15 !important; }
+@media (max-width: 700px) {
+  .contact-page-main { padding: 24px 20px 90px; }
+  body[data-page="public"] .contact-page-heading h1 { font-size: 32px; }
+  .contact-page-main .contact-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .contact-page-main .contact-grid > div { order: 2; }
+  .contact-page-main .contact-form { order: 1; }
+  .contact-direct-actions { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 18px; }
+  body[data-page="public"]:not([data-view]) .home-intro .hero-grid { min-height: min(680px, 82svh) !important; padding: 48px 22px 70px !important; }
+  body[data-page="public"]:not([data-view]) .home-intro h1 { font-size: 52px !important; }
+  body[data-page="public"]:not([data-view]) .home-intro .hero-offer { font-size: 25px; }
+  body[data-page="public"]:not([data-view]) .home-intro .hero-actions { gap: 12px; }
+  body[data-page="public"]:not([data-view]) #portfolio h2 { font-size: 28px !important; }
+  .hero-photo-caption { left: 22px; right: 22px; font-size: 12px; }
+}

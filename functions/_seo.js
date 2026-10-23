@@ -1,5 +1,9 @@
 export const SITE_URL = "https://ebentee.com";
+// Bump when styles.css changes so browsers fetch the new stylesheet.
+export const ASSET_VERSION = "platform-25";
 export const BRAND_LOGO_URL = `${SITE_URL}/assets/eben-tee-logo.png`;
+// 1200x630 preview for link shares; the square logo stays for structured data.
+export const SHARE_IMAGE_URL = `${SITE_URL}/assets/eben-tee-share.jpg`;
 
 export function secureHtmlHeaders() {
   return {
@@ -43,6 +47,8 @@ const defaultSettings = {
   about:
     "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based engineer, software developer, entrepreneur, drone pilot, videographer, construction project manager, real estate marketer, and property manager. I combine technical thinking, digital systems, visual documentation, and practical project support to help people build, invest, communicate, and make better decisions in Ghana.",
   location: "Accra, Ghana",
+  phone: "+233558616942",
+  whatsapp: "+233558616942",
   email: "ebenteeentertainment@gmail.com",
   youtube: "https://www.youtube.com/@ebentee",
   facebook: "https://www.facebook.com/ebentee83/",
@@ -215,10 +221,10 @@ export async function readPublicContent(env) {
     .map(normalizePost)
     .filter((post) => post.status === "published")
     .sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
-  const portfolioSource = Array.isArray(source.portfolio) && source.portfolio.length ? source.portfolio : samplePortfolio;
-  const propertySource = Array.isArray(source.properties) && source.properties.length ? source.properties : sampleProperties;
+  const portfolioSource = Array.isArray(source.portfolio) ? source.portfolio : samplePortfolio;
+  const propertySource = Array.isArray(source.properties) ? source.properties : sampleProperties;
   const testimonialSource =
-    Array.isArray(source.testimonials) && source.testimonials.length ? source.testimonials : sampleTestimonials;
+    Array.isArray(source.testimonials) ? source.testimonials : sampleTestimonials;
   const portfolio = portfolioSource
     .map(normalizePortfolioItem)
     .filter((item) => item.status === "published")
@@ -314,6 +320,8 @@ function normalizeSettings(settings) {
     tagline: cleanText(migrated.tagline || defaultSettings.tagline, 160),
     about: cleanText(migrated.about || defaultSettings.about, 1200),
     location: cleanText(migrated.location || defaultSettings.location, 120),
+    phone: cleanText(migrated.phone || defaultSettings.phone, 60),
+    whatsapp: cleanText(migrated.whatsapp || defaultSettings.whatsapp, 60),
     email: cleanText(migrated.email || defaultSettings.email, 120),
     youtube: cleanUrl(migrated.youtube || defaultSettings.youtube),
     facebook: cleanUrl(migrated.facebook || defaultSettings.facebook),
@@ -396,6 +404,8 @@ function normalizePortfolioItem(item) {
     summary: cleanText(item.summary || "", 420),
     location: cleanText(item.location || "", 120),
     clientType: cleanText(item.clientType || "", 90),
+    role: cleanText(item.role || "", 160),
+    deliverables: cleanText(item.deliverables || "", 600),
     serviceCategory: normalizeServiceCategory(item.serviceCategory || item.clientType || ""),
     mapUrl: cleanUrl(item.mapUrl),
     mediaUrl,
@@ -418,6 +428,10 @@ function normalizeProperty(item) {
     location: cleanText(item.location || "", 120),
     price: cleanText(item.price || "Enquire", 100),
     size: cleanText(item.size || "", 100),
+    priceAmount: item.priceAmount !== null && item.priceAmount !== undefined && item.priceAmount !== "" && Number.isFinite(Number(item.priceAmount)) && Number(item.priceAmount) >= 0 ? Number(item.priceAmount) : null,
+    priceCurrency: item.priceCurrency === "USD" ? "USD" : "GHS",
+    verifiedAt: /^\d{4}-\d{2}-\d{2}$/.test(item.verifiedAt || "") ? item.verifiedAt : "",
+    exactLocation: item.exactLocation === true,
     summary: cleanText(item.summary || "", 520),
     mapUrl: cleanUrl(item.mapUrl),
     verificationNotes: cleanText(item.verificationNotes || "", 320),
@@ -436,7 +450,8 @@ function normalizeTestimonial(item) {
     name: cleanText(item.name || "Client", 90),
     role: cleanText(item.role || "", 100),
     serviceCategory: normalizeServiceCategory(item.serviceCategory || item.role || ""),
-    status: item.status === "draft" ? "draft" : "published",
+    status: item.status === "draft" || item.consentToPublish !== true ? "draft" : "published",
+    consentToPublish: item.consentToPublish === true,
     quote: cleanText(item.quote || "", 600),
     rating: Math.max(1, Math.min(5, Number(item.rating) || 5))
   };

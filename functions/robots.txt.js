@@ -4,6 +4,7 @@ Allow: /
 Disallow: /admin.html
 Disallow: /admin
 Disallow: /api/
+Allow: /api/content$
 
 Sitemap: https://ebentee.com/sitemap.xml
 `, {

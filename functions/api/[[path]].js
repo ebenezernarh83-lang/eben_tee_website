@@ -1,4 +1,5 @@
 import "../../gallery-defaults.js";
+import { listLeads, findLead, insertLead, changeLead, appendAnalytics, readAnalytics, reserveAttempt, clearAttempts } from "../_records.js";
 
 const CONTENT_KEY = "site-content-v1";
 const ANALYTICS_PREFIX = "analytics-v1";
@@ -12,6 +13,13 @@ const LOGIN_LOCK_SECONDS = 30 * 60;
 const RECOVERY_WINDOW_SECONDS = 60 * 60;
 const RECOVERY_MAX_ATTEMPTS = 5;
 const RECOVERY_LOCK_SECONDS = 60 * 60;
+// Site-wide caps stop guessing spread across many IP addresses. They only block
+// PIN entry; existing Admin sessions keep working during a lock.
+const LOGIN_GLOBAL_WINDOW_SECONDS = 60 * 60;
+const LOGIN_GLOBAL_MAX_ATTEMPTS = 40;
+const RECOVERY_GLOBAL_MAX_ATTEMPTS = 20;
+const TRACK_WINDOW_SECONDS = 10 * 60;
+const TRACK_MAX_EVENTS = 60;
 const GALLERY_SEED_VERSION = 1;
 const sampleGallery = Array.isArray(globalThis.EbenTeeGalleryDefaults) ? globalThis.EbenTeeGalleryDefaults : [];
 
@@ -34,8 +42,8 @@ const defaultSettings = {
   tagline: "INSPIRE. EMPOWER. CREATE IMPACT.",
   about:
     "I am Ebenezer Tetteh, known professionally as Eben Tee. I am a Ghana-based engineer, software developer, entrepreneur, drone pilot, videographer, construction project manager, real estate marketer, and property manager. I combine technical thinking, digital systems, visual documentation, and practical project support to help people build, invest, communicate, and make better decisions in Ghana.",
-  phone: "",
-  whatsapp: "",
+  phone: "+233558616942",
+  whatsapp: "+233558616942",
   email: "ebenteeentertainment@gmail.com",
   location: "Accra, Ghana",
   youtube: "https://www.youtube.com/@ebentee",
@@ -291,6 +299,9 @@ export async function onRequest(context) {
     }
 
     const path = new URL(request.url).pathname.replace(/^\/api\/?/, "");
+    if (["track", "leads", "login", "admin/recover", "admin/content", "admin/analytics"].includes(path) && !env.EBENTEE_RECORDS) {
+      return jsonResponse({ error: "The service is temporarily unavailable. Please contact Eben Tee directly." }, 503);
+    }
 
     if (request.method === "HEAD") {
       if (["content", "session"].includes(path)) return new Response(null, { status: 200, headers: jsonHeaders() });
@@ -298,11 +309,11 @@ export async function onRequest(context) {
     }
 
     if (path === "track" && request.method === "POST") {
-      return trackVisit(request, env);
+      return await trackVisit(request, env);
     }
 
     if (path === "leads" && request.method === "POST") {
-      return createLead(request, env);
+      return await createLead(request, env);
     }
 
     if (path === "content" && request.method === "GET") {
@@ -326,6 +337,12 @@ export async function onRequest(context) {
 
     if (path === "logout" && request.method === "POST") {
       if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
+      // Retire every issued session, so a copied cookie stops working after logout.
+      if (await isAuthenticated(request, env)) {
+        const content = await readContent(env);
+        content.admin.sessionVersion = adminSessionVersion(content) + 1;
+        await writeContent(env, content);
+      }
       return jsonResponse(
         { ok: true },
         200,
@@ -336,33 +353,65 @@ export async function onRequest(context) {
     if (path === "admin/content" && request.method === "GET") {
       if (!(await isAuthenticated(request, env))) return jsonResponse({ error: "Unauthorized" }, 401);
       const content = await readContent(env);
-      return jsonResponse(adminContent(content));
+      return jsonResponse({ ...adminContent(content), leads: await listLeads(env, content.leads) });
+    }
+
+    const leadRoute = path.match(/^admin\/leads\/([a-zA-Z0-9_-]+)(\/attachment)?$/);
+    if (leadRoute) {
+      if (!(await isAuthenticated(request, env))) return jsonResponse({ error: "Unauthorized" }, 401);
+      const id = leadRoute[1];
+      if (leadRoute[2] && request.method === "GET") {
+        const lead = await findLead(env, id);
+        if (!lead?.attachmentName) return jsonResponse({ error: "Photo not found." }, 404);
+        const asset = await env.EBENTEE_CONTENT.getWithMetadata(`enquiry-attachment-v1:${id}`, "arrayBuffer");
+        if (!asset.value) return jsonResponse({ error: "Photo not found." }, 404);
+        return new Response(asset.value, { headers: {
+          "Content-Type": asset.metadata.contentType,
+          "Cache-Control": "private, no-store",
+          "X-Content-Type-Options": "nosniff"
+        } });
+      }
+      if (!leadRoute[2] && ["PATCH", "DELETE"].includes(request.method)) {
+        if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
+        const payload = await request.json();
+        if (!Number.isInteger(payload.revision) || payload.revision < 1) return jsonResponse({ error: "Refresh this enquiry first." }, 400);
+        if (request.method === "PATCH" && !leadStatuses.has(payload.status)) return jsonResponse({ error: "Invalid enquiry status." }, 400);
+        const result = await changeLead(env, id, payload.revision, { status: payload.status || "new" }, request.method === "DELETE");
+        return jsonResponse(result, result.status);
+      }
+      return jsonResponse({ error: "Method not allowed." }, 405);
     }
 
     if (path === "admin/content" && request.method === "PUT") {
       if (!isSameOriginRequest(request)) return jsonResponse({ error: "Forbidden" }, 403);
       if (!(await isAuthenticated(request, env))) return jsonResponse({ error: "Unauthorized" }, 401);
-      return saveAdminContent(request, env);
+      return await saveAdminContent(request, env);
     }
 
     if (path === "admin/analytics" && request.method === "GET") {
       if (!(await isAuthenticated(request, env))) return jsonResponse({ error: "Unauthorized" }, 401);
-      return getAnalytics(request, env);
+      return await getAnalytics(request, env);
     }
 
     return jsonResponse({ error: "Not found" }, 404);
   } catch (error) {
-    return jsonResponse({ error: "Server error", detail: String(error && error.message ? error.message : error) }, 500);
+    console.error("Site API request failed", error);
+    return jsonResponse({ error: "Could not complete the request. Please try again or contact Eben Tee directly." }, 500);
   }
 }
 
 async function login(request, env) {
   const payload = await request.json().catch(() => ({}));
   const pin = String(payload.pin || "").trim();
-  const rateLimit = await checkLoginRateLimit(request, env);
+  const ipKey = await rateLimitKey(request, env, LOGIN_RATE_PREFIX);
+  const globalKey = `${LOGIN_RATE_PREFIX}:all`;
+  const rateLimit = await reserveAttempts(env, [
+    [ipKey, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_SECONDS, LOGIN_LOCK_SECONDS],
+    [globalKey, LOGIN_GLOBAL_MAX_ATTEMPTS, LOGIN_GLOBAL_WINDOW_SECONDS, LOGIN_GLOBAL_WINDOW_SECONDS]
+  ]);
   if (!rateLimit.allowed) {
     return jsonResponse({ error: "Too many login attempts. Try again later." }, 429, {
-      "Retry-After": String(Math.ceil((rateLimit.retryAfterMs || 0) / 1000))
+      "Retry-After": String(rateLimit.retryAfterSeconds)
     });
   }
 
@@ -370,11 +419,10 @@ async function login(request, env) {
   const ok = await verifyPin(pin, content, env);
 
   if (!ok) {
-    await recordFailedLogin(request, env);
     return jsonResponse({ error: "PIN did not match." }, 401);
   }
 
-  await clearLoginRateLimit(request, env);
+  await Promise.all([clearAttempts(env, ipKey), clearAttempts(env, globalKey)]);
 
   if (!content.admin.pin) {
     content.admin.pin = await makePinRecord(pin, env);
@@ -403,7 +451,8 @@ async function saveAdminContent(request, env) {
     gallery: payload.gallery,
     properties: payload.properties,
     testimonials: payload.testimonials,
-    leads: payload.leads,
+    // A stale content editor must never replace new customer enquiries.
+    leads: current.leads,
     settings: payload.settings,
     admin: current.admin
   });
@@ -426,20 +475,13 @@ async function saveAdminContent(request, env) {
         )}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_TTL_SECONDS}${secureCookie(request)}`
       }
     : {};
-  return jsonResponse(adminContent(next), 200, headers);
+  return jsonResponse({ ...adminContent(next), leads: await listLeads(env, current.leads) }, 200, headers);
 }
 
 // A recovery code is stored only as an encrypted Cloudflare secret, never in public site files.
 async function recoverAdmin(request, env) {
   if (!env.ADMIN_RECOVERY_KEY) {
     return jsonResponse({ error: "PIN recovery is not configured." }, 503);
-  }
-
-  const rateLimit = await checkRecoveryRateLimit(request, env);
-  if (!rateLimit.allowed) {
-    return jsonResponse({ error: "Too many recovery attempts. Try again later." }, 429, {
-      "Retry-After": String(Math.ceil((rateLimit.retryAfterMs || 0) / 1000))
-    });
   }
 
   const payload = await request.json().catch(() => ({}));
@@ -450,14 +492,25 @@ async function recoverAdmin(request, env) {
     return jsonResponse({ error: "Use a PIN containing 6 to 12 digits." }, 400);
   }
 
+  const ipKey = await rateLimitKey(request, env, RECOVERY_RATE_PREFIX);
+  const globalKey = `${RECOVERY_RATE_PREFIX}:all`;
+  const rateLimit = await reserveAttempts(env, [
+    [ipKey, RECOVERY_MAX_ATTEMPTS, RECOVERY_WINDOW_SECONDS, RECOVERY_LOCK_SECONDS],
+    [globalKey, RECOVERY_GLOBAL_MAX_ATTEMPTS, RECOVERY_WINDOW_SECONDS, RECOVERY_LOCK_SECONDS]
+  ]);
+  if (!rateLimit.allowed) {
+    return jsonResponse({ error: "Too many recovery attempts. Try again later." }, 429, {
+      "Retry-After": String(rateLimit.retryAfterSeconds)
+    });
+  }
+
   const suppliedDigest = await digestText(recoveryCode);
   const expectedDigest = await digestText(String(env.ADMIN_RECOVERY_KEY));
   if (!recoveryCode || !timingSafeEqual(suppliedDigest, expectedDigest)) {
-    await recordFailedRecovery(request, env);
     return jsonResponse({ error: "Recovery code did not match." }, 401);
   }
 
-  await clearRecoveryRateLimit(request, env);
+  await Promise.all([clearAttempts(env, ipKey), clearAttempts(env, globalKey)]);
   const content = await readContent(env);
   content.admin.pin = await makePinRecord(pin, env);
   content.admin.sessionVersion = adminSessionVersion(content) + 1;
@@ -485,9 +538,24 @@ async function createLead(request, env) {
     return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   }
 
-  const payload = await request.json().catch(() => ({}));
+  if (Number(request.headers.get("Content-Length")) > 3_600_000) return jsonResponse({ error: "Use a photo smaller than 2.5 MB." }, 413);
+  const raw = await request.text();
+  if (raw.length > 3_600_000) return jsonResponse({ error: "Use a photo smaller than 2.5 MB." }, 413);
+  let payload;
+  try { payload = JSON.parse(raw); } catch { return jsonResponse({ error: "Invalid enquiry." }, 400); }
+  if (payload.website) return jsonResponse({ error: "Unable to accept this enquiry." }, 400);
+  const submissionId = String(payload.submissionId || "");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(submissionId)) {
+    return jsonResponse({ error: "Please refresh the page and try again." }, 400);
+  }
   const lead = sanitizeLead({
     ...payload,
+    id: `lead-${submissionId}`,
+    status: "new",
+    notes: "",
+    attachmentName: "",
+    attachmentStored: false,
+    createdAt: new Date().toISOString(),
     source: payload.source || "Website",
     page: payload.page || cleanAnalyticsPath(payload.page || new URL(request.url).pathname)
   });
@@ -495,17 +563,43 @@ async function createLead(request, env) {
   if (!lead.name || (!lead.phone && !lead.email) || !lead.message) {
     return jsonResponse({ error: "Name, contact, and message are required." }, 400);
   }
+  if ((lead.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) ||
+      (lead.phone && !/^\+?[\d\s().-]{7,30}$/.test(lead.phone))) {
+    return jsonResponse({ error: "Enter a valid email or phone number." }, 400);
+  }
+  const existing = await findLead(env, lead.id);
+  if (existing) return jsonResponse({ ok: true, id: existing.id, attachmentReceived: Boolean(existing.attachmentName) });
+  let attachment;
+  if (payload.attachmentData) {
+    attachment = parseDataImage(payload.attachmentData);
+    if (!attachment || !isImageSignature(attachment)) return jsonResponse({ error: "Choose a JPG, PNG, WebP or GIF photo up to 2.5 MB." }, 400);
+    lead.attachmentName = cleanText(payload.attachmentName || `photo.${attachment.extension}`, 160);
+    lead.attachmentStored = true;
+  }
+  const rateKey = await digestText(`${request.headers.get("CF-Connecting-IP") || "local"}:${Math.floor(Date.now() / 600000)}`);
+  const now = Math.floor(Date.now() / 1000);
+  await env.EBENTEE_RECORDS.prepare("DELETE FROM enquiry_limits WHERE expires_at < ?").bind(now).run();
+  const limit = await env.EBENTEE_RECORDS.prepare("INSERT INTO enquiry_limits (id, attempts, expires_at) VALUES (?, 1, ?) ON CONFLICT(id) DO UPDATE SET attempts = attempts + 1 RETURNING attempts").bind(rateKey, now + 600).first();
+  if (limit.attempts > 6) return jsonResponse({ error: "Please wait a few minutes before sending another enquiry." }, 429);
+  if (attachment) await env.EBENTEE_CONTENT.put(`enquiry-attachment-v1:${lead.id}`, attachment.bytes, { metadata: { contentType: attachment.contentType } });
+  const inserted = await insertLead(env, lead);
+  // Analytics failure must not turn a saved enquiry into a failed submission.
+  if (inserted) await trackConversion(env, request, "lead_submit", lead.service).catch(() => {});
+  return jsonResponse({ ok: true, id: lead.id, attachmentReceived: Boolean(lead.attachmentName) });
+}
 
-  const content = await readContent(env);
-  content.leads = [lead, ...(content.leads || [])].slice(0, 1000);
-  await writeContent(env, content);
-  await trackConversion(env, request, "lead_submit", lead.service);
-
-  return jsonResponse({ ok: true, lead });
+function isImageSignature({ bytes, contentType }) {
+  const starts = (...signature) => signature.every((value, index) => bytes[index] === value);
+  if (contentType === "image/jpeg") return starts(255, 216, 255);
+  if (contentType === "image/png") return starts(137, 80, 78, 71, 13, 10, 26, 10);
+  if (contentType === "image/gif") return starts(71, 73, 70, 56) && [55, 57].includes(bytes[4]) && bytes[5] === 97;
+  return contentType === "image/webp" && starts(82, 73, 70, 70) && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
 }
 
 async function trackVisit(request, env) {
-  if (!isSameOriginRequest(request)) {
+  // Browsers always label beacon and fetch requests; bare scripted posts are not counted.
+  const fromBrowser = request.headers.get("Origin") || request.headers.get("Sec-Fetch-Site");
+  if (!fromBrowser || !isSameOriginRequest(request)) {
     return jsonResponse({ ok: false }, 403);
   }
 
@@ -515,16 +609,18 @@ async function trackVisit(request, env) {
   }
 
   const payload = await request.json().catch(() => ({}));
-  const path = cleanAnalyticsPath(payload.path);
+  const path = payload.path ? cleanAnalyticsPath(payload.path) : "";
   if (!path) {
     return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   }
 
+  const trackLimit = await reserveAttempt(env, await rateLimitKey(request, env, "track-rate-v1"), TRACK_MAX_EVENTS, TRACK_WINDOW_SECONDS);
+  if (!trackLimit.allowed) {
+    return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+  }
+
   const todayKey = today();
-  const key = analyticsKey(todayKey);
-  const record = normalizeAnalyticsRecord((await env.EBENTEE_CONTENT.get(key, "json").catch(() => null)) || {
-    date: todayKey
-  });
+  const record = normalizeAnalyticsRecord({ date: todayKey });
   const visitor = await visitorHash(request, env);
   const referrer = cleanReferrer(payload.landingReferrer || payload.referrer, request);
   const device = deviceType(userAgent);
@@ -569,23 +665,20 @@ async function trackVisit(request, env) {
     record.visitors = record.visitors.slice(-5000);
   }
 
-  await env.EBENTEE_CONTENT.put(key, JSON.stringify(record));
+  await appendAnalytics(env, record);
   return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
 }
 
 async function trackConversion(env, request, eventType, service) {
   const todayKey = today();
-  const key = analyticsKey(todayKey);
-  const record = normalizeAnalyticsRecord((await env.EBENTEE_CONTENT.get(key, "json").catch(() => null)) || {
-    date: todayKey
-  });
+  const record = normalizeAnalyticsRecord({ date: todayKey });
 
   record.events[eventType] = (record.events[eventType] || 0) + 1;
   if (service) {
     record.services[service] = (record.services[service] || 0) + 1;
   }
   record.updatedAt = new Date().toISOString();
-  await env.EBENTEE_CONTENT.put(key, JSON.stringify(record));
+  await appendAnalytics(env, record);
 }
 
 async function getAnalytics(request, env) {
@@ -595,6 +688,14 @@ async function getAnalytics(request, env) {
   const records = await Promise.all(
     dates.map(async (date) => normalizeAnalyticsRecord((await env.EBENTEE_CONTENT.get(analyticsKey(date), "json")) || { date }))
   );
+  // Keep historical KV totals and add only new atomic D1 counters.
+  const additions = await readAnalytics(env, dates);
+  records.forEach((record, index) => {
+    const next = additions[index];
+    record.views += next.views;
+    record.visitors = [...new Set([...record.visitors, ...next.visitors])];
+    for (const key of ["paths", "landingPages", "referrers", "sources", "mediums", "campaigns", "countries", "devices", "events", "eventLabels", "services"]) mergeCounts(record[key], next[key]);
+  });
   const visitors = new Set();
   const paths = {};
   const landingPages = {};
@@ -744,8 +845,8 @@ function sanitizeSettings(settings) {
     ownerName: cleanText(migrated.ownerName || defaultSettings.ownerName, 80),
     tagline: cleanText(migrated.tagline || defaultSettings.tagline, 160),
     about: cleanText(migrated.about || defaultSettings.about, 1200),
-    phone: cleanText(migrated.phone || "", 60),
-    whatsapp: cleanText(migrated.whatsapp || "", 60),
+    phone: cleanText(migrated.phone || defaultSettings.phone, 60),
+    whatsapp: cleanText(migrated.whatsapp || defaultSettings.whatsapp, 60),
     email: cleanText(migrated.email || defaultSettings.email, 120),
     location: cleanText(migrated.location || "", 120),
     youtube: cleanUrl(migrated.youtube),
@@ -831,6 +932,8 @@ function sanitizePortfolioItem(item) {
     summary: cleanText(item.summary || "", 360),
     location: cleanText(item.location || "", 120),
     clientType: cleanText(item.clientType || "", 90),
+    role: cleanText(item.role || "", 160),
+    deliverables: cleanText(item.deliverables || "", 600),
     serviceCategory: normalizeServiceCategory(item.serviceCategory || item.clientType || ""),
     mapUrl: cleanUrl(item.mapUrl),
     mediaUrl,
@@ -875,6 +978,10 @@ function sanitizeProperty(item) {
     location: cleanText(item.location || "", 120),
     price: cleanText(item.price || "Enquire", 100),
     size: cleanText(item.size || "", 100),
+    priceAmount: item.priceAmount !== null && item.priceAmount !== undefined && item.priceAmount !== "" && Number.isFinite(Number(item.priceAmount)) && Number(item.priceAmount) >= 0 ? Number(item.priceAmount) : null,
+    priceCurrency: item.priceCurrency === "USD" ? "USD" : "GHS",
+    verifiedAt: /^\d{4}-\d{2}-\d{2}$/.test(item.verifiedAt || "") ? item.verifiedAt : "",
+    exactLocation: item.exactLocation === true,
     summary: cleanText(item.summary || "", 420),
     mapUrl: cleanUrl(item.mapUrl),
     verificationNotes: cleanText(item.verificationNotes || "", 320),
@@ -895,7 +1002,8 @@ function sanitizeTestimonial(item) {
     role: cleanText(item.role || "", 100),
     serviceCategory: normalizeServiceCategory(item.serviceCategory || item.role || ""),
     relatedTitle: cleanText(item.relatedTitle || "", 120),
-    status: item.status === "draft" ? "draft" : "published",
+    status: item.status === "draft" || item.consentToPublish !== true ? "draft" : "published",
+    consentToPublish: item.consentToPublish === true,
     quote: cleanText(item.quote || "", 600),
     rating: Math.max(1, Math.min(5, Number(item.rating) || 5)),
     createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
@@ -917,6 +1025,7 @@ function sanitizeLead(item) {
     page: cleanText(item.page || "", 180),
     source: cleanText(item.source || "Website", 80),
     attachmentName: cleanText(item.attachmentName || "", 160),
+    attachmentStored: item.attachmentStored === true,
     notes: cleanText(item.notes || "", 1200),
     createdAt: cleanText(item.createdAt || new Date().toISOString(), 40),
     updatedAt: new Date().toISOString()
@@ -976,85 +1085,12 @@ function adminContent(content) {
   };
 }
 
-async function checkLoginRateLimit(request, env) {
-  const record = await readLoginRateRecord(request, env);
-  const now = Date.now();
-  if (record.lockedUntil && record.lockedUntil > now) {
-    return { allowed: false, retryAfterMs: record.lockedUntil - now };
-  }
-  return { allowed: true, retryAfterMs: 0 };
-}
-
-async function recordFailedLogin(request, env) {
-  const key = await loginRateKey(request, env);
-  const now = Date.now();
-  const record = await readLoginRateRecord(request, env);
-  const resetAt = record.resetAt && record.resetAt > now ? record.resetAt : now + LOGIN_WINDOW_SECONDS * 1000;
-  const attempts = resetAt === record.resetAt ? record.attempts + 1 : 1;
-  const lockedUntil = attempts >= LOGIN_MAX_ATTEMPTS ? now + LOGIN_LOCK_SECONDS * 1000 : 0;
-  await env.EBENTEE_CONTENT.put(
-    key,
-    JSON.stringify({ attempts, resetAt, lockedUntil, updatedAt: new Date().toISOString() }),
-    { expirationTtl: Math.max(LOGIN_WINDOW_SECONDS, LOGIN_LOCK_SECONDS) }
-  );
-}
-
-async function clearLoginRateLimit(request, env) {
-  await env.EBENTEE_CONTENT.delete(await loginRateKey(request, env)).catch(() => {});
-}
-
-async function readLoginRateRecord(request, env) {
-  const record = (await env.EBENTEE_CONTENT.get(await loginRateKey(request, env), "json").catch(() => null)) || {};
-  return {
-    attempts: Math.max(0, Number(record.attempts) || 0),
-    resetAt: Math.max(0, Number(record.resetAt) || 0),
-    lockedUntil: Math.max(0, Number(record.lockedUntil) || 0)
-  };
-}
-
-async function loginRateKey(request, env) {
-  return rateLimitKey(request, env, LOGIN_RATE_PREFIX);
-}
-
-async function checkRecoveryRateLimit(request, env) {
-  const record = await readRecoveryRateRecord(request, env);
-  const now = Date.now();
-  if (record.lockedUntil && record.lockedUntil > now) {
-    return { allowed: false, retryAfterMs: record.lockedUntil - now };
-  }
-  return { allowed: true, retryAfterMs: 0 };
-}
-
-async function recordFailedRecovery(request, env) {
-  const key = await recoveryRateKey(request, env);
-  const now = Date.now();
-  const record = await readRecoveryRateRecord(request, env);
-  const resetAt =
-    record.resetAt && record.resetAt > now ? record.resetAt : now + RECOVERY_WINDOW_SECONDS * 1000;
-  const attempts = resetAt === record.resetAt ? record.attempts + 1 : 1;
-  const lockedUntil = attempts >= RECOVERY_MAX_ATTEMPTS ? now + RECOVERY_LOCK_SECONDS * 1000 : 0;
-  await env.EBENTEE_CONTENT.put(
-    key,
-    JSON.stringify({ attempts, resetAt, lockedUntil, updatedAt: new Date().toISOString() }),
-    { expirationTtl: Math.max(RECOVERY_WINDOW_SECONDS, RECOVERY_LOCK_SECONDS) }
-  );
-}
-
-async function clearRecoveryRateLimit(request, env) {
-  await env.EBENTEE_CONTENT.delete(await recoveryRateKey(request, env)).catch(() => {});
-}
-
-async function readRecoveryRateRecord(request, env) {
-  const record = (await env.EBENTEE_CONTENT.get(await recoveryRateKey(request, env), "json").catch(() => null)) || {};
-  return {
-    attempts: Math.max(0, Number(record.attempts) || 0),
-    resetAt: Math.max(0, Number(record.resetAt) || 0),
-    lockedUntil: Math.max(0, Number(record.lockedUntil) || 0)
-  };
-}
-
-async function recoveryRateKey(request, env) {
-  return rateLimitKey(request, env, RECOVERY_RATE_PREFIX);
+async function reserveAttempts(env, limits) {
+  const results = await Promise.all(limits.map(([key, max, windowSeconds, lockSeconds]) => reserveAttempt(env, key, max, windowSeconds, lockSeconds)));
+  const blocked = results.filter((result) => !result.allowed);
+  return blocked.length
+    ? { allowed: false, retryAfterSeconds: Math.max(...blocked.map((result) => result.retryAfterSeconds)) }
+    : { allowed: true, retryAfterSeconds: 0 };
 }
 
 async function rateLimitKey(request, env, prefix) {
@@ -1075,7 +1111,7 @@ async function verifyPin(pin, content, env) {
     return timingSafeEqual(hash, content.admin.pin.hash);
   }
 
-  return Boolean(env.ADMIN_PIN) && pin === String(env.ADMIN_PIN);
+  return Boolean(env.ADMIN_PIN) && timingSafeEqual(await digestText(pin), await digestText(String(env.ADMIN_PIN)));
 }
 
 async function makePinRecord(pin, env) {

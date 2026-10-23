@@ -114,6 +114,14 @@
     });
   }
 
+  // Bundled gallery photos ship with an 800px copy for phones; uploaded images do not.
+  function responsiveImageAttributes(item) {
+    const match = String(item.src || "").match(/^(\/assets\/gallery\/[a-z0-9-]+)\.jpg$/);
+    if (!match) return "";
+    const sizes = item.size === "wide" ? "(max-width: 760px) 100vw, 66vw" : "(max-width: 760px) 100vw, 33vw";
+    return ` srcset="${match[1]}-800.jpg 800w, ${match[1]}.jpg 1400w" sizes="${sizes}" width="1400" height="786"`;
+  }
+
   // The grid uses buttons so every image is keyboard accessible.
   function renderGallery() {
     const grid = $("#galleryGrid");
@@ -121,7 +129,7 @@
       .map(
         (item, index) => `
           <button class="gallery-image-card is-${item.size}" type="button" data-gallery-index="${index}" aria-label="Open ${store.escapeHtml(item.title)}">
-            <img src="${store.escapeHtml(item.src)}" alt="${store.escapeHtml(item.title)}" loading="${index < 3 ? "eager" : "lazy"}" decoding="async">
+            <img src="${store.escapeHtml(item.src)}"${responsiveImageAttributes(item)} alt="${store.escapeHtml(item.title)}" loading="${index < 3 ? "eager" : "lazy"}" decoding="async">
             <span class="gallery-image-overlay">
               <small>${store.escapeHtml(item.label)}</small>
               <strong>${store.escapeHtml(item.title)}</strong>

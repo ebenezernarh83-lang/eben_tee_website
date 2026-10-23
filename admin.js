@@ -269,7 +269,6 @@
         gallery,
         properties,
         testimonials,
-        leads,
         settings,
         pin
       });
@@ -511,6 +510,8 @@
       publishedAt: String(formData.get("publishedAt") || store.today()),
       location: String(formData.get("location") || ""),
       clientType: String(formData.get("clientType") || ""),
+      role: String(formData.get("role") || ""),
+      deliverables: String(formData.get("deliverables") || ""),
       summary: String(formData.get("summary") || ""),
       mediaUrl,
       thumbnail,
@@ -591,6 +592,8 @@
     $("#portfolioDate").value = item.publishedAt;
     $("#portfolioLocation").value = item.location;
     $("#portfolioClientType").value = item.clientType;
+    $("#portfolioRole").value = item.role || "";
+    $("#portfolioDeliverables").value = item.deliverables || "";
     $("#portfolioSummary").value = item.summary;
     $("#portfolioMediaUrl").value = item.mediaUrl.startsWith("data:") ? "" : item.mediaUrl;
     $("#portfolioTags").value = item.tags.join(", ");
@@ -788,6 +791,12 @@
       location: String(formData.get("location") || ""),
       price: String(formData.get("price") || ""),
       size: String(formData.get("size") || ""),
+      priceAmount: formData.get("priceAmount") === "" ? null : Number(formData.get("priceAmount")),
+      priceCurrency: String(formData.get("priceCurrency") || "GHS"),
+      verifiedAt: String(formData.get("verifiedAt") || ""),
+      mapUrl: String(formData.get("mapUrl") || ""),
+      exactLocation: Boolean(formData.get("exactLocation")),
+      verificationNotes: String(formData.get("verificationNotes") || ""),
       summary: String(formData.get("summary") || ""),
       mediaUrl,
       coverImage,
@@ -859,6 +868,12 @@
     $("#propertyLocation").value = property.location;
     $("#propertyPrice").value = property.price;
     $("#propertySize").value = property.size;
+    $("#propertyPriceAmount").value = property.priceAmount ?? "";
+    $("#propertyPriceCurrency").value = property.priceCurrency || "GHS";
+    $("#propertyVerifiedAt").value = property.verifiedAt || "";
+    $("#propertyMapUrl").value = property.mapUrl || "";
+    $("#propertyExactLocation").checked = Boolean(property.exactLocation);
+    $("#propertyVerificationNotes").value = property.verificationNotes || "";
     $("#propertySummary").value = property.summary;
     $("#propertyMediaUrl").value = property.mediaUrl && property.mediaUrl.startsWith("data:") ? "" : property.mediaUrl;
     $("#propertyTags").value = property.tags.join(", ");
@@ -912,11 +927,17 @@
     const formData = new FormData(event.currentTarget);
     const id = String(formData.get("id") || "").trim();
     const existing = testimonials.find((item) => item.id === id);
+    if (formData.get("status") === "published" && !formData.get("consentToPublish")) {
+      $("#testimonialMessage").textContent = "Confirm the client's permission before publishing, or save as a draft.";
+      return;
+    }
     const nextTestimonial = store.normalizeTestimonial({
       ...(existing || {}),
       id: existing ? existing.id : store.makeId().replace(/^post-/, "testimonial-"),
       name: String(formData.get("name") || ""),
       role: String(formData.get("role") || ""),
+      relatedTitle: String(formData.get("relatedTitle") || ""),
+      consentToPublish: Boolean(formData.get("consentToPublish")),
       status: String(formData.get("status") || "published"),
       quote: String(formData.get("quote") || ""),
       rating: Number(formData.get("rating") || 5)
@@ -955,6 +976,8 @@
     $("#testimonialStatus").value = item.status;
     $("#testimonialRating").value = item.rating;
     $("#testimonialQuote").value = item.quote;
+    $("#testimonialRelatedTitle").value = item.relatedTitle || "";
+    $("#testimonialConsent").checked = Boolean(item.consentToPublish);
     $("#testimonialMessage").textContent = "";
     renderTestimonialPreview();
   }
@@ -973,6 +996,12 @@
   }
 
   async function toggleTestimonialStatus(id) {
+    const review = testimonials.find((item) => item.id === id);
+    if (review?.status !== "published" && !review?.consentToPublish) {
+      editTestimonial(id);
+      $("#testimonialMessage").textContent = "Confirm the client's permission in the editor before publishing.";
+      return;
+    }
     testimonials = testimonials.map((item) =>
       item.id === id ? { ...item, status: item.status === "published" ? "draft" : "published" } : item
     );
@@ -984,7 +1013,7 @@
     $("#testimonialEditorTitle").textContent = "New testimonial";
     $("#testimonialForm").reset();
     $("#testimonialId").value = "";
-    $("#testimonialStatus").value = "published";
+    $("#testimonialStatus").value = "draft";
     $("#testimonialRating").value = 5;
     $("#testimonialMessage").textContent = "";
     renderTestimonialPreview();
@@ -1002,22 +1031,20 @@
     if (action === "delete") {
       const confirmed = window.confirm(`Delete lead from "${lead.name || "website visitor"}"?`);
       if (!confirmed) return;
-      leads = leads.filter((item) => item.id !== id);
-      $("#leadMessage").textContent = "Saving...";
-      if (!(await persistContent("Lead deleted online."))) return;
-      renderAdmin();
-      return;
     }
 
     const statuses = store.leadStatuses || ["new", "contacted", "quoted", "won", "lost", "follow-up"];
-    if (!statuses.includes(action)) return;
-
-    leads = leads.map((item) =>
-      item.id === id ? store.normalizeLead({ ...item, status: action, updatedAt: new Date().toISOString() }) : item
-    );
+    if (action !== "delete" && !statuses.includes(action)) return;
     $("#leadMessage").textContent = "Saving...";
-    if (!(await persistContent("Lead status updated online."))) return;
-    renderAdmin();
+    button.disabled = true;
+    try {
+      const result = await store.updateLead(lead, action);
+      leads = action === "delete" ? leads.filter((item) => item.id !== id) : leads.map((item) => item.id === id ? result.lead : item);
+      $("#leadMessage").textContent = action === "delete" ? "Enquiry deleted." : "Enquiry status updated.";
+      renderAdmin();
+    } catch (error) {
+      $("#leadMessage").textContent = error.message || "Could not update this enquiry. Please try again.";
+    } finally { button.disabled = false; }
   }
 
   async function saveSettings(event) {
@@ -1400,6 +1427,7 @@
             ${lead.page ? `<span>${store.escapeHtml(lead.page)}</span>` : ""}
           </div>
           <div class="lead-contact-links">${contactLinks}</div>
+          ${lead.attachmentStored ? `<a class="text-link" href="/api/admin/leads/${encodeURIComponent(lead.id)}/attachment" target="_blank" rel="noopener">View photo: ${store.escapeHtml(lead.attachmentName)}</a>` : lead.attachmentName ? `<p class="form-note">Only a filename was received with this older enquiry. Ask the client to resend the photo.</p>` : ""}
         </div>
         <div class="manager-actions lead-actions">
           <button type="button" data-lead-action="new" data-id="${store.escapeHtml(lead.id)}">New</button>

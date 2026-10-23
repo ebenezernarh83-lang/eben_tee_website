@@ -1,5 +1,7 @@
 import {
+  ASSET_VERSION,
   BRAND_LOGO_URL,
+  SHARE_IMAGE_URL,
   SITE_URL,
   absolutePropertyUrl,
   escapeHtml,
@@ -26,7 +28,7 @@ function renderProperty(property, settings, testimonials) {
   const title = `${property.title} | ${settings.brandName}`;
   const description = plainText(property.summary || `${property.propertyType} in ${property.location}`, 300);
   const canonical = absolutePropertyUrl(property);
-  const socialImage = isShareableImage(property.coverImage) ? property.coverImage : BRAND_LOGO_URL;
+  const socialImage = isShareableImage(property.coverImage) ? property.coverImage : SHARE_IMAGE_URL;
   const matchingReviews = testimonials.filter((item) =>
     [item.serviceCategory, item.role].join(" ").toLowerCase().match(/real estate|property|drone|airbnb|land/)
   );
@@ -42,11 +44,11 @@ function renderProperty(property, settings, testimonials) {
       name: property.title,
       category: property.propertyType,
       availability: property.availability,
-      priceSpecification: {
+      ...(property.priceAmount !== null ? { priceSpecification: {
         "@type": "PriceSpecification",
-        priceCurrency: "GHS",
-        description: property.price
-      },
+        priceCurrency: property.priceCurrency,
+        price: property.priceAmount
+      } } : {}),
       areaServed: property.location || "Ghana",
       offeredBy: {
         "@type": "Organization",
@@ -78,8 +80,14 @@ function renderProperty(property, settings, testimonials) {
         ${renderMedia(property)}
         <div class="seo-post-body">
           <p>${escapeHtml(property.summary)}</p>
+          <dl class="property-detail-facts">
+            <div><dt>Reference</dt><dd>${escapeHtml(property.id)}</dd></div>
+            <div><dt>Size</dt><dd>${escapeHtml(property.size || "Ask for confirmed dimensions")}</dd></div>
+            <div><dt>Asking price</dt><dd>${escapeHtml(property.priceAmount !== null ? `${property.priceCurrency} ${property.priceAmount.toLocaleString()}` : property.price)}</dd></div>
+            <div><dt>Availability last confirmed</dt><dd>${escapeHtml(property.verifiedAt || "Confirmation required")}</dd></div>
+          </dl>
           ${property.verificationNotes ? `<p><strong>Verification note:</strong> ${escapeHtml(property.verificationNotes)}</p>` : ""}
-          ${property.mapUrl ? `<p><a class="text-link" href="${escapeHtml(property.mapUrl)}" target="_blank" rel="noreferrer">Open approximate map location</a></p>` : ""}
+          ${property.mapUrl ? `<p><a class="text-link" href="${escapeHtml(property.mapUrl)}" target="_blank" rel="noreferrer">${property.exactLocation ? "Open property location" : "Open approximate area"}</a></p>` : ""}
           ${renderTags(property.tags)}
         </div>
       </article>
@@ -87,7 +95,8 @@ function renderProperty(property, settings, testimonials) {
         <p class="eyebrow">Property enquiry</p>
         <h2>Ask Eben Tee about this opportunity</h2>
         <p>Request photos, drone footage, location context, inspection support, or a property marketing package.</p>
-        <a class="button" href="/contact?service=property">WhatsApp enquiry</a>
+        <a class="button" href="https://wa.me/${escapeHtml(String(settings.whatsapp || "+233558616942").replace(/\D/g, ""))}?text=${encodeURIComponent(`Hello Eben Tee, please send current details for ${property.title}. Reference: ${property.id}. ${canonical}`)}" target="_blank" rel="noopener">WhatsApp enquiry</a>
+        <a class="text-link" href="/contact?service=Find%20land%20in%20Ghana&amp;property=${encodeURIComponent(property.title + " (" + property.id + ")")}">Send an enquiry</a>
         ${renderReview(matchingReviews[0])}
       </aside>
     `
@@ -119,14 +128,14 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-20">
+    <link rel="stylesheet" href="/styles.css?v=${ASSET_VERSION}">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="property">
     ${renderHeader(settings)}
     <main class="seo-post-page">${body}</main>
     ${renderFooter(settings)}
-    <script src="/analytics.js?v=platform-20"></script>
+    <script src="/analytics.js?v=${ASSET_VERSION}"></script>
   </body>
 </html>`;
 }
@@ -159,7 +168,7 @@ function renderNotFound(settings) {
     title: `Property not found | ${settings.brandName}`,
     description: "This property is not available.",
     canonical: `${SITE_URL}/real-estate`,
-    socialImage: BRAND_LOGO_URL,
+    socialImage: SHARE_IMAGE_URL,
     settings,
     schema: { "@context": "https://schema.org", "@type": "WebPage", name: "Property not found" },
     body: `<article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This property is not available</h1><a class="button" href="/real-estate">Open properties</a></article>`

@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="styles.css?v=platform-20">
+    <link rel="stylesheet" href="styles.css?v=platform-25">
   </head>
   <body data-page="admin">
     <a class="skip-link" href="#adminMain">Skip to admin</a>
@@ -276,6 +276,8 @@
                 Short description
                 <textarea id="portfolioSummary" name="summary" rows="3" maxlength="260"></textarea>
               </label>
+              <label>Your role <input id="portfolioRole" name="role" type="text" maxlength="160" placeholder="For example: drone pilot and editor"></label>
+              <label>Delivered work / outcome <textarea id="portfolioDeliverables" name="deliverables" rows="3" maxlength="600" placeholder="Describe the work actually delivered, dates and results. Do not include private client information."></textarea></label>
 
               <label>
                 Photo/video link
@@ -402,7 +404,7 @@
 
               <label>
                 Image link
-                <input id="galleryImageUrl" name="imageUrl" type="url" placeholder="https://...">
+                <input id="galleryImageUrl" name="imageUrl" type="text" inputmode="url" pattern="https?://.+|/(?!/).+" placeholder="https://... or /assets/...">
               </label>
 
               <label class="file-field">
@@ -495,8 +497,18 @@
 
               <label>
                 Size
-                <input id="propertySize" name="size" type="text" placeholder="Plot size, rooms, acreage...">
+                <input id="propertySize" name="size" type="text" placeholder="For example: 70 x 100 ft, 650 m2, or 3 bedrooms">
               </label>
+
+              <!-- Confirm these facts with the owner; do not estimate missing listing details. -->
+              <div class="form-grid">
+                <label>Numeric asking price <input id="propertyPriceAmount" name="priceAmount" type="number" min="0" step="0.01" placeholder="Leave blank if not confirmed"></label>
+                <label>Currency <select id="propertyPriceCurrency" name="priceCurrency"><option value="GHS">GHS</option><option value="USD">USD</option></select></label>
+                <label>Availability last confirmed <input id="propertyVerifiedAt" name="verifiedAt" type="date"></label>
+                <label>Map link <input id="propertyMapUrl" name="mapUrl" type="url" placeholder="https://maps.google.com/..."></label>
+              </div>
+              <label class="check-row"><input id="propertyExactLocation" name="exactLocation" type="checkbox">Owner-approved exact location (otherwise shown as approximate)</label>
+              <label>Listing notes <textarea id="propertyVerificationNotes" name="verificationNotes" rows="3" maxlength="320" placeholder="What is confirmed, what remains to check, and viewing arrangements"></textarea></label>
 
               <label>
                 Short description
@@ -593,6 +605,9 @@
                 Testimonial
                 <textarea id="testimonialQuote" name="quote" rows="5" maxlength="600" required></textarea>
               </label>
+
+              <label>Related work <input id="testimonialRelatedTitle" name="relatedTitle" type="text" maxlength="120" placeholder="Project or service the client received"></label>
+              <label class="check-row"><input id="testimonialConsent" name="consentToPublish" type="checkbox">This is a real client review and I have permission to publish their name and words.</label>
 
               <div class="preview-card" id="testimonialPreview" aria-live="polite"></div>
 

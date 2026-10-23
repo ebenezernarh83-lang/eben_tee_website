@@ -1,5 +1,7 @@
 import {
+  ASSET_VERSION,
   BRAND_LOGO_URL,
+  SHARE_IMAGE_URL,
   SITE_URL,
   absolutePostUrl,
   categoryLabel,
@@ -50,7 +52,7 @@ function renderPost(post, settings) {
   const title = `${post.title} | ${settings.brandName}`;
   const description = plainText(post.summary || post.body || settings.tagline, 300);
   const canonical = absolutePostUrl(post);
-  const socialImage = isShareableImage(post.coverImage) ? post.coverImage : BRAND_LOGO_URL;
+  const socialImage = isShareableImage(post.coverImage) ? post.coverImage : SHARE_IMAGE_URL;
   const imageMeta = `<meta property="og:image" content="${escapeHtml(socialImage)}">`;
   const publisher = {
     "@type": "Organization",
@@ -124,7 +126,7 @@ function renderPost(post, settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-20">
+    <link rel="stylesheet" href="/styles.css?v=${ASSET_VERSION}">
     <script type="application/ld+json">${safeJson(schemas.length === 1 ? schemas[0] : schemas)}</script>
   </head>
   <body data-page="public" data-view="post">
@@ -183,7 +185,7 @@ function renderPost(post, settings) {
         ${settings.github ? `<a href="${escapeHtml(settings.github)}" target="_blank" rel="noreferrer">GitHub</a>` : ""}
       </div>
     </footer>
-    <script src="/analytics.js?v=platform-20"></script>
+    <script src="/analytics.js?v=${ASSET_VERSION}"></script>
   </body>
 </html>`;
 }
@@ -202,7 +204,7 @@ function renderNotFound(settings) {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-20">
+    <link rel="stylesheet" href="/styles.css?v=${ASSET_VERSION}">
   </head>
   <body data-page="public" data-view="post">
     <main class="seo-post-page">

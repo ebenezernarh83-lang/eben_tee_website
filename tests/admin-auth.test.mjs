@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { onRequest } from "../functions/api/[[path]].js";
+import { TestDatabase } from "./helpers.mjs";
 
 class MemoryKv {
   constructor() {
@@ -26,6 +27,7 @@ class MemoryKv {
 function createEnv() {
   return {
     EBENTEE_CONTENT: new MemoryKv(),
+    EBENTEE_RECORDS: new TestDatabase(),
     ADMIN_PIN: "123456",
     SESSION_SECRET: "test-session-secret-with-enough-entropy",
     ADMIN_RECOVERY_KEY: "TEST-RECOVERY-CODE"

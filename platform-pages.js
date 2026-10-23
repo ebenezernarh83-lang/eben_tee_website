@@ -685,6 +685,18 @@
     if (!main) return;
 
     document.title = `${documentTitles[page] || config.eyebrow} | ${settings.brandName || "Eben Tee"}`;
+    // Contact is a working form, not another long service presentation.
+    if (config.dynamic === "contact") {
+      main.classList.add("contact-page-main");
+      main.innerHTML = `<header class="contact-page-heading"><p class="eyebrow">Eben Tee / ${page === "booking" ? "Booking" : "Contact"}</p><h1>${page === "booking" ? "Book a service." : "Let's discuss your project."}</h1><p>Share the service, location and timing you have in mind.</p></header><section id="dynamicPanel" aria-label="Enquiry form"></section>`;
+      renderContactPanel($("#dynamicPanel"));
+      const shortcuts = document.createElement("div");
+      shortcuts.className = "contact-direct-actions";
+      shortcuts.innerHTML = `${settings.phone ? `<a class="text-link" href="tel:${store.escapeHtml(settings.phone)}">Call Eben Tee</a>` : ""}${settings.whatsapp ? `<a class="text-link" href="https://wa.me/${store.escapeHtml(settings.whatsapp.replace(/\D/g, ""))}" target="_blank" rel="noopener">Chat on WhatsApp</a>` : ""}`;
+      $(".contact-page-heading").append(shortcuts);
+      renderSettings();
+      return;
+    }
     main.innerHTML = `
       <!-- Page hero: title, positioning, primary actions, and branded visual. -->
       <section class="platform-page-hero">
@@ -771,11 +783,20 @@
     `;
 
     renderDynamic(config.dynamic || page);
+    renderSettings();
   }
 
   function renderActions(actions) {
     return actions
       .map(([label, href, variant]) => {
+        if (/whatsapp/i.test(label)) {
+          const number = String(settings.whatsapp || "").replace(/\D/g, "");
+          href = number ? `https://wa.me/${number}` : "/contact";
+          if (!number) label = "Send an enquiry";
+        } else if (/^call\b/i.test(label)) {
+          href = settings.phone ? `tel:${settings.phone}` : "/contact";
+          if (!settings.phone) label = "Send an enquiry";
+        }
         const target = href.startsWith("http") ? ' target="_blank" rel="noreferrer"' : "";
         const classes = variant === "secondary" ? "button secondary" : "button";
         return `<a class="${classes}" href="${store.escapeHtml(href)}"${target}>${store.escapeHtml(label)}</a>`;
@@ -1021,13 +1042,20 @@
             <option value="short">Short stay</option>
           </select>
         </label>
+        <label>Status <select id="pagePropertyStatus"><option value="all">All statuses</option>${[...new Set(properties.map((p) => p.availability))].map((status) => `<option value="${store.escapeHtml(status)}">${store.escapeHtml(status)}</option>`).join("")}</select></label>
+        <label>Currency <select id="pagePropertyCurrency"><option value="GHS">GHS</option><option value="USD">USD</option></select></label>
+        <label>Maximum price <input id="pagePropertyMaxPrice" type="number" min="0" placeholder="Any price"></label>
       </div>
       <div class="property-grid" id="pagePropertyGrid"></div>
+      <p class="form-note">Price filters include only listings with a confirmed numeric asking price. Availability and terms must be confirmed before a viewing.</p>
     `;
 
     const render = () => {
       const search = String($("#pagePropertySearch").value || "").toLowerCase();
       const type = $("#pagePropertyType").value;
+      const status = $("#pagePropertyStatus").value;
+      const maxPrice = $("#pagePropertyMaxPrice").value;
+      const currency = $("#pagePropertyCurrency").value;
       const items = properties.filter((property) => {
         const text = [property.title, property.propertyType, property.availability, property.location, property.summary, property.tags.join(" ")]
           .join(" ")
@@ -1038,7 +1066,9 @@
           (type === "land" && propertyType.includes("land")) ||
           (type === "house" && /house|apartment|home|estate/.test(propertyType)) ||
           (type === "short" && /short|airbnb|stay/.test(propertyType));
-        return typeMatch && (!search || text.includes(search));
+        const statusMatch = status === "all" || property.availability === status;
+        const priceMatch = maxPrice === "" || (property.priceAmount !== null && property.priceAmount !== undefined && property.priceCurrency === currency && property.priceAmount <= Number(maxPrice));
+        return typeMatch && statusMatch && priceMatch && (!search || text.includes(search));
       });
       $("#pagePropertyGrid").innerHTML = items.length
         ? items.map(renderPropertyCard).join("")
@@ -1047,13 +1077,16 @@
 
     $("#pagePropertySearch").addEventListener("input", render);
     $("#pagePropertyType").addEventListener("change", render);
+    $("#pagePropertyStatus").addEventListener("change", render);
+    $("#pagePropertyCurrency").addEventListener("change", render);
+    $("#pagePropertyMaxPrice").addEventListener("input", render);
     render();
   }
 
   function renderPropertyCard(property) {
     const whatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
-    const message = `Hello Eben Tee, I want to enquire about ${property.title} in ${property.location}.`;
-    const href = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : "/contact";
+    const message = `Hello Eben Tee, I want to enquire about ${property.title} in ${property.location}. Reference: ${property.id}. ${store.propertyUrl(property)}`;
+    const href = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}` : `/contact?service=Find%20land%20in%20Ghana&property=${encodeURIComponent(property.title + " (" + property.id + ")")}`;
     const target = whatsapp ? ' target="_blank" rel="noreferrer"' : "";
     return `
       <article class="property-card">
@@ -1064,9 +1097,10 @@
           <small>${store.escapeHtml(property.location)}</small>
           <p>${store.escapeHtml(property.summary)}</p>
           <div class="property-facts">
-            <span>${store.escapeHtml(property.price)}</span>
+            <span>${store.escapeHtml(property.priceAmount !== null && property.priceAmount !== undefined ? `${property.priceCurrency} ${Number(property.priceAmount).toLocaleString()}` : property.price)}</span>
             <span>${store.escapeHtml(property.size || "Details on request")}</span>
           </div>
+          <p class="listing-verification">${property.verifiedAt ? `Availability confirmed: ${store.escapeHtml(property.verifiedAt)}` : "Ask for current availability and final dimensions."}</p>
           <div class="property-actions">
             <a class="text-link" href="${store.escapeHtml(store.propertyUrl(property))}">View details</a>
             <a class="button small" href="${store.escapeHtml(href)}"${target}>${whatsapp ? "WhatsApp enquiry" : "Enquire"}</a>
@@ -1205,19 +1239,21 @@
         <!-- Direct contact details loaded from the admin site settings. -->
         <div>
           <p class="eyebrow">Send enquiry</p>
-          <h2>Tell Eben Tee what you need</h2>
-          <p class="lead small-lead">This prepares a clean WhatsApp or email message with your service, location, and details.</p>
+          <h2>Talk to Eben Tee</h2>
+          <p class="lead small-lead">Based in Accra. Working with clients in Ghana and abroad.</p>
           <div class="contact-cards">
             ${settings.phone ? `<a class="contact-card" href="tel:${store.escapeHtml(settings.phone)}"><span>Call</span><strong>${store.escapeHtml(settings.phone)}</strong></a>` : ""}
             ${settings.email ? `<a class="contact-card" href="mailto:${store.escapeHtml(settings.email)}"><span>Email</span><strong>${store.escapeHtml(settings.email)}</strong></a>` : ""}
+            ${settings.whatsapp ? `<a class="contact-card" href="https://wa.me/${store.escapeHtml(settings.whatsapp.replace(/\D/g, ""))}" target="_blank" rel="noopener"><span>WhatsApp</span><strong>Chat with Eben Tee</strong></a>` : ""}
             <span class="contact-card"><span>Location</span><strong>${store.escapeHtml(settings.location || "Accra, Ghana")}</strong></span>
           </div>
         </div>
-        <!-- Structured enquiry form saved as a lead before WhatsApp or email opens. -->
+        <!-- Enquiries save directly to Admin; WhatsApp is offered after confirmation. -->
         <form class="contact-form" id="pageContactForm">
           <label>Full name <input name="name" type="text" autocomplete="name" required></label>
           <label>Email <input name="email" type="email" autocomplete="email"></label>
-          <label>Phone / WhatsApp <input name="phone" type="text" autocomplete="tel" required></label>
+          <label>Phone / WhatsApp <input name="phone" type="tel" autocomplete="tel"></label>
+          <p class="form-note">Add an email address or phone number for your reply.</p>
           <label>Service needed
             <select name="service" required>
               <option value="">Choose a service</option>
@@ -1233,47 +1269,20 @@
           </label>
           <label>Location <input name="location" type="text" placeholder="Town, city, site location, or country"></label>
           <label>Message <textarea name="message" rows="5" required></textarea></label>
-          <label class="file-field compact">Upload site/property photo <input name="attachment" type="file" accept="image/*"></label>
+          <label class="file-field compact">Site/property photo (optional, up to 2.5 MB) <input name="attachment" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+          <label class="enquiry-honeypot" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off"></label>
+          <p class="contact-privacy">Your contact details and photos are shared privately with Eben Tee to respond to your enquiry.</p>
           <button class="button" type="submit">Send enquiry</button>
         </form>
       </div>
     `;
 
-    $("#pageContactForm").addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(event.currentTarget);
-      const file = event.currentTarget.querySelector('input[type="file"]')?.files?.[0];
-      const service = String(formData.get("service") || "").trim();
-      await store.submitLead({
-        name: String(formData.get("name") || "").trim(),
-        email: String(formData.get("email") || "").trim(),
-        phone: String(formData.get("phone") || "").trim(),
-        service,
-        location: String(formData.get("location") || "").trim(),
-        message: String(formData.get("message") || "").trim(),
-        page: window.location.pathname,
-        attachmentName: file ? file.name : ""
-      }).catch(() => {});
-      window.EbenTeeAnalytics?.track("lead_form_submit", { eventLabel: "Platform contact form" });
-      const text = [
-        `Hello ${settings.ownerName || "Eben Tee"}, my name is ${String(formData.get("name") || "").trim()}.`,
-        `Service needed: ${service}.`,
-        `Phone/WhatsApp: ${String(formData.get("phone") || "").trim()}.`,
-        String(formData.get("email") || "").trim() ? `Email: ${String(formData.get("email") || "").trim()}.` : "",
-        String(formData.get("location") || "").trim() ? `Location: ${String(formData.get("location") || "").trim()}.` : "",
-        String(formData.get("message") || "").trim(),
-        file ? `I also have a photo to share: ${file.name}.` : ""
-      ]
-        .filter(Boolean)
-        .join("\n");
-      const cleanedWhatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
-      if (cleanedWhatsapp) {
-        window.open(`https://wa.me/${cleanedWhatsapp}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
-      } else if (settings.email) {
-        window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Eben Tee service enquiry")}&body=${encodeURIComponent(text)}`;
-      }
-      event.currentTarget.reset();
-    });
+    const form = $("#pageContactForm");
+    const params = new URLSearchParams(location.search);
+    const requestedService = params.get("service");
+    if ([...form.elements.service.options].some((option) => option.value === requestedService)) form.elements.service.value = requestedService;
+    if (params.get("property")) form.elements.message.value = `I would like details about ${params.get("property").slice(0, 200)}.`;
+    store.bindEnquiryForm(form, settings);
   }
 
   function bindGlobalClicks() {

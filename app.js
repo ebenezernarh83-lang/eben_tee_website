@@ -162,48 +162,7 @@
 
   // Contact, newsletter, and media-dialog interactions.
   function bindContactForm() {
-    const form = $("#contactForm");
-    if (!form) return;
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(form);
-      const name = String(formData.get("name") || "").trim();
-      const contact = String(formData.get("contact") || "").trim();
-      const service = String(formData.get("service") || "").trim();
-      const location = String(formData.get("location") || "").trim();
-      const message = String(formData.get("message") || "").trim();
-      const file = form.querySelector('input[type="file"]')?.files?.[0];
-      await store.submitLead({
-        name,
-        phone: contact,
-        email: contact.includes("@") ? contact : "",
-        service,
-        location,
-        message,
-        page: window.location.pathname,
-        attachmentName: file ? file.name : ""
-      }).catch(() => {});
-      window.EbenTeeAnalytics?.track("lead_form_submit", { eventLabel: "Homepage contact form" });
-      const text = [
-        `Hello ${settings.ownerName || "Eben Tee"}, my name is ${name}.`,
-        service ? `Service needed: ${service}.` : "",
-        location ? `Location: ${location}.` : "",
-        message,
-        `My contact is ${contact}.`,
-        file ? `I also have a site/property photo to share: ${file.name}.` : ""
-      ]
-        .filter(Boolean)
-        .join("\n");
-      const cleanedWhatsapp = String(settings.whatsapp || "").replace(/\D/g, "");
-
-      if (cleanedWhatsapp) {
-        window.open(`https://wa.me/${cleanedWhatsapp}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
-      } else if (settings.email) {
-        window.location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Project enquiry")}&body=${encodeURIComponent(text)}`;
-      }
-      form.reset();
-    });
+    store.bindEnquiryForm($("#contactForm"), settings);
   }
 
   function bindNewsletterForm() {
@@ -270,7 +229,7 @@
 
   // Apply editable brand, contact, and social settings across the page.
   function renderSettings() {
-    document.title = `${settings.brandName} | Engineer, Software Developer, and Ghana Project Professional`;
+    document.title = `${settings.brandName} | Drone Services, Property & Construction Support in Ghana`;
 
     $$("[data-setting]").forEach((node) => {
       const key = node.dataset.setting;
@@ -608,7 +567,7 @@
 
     grid.innerHTML = items
       .filter((item) => item.id !== featured.id)
-      .slice(0, 6)
+      .slice(0, 3)
       .map(renderPortfolioCard)
       .join("");
   }

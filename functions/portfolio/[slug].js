@@ -1,5 +1,7 @@
 import {
+  ASSET_VERSION,
   BRAND_LOGO_URL,
+  SHARE_IMAGE_URL,
   SITE_URL,
   absolutePortfolioUrl,
   escapeHtml,
@@ -27,7 +29,7 @@ function renderPortfolioItem(item, settings, testimonials) {
   const description = plainText(item.summary || `${item.type} by ${settings.brandName}`, 300);
   const canonical = absolutePortfolioUrl(item);
   const image = item.thumbnail || (item.type === "photo" ? item.mediaUrl : "") || getYouTubeThumbnailUrl(item.mediaUrl);
-  const socialImage = isShareableImage(image) ? image : BRAND_LOGO_URL;
+  const socialImage = isShareableImage(image) ? image : SHARE_IMAGE_URL;
   const embed = getYouTubeEmbedUrl(item.mediaUrl);
   const schema = {
     "@context": "https://schema.org",
@@ -71,6 +73,8 @@ function renderPortfolioItem(item, settings, testimonials) {
         ${renderMedia(item, image, embed)}
         <div class="seo-post-body">
           <p>${escapeHtml(item.summary)}</p>
+          ${item.role ? `<h2>My role</h2><p>${escapeHtml(item.role)}</p>` : ""}
+          ${item.deliverables ? `<h2>Delivered work</h2><p>${escapeHtml(item.deliverables)}</p>` : ""}
           ${item.mapUrl ? `<p><a class="text-link" href="${escapeHtml(item.mapUrl)}" target="_blank" rel="noreferrer">Open approximate map location</a></p>` : ""}
           ${renderTags(item.tags)}
         </div>
@@ -79,7 +83,7 @@ function renderPortfolioItem(item, settings, testimonials) {
         <p class="eyebrow">Client media</p>
         <h2>Want visuals like this?</h2>
         <p>Book drone photos, real estate videos, project progress media, or promotional clips for your Ghana project.</p>
-        <a class="button" href="/contact?service=drone">Book a shoot</a>
+        <a class="button" href="/booking?service=Book%20a%20drone%20shoot">Book a shoot</a>
         ${proof ? `<div class="mini-proof"><strong>${escapeHtml(proof.name)}</strong><p>${escapeHtml(proof.quote)}</p></div>` : ""}
       </aside>
     `
@@ -118,14 +122,14 @@ function pageShell({ title, description, canonical, socialImage, settings, schem
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#05080d">
-    <link rel="stylesheet" href="/styles.css?v=platform-20">
+    <link rel="stylesheet" href="/styles.css?v=${ASSET_VERSION}">
     <script type="application/ld+json">${safeJson(schema)}</script>
   </head>
   <body data-page="public" data-view="portfolio-item">
     <header class="site-header"><nav class="nav-shell" aria-label="Main navigation"><a class="brand" href="/" aria-label="Home"><span class="brand-mark" aria-hidden="true"><img class="brand-logo" src="/assets/eben-tee-icon-192.png" alt="" width="40" height="40"></span><span class="brand-copy"><strong>${escapeHtml(settings.brandName)}</strong><small>${escapeHtml(settings.tagline)}</small></span></a><div class="nav-links always-open"><a href="/services">Services</a><a href="/digital-products">Software</a><a href="/portfolio">Portfolio</a><a class="button small nav-cta" href="/contact">Hire Eben Tee</a></div></nav></header>
     <main class="seo-post-page">${body}</main>
     <footer class="site-footer"><div><strong>${escapeHtml(settings.brandName)}</strong><p>${escapeHtml(settings.tagline)}</p></div><div class="social-links">${settings.youtube ? `<a href="${escapeHtml(settings.youtube)}" target="_blank" rel="noreferrer">YouTube</a>` : ""}${settings.github ? `<a href="${escapeHtml(settings.github)}" target="_blank" rel="noreferrer">GitHub</a>` : ""}</div></footer>
-    <script src="/analytics.js?v=platform-20"></script>
+    <script src="/analytics.js?v=${ASSET_VERSION}"></script>
   </body>
 </html>`;
 }
@@ -135,7 +139,7 @@ function renderNotFound(settings) {
     title: `Portfolio item not found | ${settings.brandName}`,
     description: "This portfolio item is not available.",
     canonical: `${SITE_URL}/portfolio`,
-    socialImage: BRAND_LOGO_URL,
+    socialImage: SHARE_IMAGE_URL,
     settings,
     schema: { "@context": "https://schema.org", "@type": "WebPage", name: "Portfolio item not found" },
     body: `<article class="seo-post-shell"><p class="eyebrow">Not found</p><h1>This portfolio item is not available</h1><a class="button" href="/portfolio">Open portfolio</a></article>`

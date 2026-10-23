@@ -3,6 +3,14 @@
   "name": "ebentee",
   "compatibility_date": "2026-06-25",
   "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "EBENTEE_RECORDS",
+      "database_name": "ebentee-records",
+      "database_id": "local-ebentee-records",
+      "migrations_dir": "migrations"
+    }
+  ],
   "kv_namespaces": [
     {
       "binding": "EBENTEE_CONTENT",
