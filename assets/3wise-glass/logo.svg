@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" role="img" aria-label="3Wise Glass Men Company">
+  <g transform="translate(8 10)">
+    <!-- three glass panes standing side by side: the three wise glass men -->
+    <path d="M6 30 L50 18 L50 140 L6 140 Z" fill="#8A9097"/>
+    <path d="M38 12 L86 0 L86 140 L38 140 Z" fill="#F5B700" fill-opacity="0.92"/>
+    <path d="M74 22 L118 10 L118 140 L74 140 Z" fill="#D7261E" fill-opacity="0.88"/>
+    <path d="M38 12 L50 9 L50 140 L38 140 Z" fill="#B97A0F" fill-opacity="0.75"/>
+    <path d="M74 22 L86 19 L86 140 L74 140 Z" fill="#A11B15" fill-opacity="0.8"/>
+    <path d="M44 30 L78 22" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/>
+    <path d="M44 42 L64 37" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="146" y="92" font-family="'Barlow Condensed', 'Arial Narrow', Arial, sans-serif" font-weight="800" font-size="86" letter-spacing="1" fill="#3F444A"><tspan fill="#D7261E">3</tspan>WISE</text>
+  <rect x="148" y="106" width="226" height="6" fill="#F5B700"/>
+  <text x="148" y="143" font-family="'Barlow Condensed', 'Arial Narrow', Arial, sans-serif" font-weight="600" font-size="25" letter-spacing="5.2" fill="#5B6168">GLASS MEN COMPANY</text>
+</svg>
