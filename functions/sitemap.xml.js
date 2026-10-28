@@ -19,6 +19,7 @@ export async function onRequestGet({ env }) {
     { loc: `${SITE_URL}/drone-services`, lastmod: content.updatedAt, priority: "0.9" },
     { loc: `${SITE_URL}/real-estate`, lastmod: content.updatedAt, priority: "0.95" },
     { loc: `${SITE_URL}/construction`, lastmod: content.updatedAt, priority: "0.9" },
+    { loc: `${SITE_URL}/3wise-glass`, lastmod: content.updatedAt, priority: "0.8" },
     { loc: `${SITE_URL}/property-management`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/media`, lastmod: content.updatedAt, priority: "0.85" },
     { loc: `${SITE_URL}/digital-products`, lastmod: content.updatedAt, priority: "0.85" },
